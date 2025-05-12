@@ -15,7 +15,7 @@ import java.util.Date;
 public class ExpenseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     private String category;//enum
     private String description;
