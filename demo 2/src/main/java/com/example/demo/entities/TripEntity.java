@@ -1,7 +1,9 @@
 package com.example.demo.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.springframework.lang.NonNull;
 
 import java.util.Date;
 import java.util.List;
@@ -18,7 +20,7 @@ public class TripEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @NotNull
     private String destination;
     private Date starDate;
     private Date endDate;

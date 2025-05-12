@@ -2,6 +2,7 @@ package com.example.demo.entities;
 
 import com.example.demo.enums.ExpenseCategory;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.Date;
@@ -21,6 +22,7 @@ public class ExpenseEntity {
     @Enumerated(EnumType.STRING)
     private ExpenseCategory category;
     private String description;
+    @NotNull
     private Double amount;
     private Date date;
 }

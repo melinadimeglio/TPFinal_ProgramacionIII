@@ -1,6 +1,7 @@
 package com.example.demo.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.*;
 
 @Entity
@@ -18,6 +19,7 @@ public class UserEntity {
 
     private String username;
     @Column(unique = true)
+    @Email
     private String email;
     private String password;
     private boolean active;
