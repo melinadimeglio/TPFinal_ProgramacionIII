@@ -10,6 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Builder
 public class ItineraryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

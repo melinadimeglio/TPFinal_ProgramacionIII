@@ -13,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Builder
 public class TripEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
