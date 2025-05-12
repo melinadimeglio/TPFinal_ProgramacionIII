@@ -1,5 +1,6 @@
 package com.example.demo.entities;
 
+import com.example.demo.enums.ActivityCategory;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,7 +22,8 @@ public class ActivityEntity {
     private Double price;
     private boolean availability;
     private String description;
-    private String category; //enum
+    @Enumerated(EnumType.STRING)
+    private ActivityCategory category;
     private Date date;
     private Time time;
 }

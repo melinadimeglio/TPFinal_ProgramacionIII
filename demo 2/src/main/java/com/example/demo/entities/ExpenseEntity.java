@@ -1,5 +1,6 @@
 package com.example.demo.entities;
 
+import com.example.demo.enums.ExpenseCategory;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,8 +17,8 @@ public class ExpenseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String category;//enum
+    @Enumerated(EnumType.STRING)
+    private ExpenseCategory category;
     private String description;
     private Double amount;
     private Date date;
