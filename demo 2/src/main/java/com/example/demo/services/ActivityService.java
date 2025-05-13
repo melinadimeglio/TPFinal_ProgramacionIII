@@ -22,7 +22,7 @@ public class ActivityService {
         return activityRepository.findAll();
     }
 
-    public Optional<ActivityEntity> findById(Long id){
-        return activityRepository.findById(id);
+    public ActivityEntity findById(Long id){
+        return activityRepository.findById(id).orElseThrow(()-> new NoSuchElementException("No se encontro el elemento"));
     }
 }

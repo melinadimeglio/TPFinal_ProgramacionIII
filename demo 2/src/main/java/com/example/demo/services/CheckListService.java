@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class CheckListService {
@@ -18,5 +19,10 @@ public class CheckListService {
 
     public List<CheckListEntity> findAll(){
         return checkListRepository.findAll();
+    }
+
+    public CheckListEntity findById(Long id){
+        return checkListRepository.findById(id)
+                .orElseThrow(()-> new NoSuchElementException("No se encontro el elemento"));
     }
 }

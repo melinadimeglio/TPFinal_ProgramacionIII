@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class UserService {
@@ -18,5 +19,10 @@ public class UserService {
 
     public List<UserEntity> findAll(){
         return userRepository.findAll();
+    }
+
+    public UserEntity findById(Long id){
+        return userRepository.findById(id)
+                .orElseThrow(()-> new NoSuchElementException("No se encontro el elemento"));
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class ItineraryService {
@@ -18,5 +19,10 @@ public class ItineraryService {
 
     public List<ItineraryEntity> findAll(){
         return itineraryRepository.findAll();
+    }
+
+    public ItineraryEntity findById(Long id){
+        return itineraryRepository.findById(id)
+                .orElseThrow(()-> new NoSuchElementException("No se encontro el elemento"));
     }
 }
