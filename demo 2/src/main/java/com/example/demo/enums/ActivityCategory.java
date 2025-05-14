@@ -1,14 +1,14 @@
 package com.example.demo.enums;
 
 public enum ActivityCategory {
-    ADVENTURE,
-    CULTURAL,
+    AVENTURA,
+    CULTURA,
     RELAX,
-    GASTRONOMY,
-    NATURE,
+    GASTRONOMIA,
+    NATURALEZA,
     NIGHTLIFE,
     SHOPPING,
-    SPORTS,
-    HISTORY,
-    FAMILY
+    DEPORTES,
+    HISTORIA,
+    FAMILIA
 }
