@@ -54,7 +54,8 @@ public class ActivityController {
         existing.setDescription(updatedActivity.getDescription());
         existing.setCategory(updatedActivity.getCategory());
         existing.setDate(updatedActivity.getDate());
-        existing.setTime(updatedActivity.getTime());
+        existing.setStartTime(updatedActivity.getStartTime());
+        existing.setEndTime(updatedActivity.getEndTime());
 
         activityService.save(existing);
         return ResponseEntity.ok(existing);

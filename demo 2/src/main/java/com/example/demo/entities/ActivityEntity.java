@@ -23,8 +23,16 @@ public class ActivityEntity {
     private Double price;
     private boolean availability;
     private String description;
+
     @Enumerated(EnumType.STRING)
     private ActivityCategory category;
+
     private Date date;
-    private Time time;
+    private Time startTime;
+    private Time endTime;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "itinerary_id", nullable = false)
+    private ItineraryEntity itinerary;
+
 }

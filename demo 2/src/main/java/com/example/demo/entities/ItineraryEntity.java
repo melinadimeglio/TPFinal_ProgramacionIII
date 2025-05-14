@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 
 @Entity
@@ -23,4 +24,7 @@ public class ItineraryEntity {
     private LocalDate date;
     private LocalTime time;
     private String notes;
+
+    @OneToMany(mappedBy = "itinerary", fetch = FetchType.LAZY)
+    private List<ActivityEntity> activities;
 }
