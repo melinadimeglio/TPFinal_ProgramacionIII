@@ -49,7 +49,6 @@ public class ActivityController {
     public ResponseEntity<ActivityEntity> updateActivity(@PathVariable Long id,
                                                          @RequestBody ActivityEntity updatedActivity) {
         ActivityEntity existing = activityService.findById(id);
-
         existing.setPrice(updatedActivity.getPrice());
         existing.setAvailability(updatedActivity.isAvailability());
         existing.setDescription(updatedActivity.getDescription());
