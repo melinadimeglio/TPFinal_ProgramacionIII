@@ -27,4 +27,6 @@ public class ActivityEntity {
     private ActivityCategory category;
     private Date date;
     private Time time;
+
+    //comentario
 }
