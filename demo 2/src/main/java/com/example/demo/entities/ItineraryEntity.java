@@ -3,6 +3,10 @@ package com.example.demo.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+
 @Entity
 @Table(name = "Itinerary")
 @Getter
@@ -16,5 +20,7 @@ public class ItineraryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private LocalDate date;
+    private LocalTime time;
     private String notes;
 }
