@@ -25,4 +25,12 @@ public class ActivityService {
     public ActivityEntity findById(Long id){
         return activityRepository.findById(id).orElseThrow(()-> new NoSuchElementException("No se encontro el elemento"));
     }
+
+    public void save(ActivityEntity activityEntity){
+        activityRepository.save(activityEntity);
+    }
+
+    public void delete(ActivityEntity activityEntity){
+        activityRepository.delete(activityEntity);
+    }
 }

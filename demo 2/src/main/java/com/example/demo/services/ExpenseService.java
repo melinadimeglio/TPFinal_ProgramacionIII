@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
-public class ExpenseService {
+public class ExpenseService{
     private final ExpenseRepository expenseRepository;
 
     @Autowired
@@ -24,5 +24,13 @@ public class ExpenseService {
     public ExpenseEntity findById(Long id){
         return expenseRepository.findById(id)
                 .orElseThrow(()-> new NoSuchElementException("No se encontro el elemento"));
+    }
+
+    public void save(ExpenseEntity expenseEntity){
+        expenseRepository.save(expenseEntity);
+    }
+
+    public void delete(ExpenseEntity expenseEntity){
+        expenseRepository.delete(expenseEntity);
     }
 }

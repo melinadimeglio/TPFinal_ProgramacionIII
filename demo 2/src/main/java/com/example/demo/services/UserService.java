@@ -25,4 +25,12 @@ public class UserService {
         return userRepository.findById(id)
                 .orElseThrow(()-> new NoSuchElementException("No se encontro el elemento"));
     }
+
+    public void save(UserEntity user){
+        userRepository.save(user);
+    }
+
+    public void delete(UserEntity user){
+        userRepository.delete(user);
+    }
 }

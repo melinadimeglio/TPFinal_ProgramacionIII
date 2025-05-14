@@ -26,4 +26,12 @@ public class TripService {
         return tripRepository.findById(id)
                 .orElseThrow(()-> new NoSuchElementException("No se encontro el elemento"));
     }
+
+    public void save(TripEntity tripEntity){
+        tripRepository.save(tripEntity);
+    }
+
+    public void delete(TripEntity tripEntity){
+        tripRepository.delete(tripEntity);
+    }
 }

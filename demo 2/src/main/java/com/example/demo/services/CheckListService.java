@@ -25,4 +25,12 @@ public class CheckListService {
         return checkListRepository.findById(id)
                 .orElseThrow(()-> new NoSuchElementException("No se encontro el elemento"));
     }
+
+    public void save(CheckListEntity checkListEntity){
+        checkListRepository.save(checkListEntity);
+    }
+
+    public void delete(CheckListEntity checkListEntity){
+        checkListRepository.delete(checkListEntity);
+    }
 }

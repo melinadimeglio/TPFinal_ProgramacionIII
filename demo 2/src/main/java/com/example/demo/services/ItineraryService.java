@@ -25,4 +25,12 @@ public class ItineraryService {
         return itineraryRepository.findById(id)
                 .orElseThrow(()-> new NoSuchElementException("No se encontro el elemento"));
     }
+
+    public void save(ItineraryEntity itineraryEntity){
+        itineraryRepository.save(itineraryEntity);
+    }
+
+    public void delete(ItineraryEntity itineraryEntity){
+        itineraryRepository.delete(itineraryEntity);
+    }
 }
