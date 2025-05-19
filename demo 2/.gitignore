@@ -25,7 +25,6 @@ build/
 .settings
 .springBeans
 .sts4-cache
-.env
 
 #######################
 # Variables de entorno
