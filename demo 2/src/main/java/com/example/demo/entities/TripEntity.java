@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.lang.NonNull;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -22,11 +22,12 @@ public class TripEntity {
     private Long id;
     @NotNull
     private String destination;
-    private Date starDate;
-    private Date endDate;
+    private LocalDate starDate;
+    private LocalDate endDate;
     private Double estimatedBudget;
     private int passengers;
     private boolean active;
 
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)
     private List<UserEntity> users;
 }

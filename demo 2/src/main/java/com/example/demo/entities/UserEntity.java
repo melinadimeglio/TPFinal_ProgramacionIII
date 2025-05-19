@@ -23,4 +23,7 @@ public class UserEntity {
     private String email;
     private String password;
     private boolean active;
+    @ManyToOne
+    @JoinColumn(name = "trip_id")
+    private TripEntity trip;
 }

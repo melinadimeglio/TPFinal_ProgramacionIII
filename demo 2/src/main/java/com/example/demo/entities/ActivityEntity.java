@@ -4,8 +4,8 @@ import com.example.demo.enums.ActivityCategory;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.sql.Time;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "Activity")
@@ -13,7 +13,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@ToString(exclude = "itinerary")
 @Builder
 public class ActivityEntity {
     @Id
@@ -27,9 +27,9 @@ public class ActivityEntity {
     @Enumerated(EnumType.STRING)
     private ActivityCategory category;
 
-    private Date date;
-    private Time startTime;
-    private Time endTime;
+    private LocalDate date;
+    private LocalTime startTime;
+    private LocalTime endTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "itinerary_id", nullable = false)
