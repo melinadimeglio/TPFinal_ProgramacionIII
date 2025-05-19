@@ -27,6 +27,9 @@ public class UserService {
     }
 
     public void save(UserEntity user){
+        if (userRepository.existsByDni(user.getDni())){
+            throw new IllegalArgumentException("El DNI ya se encuentra regu¿istrado en el sistema.");
+        }
         userRepository.save(user);
     }
 
