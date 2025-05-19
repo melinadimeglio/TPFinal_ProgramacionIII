@@ -27,6 +27,12 @@ build/
 .sts4-cache
 .env
 
+#######################
+# Variables de entorno
+#######################
+
+.env
+
 ##################
 # IntelliJ IDEA
 ##################
