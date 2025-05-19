@@ -30,7 +30,7 @@ build/
 # Variables de entorno
 #######################
 
-.env
+**/.env
 
 ##################
 # IntelliJ IDEA
