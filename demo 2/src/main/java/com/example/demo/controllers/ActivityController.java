@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/activities")
-public class ActivityController {
+public class ActivityController{
 
     private final ActivityService activityService;
 
