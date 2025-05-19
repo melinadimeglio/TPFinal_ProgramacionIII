@@ -26,6 +26,12 @@ build/
 .springBeans
 .sts4-cache
 
+#######################
+# Variables de entorno
+#######################
+
+.env
+
 ##################
 # IntelliJ IDEA
 ##################
