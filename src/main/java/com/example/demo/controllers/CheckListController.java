@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 
-@Tag(name = "CheckList", description = "Operations related to users' checklist items")
+@Tag(name = "CheckList", description = "Operations related to users' checklist")
 @RestController
 @RequestMapping("/checklists")
 public class CheckListController {
