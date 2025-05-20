@@ -77,6 +77,4 @@ public class ExpenseController {
         Double average = expenseService.getAverageExpenseById(id);
         return ResponseEntity.ok(average);
     }
-
-
 }

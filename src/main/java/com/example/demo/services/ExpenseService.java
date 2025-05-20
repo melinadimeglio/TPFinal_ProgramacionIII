@@ -48,5 +48,4 @@ public class ExpenseService{
         double sum = expenses.stream().mapToDouble(ExpenseEntity::getAmount).sum();
         return sum / expenses.size();
     }
-
 }

@@ -63,5 +63,12 @@ public class CheckListController {
         checkListService.delete(item);
         return ResponseEntity.noContent().build();
     }
+
+    // Ver lista de CheckList por usuario
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<CheckListEntity>> getCheckListByUserId(@PathVariable Long userId) {
+        List<CheckListEntity> items = checkListService.findByUserId(userId);
+        return ResponseEntity.ok(items);
+    }
 }
 

@@ -7,6 +7,7 @@ import org.springframework.lang.NonNull;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "Trip")
@@ -28,6 +29,6 @@ public class TripEntity {
     private int passengers;
     private boolean active;
 
-    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)
-    private List<UserEntity> users;
+    @ManyToMany(mappedBy = "trips")
+    private Set<UserEntity> users;
 }
