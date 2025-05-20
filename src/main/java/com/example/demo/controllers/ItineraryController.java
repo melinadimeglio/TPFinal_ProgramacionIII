@@ -1,5 +1,8 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTOs.Itinerary.ItineraryCreateDTO;
+import com.example.demo.DTOs.Itinerary.ItineraryResponseDTO;
+import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
 import com.example.demo.entities.ItineraryEntity;
 import com.example.demo.services.ItineraryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,7 +33,7 @@ public class ItineraryController {
         this.itineraryService = itineraryService;
     }
 
-
+    @GetMapping
     @Operation(
             summary = "Get all itineraries",
             description = "Returns a list of all itineraries registered in the system."
@@ -38,13 +41,15 @@ public class ItineraryController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of itineraries successfully retrieved",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ItineraryEntity.class))),
+                            schema = @Schema(implementation = ItineraryResponseDTO.class))),
             @ApiResponse(responseCode = "204", description = "No itineraries found")
     })
-    // Obtener todos los itinerarios
-    @GetMapping
-    public ResponseEntity<List<ItineraryEntity>> getAllItineraries() {
-        return ResponseEntity.ok(itineraryService.findAll());
+    public ResponseEntity<List<ItineraryResponseDTO>> getAllItineraries() {
+        List<ItineraryResponseDTO> itineraries = itineraryService.findAll();
+        if (itineraries.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(itineraries);
     }
 
 
@@ -58,14 +63,13 @@ public class ItineraryController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Itinerary found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ItineraryEntity.class))),
+                            schema = @Schema(implementation = ItineraryResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Itinerary not found")
     })
     // Obtener un itinerario por ID
     @GetMapping("/{id}")
-    public ResponseEntity<ItineraryEntity> getItineraryById(@PathVariable Long id) {
-        ItineraryEntity itinerary = itineraryService.findById(id);
-        return ResponseEntity.ok(itinerary);
+    public ResponseEntity<ItineraryResponseDTO> getItineraryById(@PathVariable Long id) {
+        return ResponseEntity.ok(itineraryService.findById(id));
     }
 
     @Operation(
@@ -75,7 +79,7 @@ public class ItineraryController {
                     description = "Itinerary data to be created",
                     required = true,
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ItineraryEntity.class)))
+                            schema = @Schema(implementation = ItineraryCreateDTO.class)))
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Itinerary successfully created"),
@@ -83,12 +87,12 @@ public class ItineraryController {
     })
     // Crear un nuevo itinerario
     @PostMapping
-    public ResponseEntity<ItineraryEntity> createItinerary(@RequestBody ItineraryEntity itinerary) {
-        if (itinerary.getDate() == null) {
+    public ResponseEntity<Void> createItinerary(@RequestBody ItineraryCreateDTO dto) {
+        if (dto.getDate() == null) {
             throw new IllegalArgumentException("La fecha no puede estar vacía.");
         }
-        itineraryService.save(itinerary);
-        return ResponseEntity.status(HttpStatus.CREATED).body(itinerary);
+        itineraryService.save(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 
@@ -102,26 +106,20 @@ public class ItineraryController {
                     description = "Updated itinerary data",
                     required = true,
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ItineraryEntity.class)))
+                            schema = @Schema(implementation = ItineraryUpdateDTO.class)))
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Itinerary successfully updated",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ItineraryEntity.class))),
+                            schema = @Schema(implementation = ItineraryResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Itinerary not found")
     })
     // Actualizar un itinerario
     @PutMapping("/{id}")
-    public ResponseEntity<ItineraryEntity> updateItinerary(@PathVariable Long id,
-                                                           @RequestBody ItineraryEntity updatedItinerary) {
-        ItineraryEntity existing = itineraryService.findById(id);
-
-        existing.setDate(updatedItinerary.getDate());
-        existing.setTime(updatedItinerary.getTime());
-        existing.setNotes(updatedItinerary.getNotes());
-
-        itineraryService.save(existing);
-        return ResponseEntity.ok(existing);
+    public ResponseEntity<ItineraryResponseDTO> updateItinerary(@PathVariable Long id,
+                                                           @RequestBody ItineraryUpdateDTO dto) {
+        itineraryService.update(id, dto);
+        return ResponseEntity.ok(itineraryService.findById(id));
     }
 
 
@@ -139,8 +137,7 @@ public class ItineraryController {
     // Eliminar un itinerario
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteItinerary(@PathVariable Long id) {
-        ItineraryEntity itinerary = itineraryService.findById(id);
-        itineraryService.delete(itinerary);
+        itineraryService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

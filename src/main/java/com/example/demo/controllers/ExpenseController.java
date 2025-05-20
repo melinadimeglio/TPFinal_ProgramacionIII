@@ -1,5 +1,8 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTOs.Expense.ExpenseCreateDTO;
+import com.example.demo.DTOs.Expense.ExpenseResponseDTO;
+import com.example.demo.DTOs.Expense.ExpenseUpdateDTO;
 import com.example.demo.entities.ExpenseEntity;
 import com.example.demo.services.ExpenseService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,10 +38,10 @@ public class ExpenseController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Expense list successfully retrieved",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExpenseEntity.class)))
+                            schema = @Schema(implementation = ExpenseResponseDTO.class)))
     })
     @GetMapping
-    public ResponseEntity<List<ExpenseEntity>> getAllExpenses() {
+    public ResponseEntity<List<ExpenseResponseDTO>> getAllExpenses() {
         return ResponseEntity.ok(expenseService.findAll());
     }
 
@@ -52,13 +55,12 @@ public class ExpenseController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Expense found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExpenseEntity.class))),
+                            schema = @Schema(implementation = ExpenseResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Expense not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<ExpenseEntity> getExpenseById(@PathVariable Long id) {
-        ExpenseEntity expense = expenseService.findById(id);
-        return ResponseEntity.ok(expense);
+    public ResponseEntity<ExpenseResponseDTO> getExpenseById(@PathVariable Long id) {
+        return ResponseEntity.ok(expenseService.findById(id));
     }
 
     @Operation(
@@ -69,7 +71,7 @@ public class ExpenseController {
                     required = true,
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ExpenseEntity.class)
+                            schema = @Schema(implementation = ExpenseCreateDTO.class)
                     )
             )
     )
@@ -78,12 +80,12 @@ public class ExpenseController {
             @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PostMapping
-    public ResponseEntity<ExpenseEntity> createExpense(@RequestBody ExpenseEntity expense) {
-        if (expense.getAmount() == null || expense.getAmount() <= 0) {
+    public ResponseEntity<Void> createExpense(@RequestBody ExpenseCreateDTO dto) {
+        if (dto.getAmount() == null || dto.getAmount() <= 0) {
             throw new IllegalArgumentException("Amount must be greater than 0.");
         }
-        expenseService.save(expense);
-        return ResponseEntity.status(HttpStatus.CREATED).body(expense);
+        expenseService.save(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Operation(
@@ -97,29 +99,22 @@ public class ExpenseController {
                     required = true,
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ExpenseEntity.class)
+                            schema = @Schema(implementation = ExpenseUpdateDTO.class)
                     )
             )
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Expense successfully updated",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExpenseEntity.class))),
+                            schema = @Schema(implementation = ExpenseResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Expense not found"),
             @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<ExpenseEntity> updateExpense(@PathVariable Long id,
-                                                       @RequestBody ExpenseEntity updatedExpense) {
-        ExpenseEntity existing = expenseService.findById(id);
-
-        existing.setCategory(updatedExpense.getCategory());
-        existing.setDescription(updatedExpense.getDescription());
-        existing.setAmount(updatedExpense.getAmount());
-        existing.setDate(updatedExpense.getDate());
-
-        expenseService.save(existing);
-        return ResponseEntity.ok(existing);
+    public ResponseEntity<ExpenseResponseDTO> updateExpense(@PathVariable Long id,
+                                                       @RequestBody ExpenseUpdateDTO dto) {
+        expenseService.update(id, dto);
+        return ResponseEntity.ok(expenseService.findById(id));
     }
 
     @Operation(
@@ -135,8 +130,7 @@ public class ExpenseController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteExpense(@PathVariable Long id) {
-        ExpenseEntity expense = expenseService.findById(id);
-        expenseService.delete(expense);
+        expenseService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -152,27 +146,19 @@ public class ExpenseController {
     })
     @GetMapping("/averageAllUsers")
     public ResponseEntity<Double> getAverageExpense() {
-        Double average = expenseService.getAverageExpense();
-        return ResponseEntity.ok(average);
+        return ResponseEntity.ok(expenseService.getAverageExpense());
     }
 
-    @Operation(
-            summary = "Get average expense by user ID",
-            description = "Calculates and returns the average of expenses for the user with the provided ID.",
-            parameters = {
-                    @Parameter(name = "id", description = "ID of the user whose expenses will be averaged", required = true)
-            }
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "User's average calculated successfully",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Double.class))),
-            @ApiResponse(responseCode = "404", description = "User not found"),
-            @ApiResponse(responseCode = "500", description = "Internal error while calculating average")
+    @Operation(summary = "Get average expense by user ID",
+            description = "Returns average of all expenses for a specific user.",
+            parameters = @Parameter(name = "id", description = "ID of the user", required = true))
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User average calculated",
+                    content = @Content(schema = @Schema(implementation = Double.class))),
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/averageByUserId/{id}")
-    public ResponseEntity<Double> getAverageExpensesById(@PathVariable Long id) {
-        Double average = expenseService.getAverageExpenseById(id);
-        return ResponseEntity.ok(average);
+    public ResponseEntity<Double> getAverageExpensesByUser(@PathVariable Long id) {
+        return ResponseEntity.ok(expenseService.getAverageExpenseByUserId(id));
     }
 }

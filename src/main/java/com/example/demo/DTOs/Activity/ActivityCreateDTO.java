@@ -11,9 +11,9 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @Builder
 
-public class ActivityDTO {
+public class ActivityCreateDTO {
+
     private Double price;
-    private boolean availability;
     private String description;
     private String category;
     private LocalDate date;
@@ -21,4 +21,5 @@ public class ActivityDTO {
     private LocalTime endTime;
     private Long itineraryId;
     private Long userId;
+
 }

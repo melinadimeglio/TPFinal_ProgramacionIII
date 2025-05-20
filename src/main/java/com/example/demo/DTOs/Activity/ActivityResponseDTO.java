@@ -12,8 +12,8 @@ import java.time.LocalTime;
 @Builder
 
 public class ActivityResponseDTO {
-
     private Double price;
+    private boolean availability;
     private String description;
     private String category;
     private LocalDate date;
@@ -21,5 +21,4 @@ public class ActivityResponseDTO {
     private LocalTime endTime;
     private Long itineraryId;
     private Long userId;
-
 }

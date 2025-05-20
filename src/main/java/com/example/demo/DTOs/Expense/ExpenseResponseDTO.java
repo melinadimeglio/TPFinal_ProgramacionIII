@@ -1,5 +1,4 @@
 package com.example.demo.DTOs.Expense;
-
 import lombok.*;
 
 import java.time.LocalDate;
@@ -12,10 +11,11 @@ import java.time.LocalDate;
 
 public class ExpenseResponseDTO {
 
+    private Long id;
     private String category;
     private String description;
     private Double amount;
     private LocalDate date;
-    private String username;
+    private Long userId;
 
 }

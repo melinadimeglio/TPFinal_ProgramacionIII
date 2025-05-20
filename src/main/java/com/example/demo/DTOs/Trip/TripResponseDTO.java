@@ -1,7 +1,6 @@
 package com.example.demo.DTOs.Trip;
 
 import lombok.*;
-import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.List;
 
 public class TripResponseDTO {
 
-    @NotNull
+    private Long id;
     private String destination;
     private LocalDate startDate;
     private LocalDate endDate;

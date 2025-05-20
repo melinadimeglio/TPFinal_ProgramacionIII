@@ -1,11 +1,9 @@
 package com.example.demo.DTOs.Itinerary;
 
-import com.example.demo.DTOs.Activity.ActivityDTO;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 
 @Getter
 @Setter
@@ -13,13 +11,11 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 
-public class ItineraryDTO {
+public class ItineraryCreateDTO {
 
-    private Long id;
     private LocalDate date;
     private LocalTime time;
     private String notes;
-    private List<ActivityDTO> activities;
-    private Long userId;
+    private String username;
 
 }

@@ -1,4 +1,5 @@
 package com.example.demo.DTOs.Expense;
+
 import lombok.*;
 
 import java.time.LocalDate;
@@ -9,13 +10,12 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 
-public class ExpenseDTO {
+public class ExpenseCreateDTO {
 
-    private Long id;
     private String category;
     private String description;
     private Double amount;
     private LocalDate date;
-    private Long userId;
+    private String username;
 
 }

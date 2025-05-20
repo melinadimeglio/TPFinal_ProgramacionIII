@@ -12,10 +12,10 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @Builder
 
+
 public class ItineraryUpdateDTO {
 
     private LocalDate date;
     private LocalTime time;
-    private String notes;
 
 }

@@ -1,6 +1,12 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTOs.Activity.ActivityCreateDTO;
+import com.example.demo.DTOs.Activity.ActivityResponseDTO;
+import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
 import com.example.demo.entities.ActivityEntity;
+import com.example.demo.entities.ItineraryEntity;
+import com.example.demo.entities.UserEntity;
+import com.example.demo.enums.ActivityCategory;
 import com.example.demo.services.ActivityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -36,12 +42,11 @@ public class ActivityController {
     @ApiResponse(responseCode = "200", description = "Activity list successfully retrieved",
             content = @Content(mediaType = "application/json",
                     array = @io.swagger.v3.oas.annotations.media.ArraySchema(
-                            schema = @Schema(implementation = ActivityEntity.class)
+                            schema = @Schema(implementation = ActivityResponseDTO.class)
                     )))
     @GetMapping
-    public ResponseEntity<List<ActivityEntity>> getAllActivities() {
-        List<ActivityEntity> activities = activityService.findAll();
-        return ResponseEntity.ok(activities);
+    public ResponseEntity<List<ActivityResponseDTO>> getAllActivities() {
+        return ResponseEntity.ok(activityService.findAll());
     }
 
     @Operation(
@@ -54,13 +59,12 @@ public class ActivityController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Activity found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ActivityEntity.class))),
+                            schema = @Schema(implementation = ActivityResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Activity not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<ActivityEntity> getActivityById(@PathVariable Long id) {
-        ActivityEntity activity = activityService.findById(id);
-        return ResponseEntity.ok(activity);
+    public ResponseEntity<ActivityResponseDTO> getActivityById(@PathVariable Long id) {
+        return ResponseEntity.ok(activityService.findById(id));
     }
 
     @Operation(
@@ -70,19 +74,19 @@ public class ActivityController {
                     description = "Data of the activity to be created",
                     required = true,
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ActivityEntity.class)))
+                            schema = @Schema(implementation = ActivityCreateDTO.class)))
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Activity successfully created"),
             @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PostMapping
-    public ResponseEntity<ActivityEntity> createActivity(@org.springframework.web.bind.annotation.RequestBody ActivityEntity activity) {
-        if (activity.getDescription() == null || activity.getDescription().isBlank()) {
+    public ResponseEntity<Void> createActivity(@RequestBody ActivityCreateDTO dto) {
+        if (dto.getDescription() == null || dto.getDescription().isBlank()) {
             throw new IllegalArgumentException("Description must not be empty.");
         }
-        activityService.save(activity);
-        return ResponseEntity.status(HttpStatus.CREATED).body(activity);
+        activityService.save(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Operation(
@@ -94,30 +98,31 @@ public class ActivityController {
             requestBody = @RequestBody(
                     description = "Updated data of the activity",
                     required = true,
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ActivityEntity.class)))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ActivityUpdateDTO.class)
+                    )
+            )
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Activity successfully updated",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ActivityEntity.class))),
+                            schema = @Schema(implementation = ActivityResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Activity not found")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<ActivityEntity> updateActivity(@PathVariable Long id,
-                                                         @org.springframework.web.bind.annotation.RequestBody ActivityEntity updatedActivity) {
-        ActivityEntity existing = activityService.findById(id);
-        existing.setPrice(updatedActivity.getPrice());
-        existing.setAvailability(updatedActivity.isAvailability());
-        existing.setDescription(updatedActivity.getDescription());
-        existing.setCategory(updatedActivity.getCategory());
-        existing.setDate(updatedActivity.getDate());
-        existing.setStartTime(updatedActivity.getStartTime());
-        existing.setEndTime(updatedActivity.getEndTime());
+    public ResponseEntity<ActivityResponseDTO> updateActivity(
+            @PathVariable Long id,
+            @RequestBody ActivityUpdateDTO dto) {
 
-        activityService.save(existing);
-        return ResponseEntity.ok(existing);
+        activityService.update(id, dto);
+        ActivityResponseDTO updated = activityService.findById(id);
+        return ResponseEntity.ok(updated);
     }
+
+
+
+
 
     @Operation(
             summary = "Delete an activity by ID",
@@ -132,8 +137,7 @@ public class ActivityController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteActivity(@PathVariable Long id) {
-        ActivityEntity activity = activityService.findById(id);
-        activityService.delete(activity);
+        activityService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }
