@@ -65,4 +65,11 @@ public class ExpenseController {
         expenseService.delete(expense);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/average")
+    public ResponseEntity<Double> getAverageExpense() {
+        Double average = expenseService.getAverageExpense();
+        return ResponseEntity.ok(average);
+    }
+
 }

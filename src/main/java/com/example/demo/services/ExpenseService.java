@@ -33,4 +33,13 @@ public class ExpenseService{
     public void delete(ExpenseEntity expenseEntity){
         expenseRepository.delete(expenseEntity);
     }
+
+    public Double getAverageExpense() {
+        List<ExpenseEntity> expenses = expenseRepository.findAll();
+        if (expenses.isEmpty()) return 0.0;
+
+        double sum = expenses.stream().mapToDouble(ExpenseEntity::getAmount).sum();
+        return sum / expenses.size();
+    }
+
 }
