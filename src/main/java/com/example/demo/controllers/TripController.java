@@ -50,7 +50,7 @@ public class TripController {
         TripEntity existing = tripService.findById(id);
 
         existing.setDestination(updatedTrip.getDestination());
-        existing.setStarDate(updatedTrip.getStarDate());
+        existing.setStartDate(updatedTrip.getStartDate());
         existing.setEndDate(updatedTrip.getEndDate());
         existing.setEstimatedBudget(updatedTrip.getEstimatedBudget());
         existing.setPassengers(updatedTrip.getPassengers());
