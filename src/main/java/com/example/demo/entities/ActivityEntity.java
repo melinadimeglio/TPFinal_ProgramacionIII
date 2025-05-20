@@ -35,4 +35,8 @@ public class ActivityEntity {
     @JoinColumn(name = "itinerary_id", nullable = false)
     private ItineraryEntity itinerary;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
+
 }

@@ -34,6 +34,13 @@ public class ExpenseService{
         expenseRepository.delete(expenseEntity);
     }
 
+    public Double getAverageExpenseById(Long id){
+        List<ExpenseEntity> expenses = expenseRepository.findByUserId(id);
+        if (expenses.isEmpty()) return 0.0;
+        double sum = expenses.stream().mapToDouble(ExpenseEntity::getAmount).sum();
+        return sum / expenses.size();
+    }
+
     public Double getAverageExpense() {
         List<ExpenseEntity> expenses = expenseRepository.findAll();
         if (expenses.isEmpty()) return 0.0;

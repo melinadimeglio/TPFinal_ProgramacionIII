@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Objects;
 
 @Configuration
-public class EnvironmentCofig {
+public class EnvironmentConfig {
 
     static {
         Dotenv dotenv = Dotenv.load();
