@@ -7,6 +7,7 @@ import org.springframework.lang.NonNull;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "Trip")
@@ -15,19 +16,18 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@Builder
 public class TripEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotNull
     private String destination;
-    private LocalDate starDate;
+    private LocalDate startDate;
     private LocalDate endDate;
     private Double estimatedBudget;
     private int passengers;
     private boolean active;
 
-    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)
-    private List<UserEntity> users;
+    @ManyToMany(mappedBy = "trips")
+    private Set<UserEntity> users;
 }

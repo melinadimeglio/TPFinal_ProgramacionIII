@@ -56,7 +56,7 @@ public class UserController {
         existing.setCategory(updatedUser.getCategory());
         existing.setPreferencias(updatedUser.getPreferencias());
         existing.setActive(updatedUser.isActive());
-        existing.setTrip(updatedUser.getTrip());
+        existing.setTrips(updatedUser.getTrips());
 
         userService.save(existing);
         return ResponseEntity.ok(existing);
