@@ -1,30 +1,25 @@
-✈️ TravelPlanner API
+✈️ Travel Planner Project
 
-This is a Spring Boot RESTful API designed to help users plan their trips, manage itineraries, track expenses, and organize checklists.
+This is a Java backend project built with Spring Boot that provides a RESTful API for planning trips. It allows users to create and manage trips, define daily itineraries, track expenses, and maintain personalized checklists.
 
-  📌 Features
+📌 Key Features
 
-- **User management** with multiple trip associations.
-- **Trip creation** and editing with destination, dates, budget, etc.
-- **Itinerary management** for each trip with specific activities.
-- **Activities tracking** per itinerary and user.
-- **Expense tracking** with category, amount, and date.
-- **Checklist support** per trip, containing individual checklist items.
-- **OpenAPI documentation** for all endpoints.
+- **User profiles** with support for multiple trips.
+- **Trip planning** with destination, start/end dates, budget, and participants.
+- **Daily itineraries** with linked activities and notes.
+- **Expense logging** by category, amount, and date.
+- **Custom checklists** for each trip with item status.
+- **API documentation** available via Swagger/OpenAPI.
 
-🧱 Tech Stack
+🛠️ Tech Stack
 
 - Java 22
 - Spring Boot 3
 - Spring Data JPA
-- MySQL
 - Hibernate
-- Lombok
-- Springdoc OpenAPI 3
-- Postman (for testing)
-
-📚 API Documentation
+- MySQL
+- OpenAPI / Swagger
 
 All endpoints are documented using **Springdoc OpenAPI 3** and accessible via Swagger UI:
 
-> [http://localhost:8080/swagger-ui/index.html#/)
+> [http://localhost:8080/swagger-ui/index.html#/]
