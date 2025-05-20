@@ -16,8 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "Gastos", description = "Operaciones relacionadas con los gastos de los usuarios")
-
+@Tag(name = "Expenses", description = "Operations related to user expenses")
 @RestController
 @RequestMapping("/expenses")
 public class ExpenseController {
@@ -30,32 +29,32 @@ public class ExpenseController {
     }
 
     @Operation(
-            summary = "Obtener todos los gastos",
-            description = "Devuelve una lista con todos los gastos registrados en el sistema."
+            summary = "Get all expenses",
+            description = "Returns a list of all expenses registered in the system."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de gastos obtenida correctamente",
+            @ApiResponse(responseCode = "200", description = "Expense list successfully retrieved",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ExpenseEntity.class)))
     })
-    // Obtener todos los gastos
     @GetMapping
     public ResponseEntity<List<ExpenseEntity>> getAllExpenses() {
         return ResponseEntity.ok(expenseService.findAll());
     }
 
-
     @Operation(
-            summary = "Obtener un gasto por ID",
-            description = "Devuelve un gasto específico según su ID si existe."
+            summary = "Get an expense by ID",
+            description = "Returns a specific expense by its ID if it exists.",
+            parameters = {
+                    @Parameter(name = "id", description = "ID of the expense to retrieve", required = true)
+            }
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Gasto encontrado",
+            @ApiResponse(responseCode = "200", description = "Expense found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ExpenseEntity.class))),
-            @ApiResponse(responseCode = "404", description = "Gasto no encontrado")
+            @ApiResponse(responseCode = "404", description = "Expense not found")
     })
-    // Obtener un gasto por ID
     @GetMapping("/{id}")
     public ResponseEntity<ExpenseEntity> getExpenseById(@PathVariable Long id) {
         ExpenseEntity expense = expenseService.findById(id);
@@ -63,10 +62,10 @@ public class ExpenseController {
     }
 
     @Operation(
-            summary = "Crear un nuevo gasto",
-            description = "Crea un gasto nuevo para un usuario específico, incluyendo categoría, monto, descripción y fecha.",
+            summary = "Create a new expense",
+            description = "Creates a new expense for a specific user, including category, amount, description, and date.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Datos del nuevo gasto a registrar",
+                    description = "Data of the new expense to be registered",
                     required = true,
                     content = @Content(
                             mediaType = "application/json",
@@ -75,27 +74,26 @@ public class ExpenseController {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Gasto creado exitosamente"),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+            @ApiResponse(responseCode = "201", description = "Expense successfully created"),
+            @ApiResponse(responseCode = "400", description = "Invalid data")
     })
-    // Crear un nuevo gasto
     @PostMapping
     public ResponseEntity<ExpenseEntity> createExpense(@RequestBody ExpenseEntity expense) {
         if (expense.getAmount() == null || expense.getAmount() <= 0) {
-            throw new IllegalArgumentException("El monto debe ser mayor a 0.");
+            throw new IllegalArgumentException("Amount must be greater than 0.");
         }
         expenseService.save(expense);
         return ResponseEntity.status(HttpStatus.CREATED).body(expense);
     }
 
     @Operation(
-            summary = "Actualizar un gasto existente",
-            description = "Actualiza la información de un gasto ya registrado usando su ID y los nuevos datos proporcionados.",
+            summary = "Update an existing expense",
+            description = "Updates an existing expense using its ID and the provided new data.",
             parameters = {
-                    @Parameter(name = "id", description = "ID del gasto a actualizar", required = true)
+                    @Parameter(name = "id", description = "ID of the expense to update", required = true)
             },
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Datos actualizados del gasto",
+                    description = "Updated data of the expense",
                     required = true,
                     content = @Content(
                             mediaType = "application/json",
@@ -104,13 +102,12 @@ public class ExpenseController {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Gasto actualizado exitosamente",
+            @ApiResponse(responseCode = "200", description = "Expense successfully updated",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ExpenseEntity.class))),
-            @ApiResponse(responseCode = "404", description = "Gasto no encontrado"),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos")
+            @ApiResponse(responseCode = "404", description = "Expense not found"),
+            @ApiResponse(responseCode = "400", description = "Invalid data")
     })
-    // Actualizar un gasto
     @PutMapping("/{id}")
     public ResponseEntity<ExpenseEntity> updateExpense(@PathVariable Long id,
                                                        @RequestBody ExpenseEntity updatedExpense) {
@@ -126,17 +123,16 @@ public class ExpenseController {
     }
 
     @Operation(
-            summary = "Eliminar un gasto por ID",
-            description = "Elimina el gasto correspondiente al ID proporcionado si existe.",
+            summary = "Delete an expense by ID",
+            description = "Deletes the expense corresponding to the provided ID if it exists.",
             parameters = {
-                    @Parameter(name = "id", description = "ID del gasto a eliminar", required = true)
+                    @Parameter(name = "id", description = "ID of the expense to delete", required = true)
             }
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Gasto eliminado exitosamente"),
-            @ApiResponse(responseCode = "404", description = "Gasto no encontrado")
+            @ApiResponse(responseCode = "204", description = "Expense successfully deleted"),
+            @ApiResponse(responseCode = "404", description = "Expense not found")
     })
-    // Eliminar un gasto
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteExpense(@PathVariable Long id) {
         ExpenseEntity expense = expenseService.findById(id);
@@ -144,18 +140,16 @@ public class ExpenseController {
         return ResponseEntity.noContent().build();
     }
 
-
     @Operation(
-            summary = "Obtener el promedio de gastos entre todos los usuarios",
-            description = "Calcula y devuelve el promedio de todos los gastos registrados por todos los usuarios."
+            summary = "Get average expense across all users",
+            description = "Calculates and returns the average of all expenses registered by all users."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Promedio calculado correctamente",
+            @ApiResponse(responseCode = "200", description = "Average calculated successfully",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Double.class))),
-            @ApiResponse(responseCode = "500", description = "Error interno al calcular el promedio")
+            @ApiResponse(responseCode = "500", description = "Internal error while calculating average")
     })
-    // Promedio de gastos totales
     @GetMapping("/averageAllUsers")
     public ResponseEntity<Double> getAverageExpense() {
         Double average = expenseService.getAverageExpense();
@@ -163,17 +157,19 @@ public class ExpenseController {
     }
 
     @Operation(
-            summary = "Obtener el promedio de gastos por ID de usuario",
-            description = "Calcula y devuelve el promedio de gastos del usuario cuyo ID se proporciona."
+            summary = "Get average expense by user ID",
+            description = "Calculates and returns the average of expenses for the user with the provided ID.",
+            parameters = {
+                    @Parameter(name = "id", description = "ID of the user whose expenses will be averaged", required = true)
+            }
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Promedio del usuario calculado correctamente",
+            @ApiResponse(responseCode = "200", description = "User's average calculated successfully",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Double.class))),
-            @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno al calcular el promedio")
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "Internal error while calculating average")
     })
-    // Promedio de gastos por usuario
     @GetMapping("/averageByUserId/{id}")
     public ResponseEntity<Double> getAverageExpensesById(@PathVariable Long id) {
         Double average = expenseService.getAverageExpenseById(id);
