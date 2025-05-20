@@ -16,14 +16,13 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@Builder
 public class TripEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotNull
     private String destination;
-    private LocalDate starDate;
+    private LocalDate startDate;
     private LocalDate endDate;
     private Double estimatedBudget;
     private int passengers;
