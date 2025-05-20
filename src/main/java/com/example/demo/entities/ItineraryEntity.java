@@ -28,4 +28,8 @@ public class ItineraryEntity {
 
     @OneToMany(mappedBy = "itinerary", fetch = FetchType.LAZY)
     private List<ActivityEntity> activities;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 }

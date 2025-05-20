@@ -18,4 +18,8 @@ public class CheckListEntity {
 
     private String item;
     private boolean status;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 }
