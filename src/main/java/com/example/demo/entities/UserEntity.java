@@ -47,6 +47,7 @@ public class UserEntity {
     private Set<String> preferencias;
 
     private boolean active;
+
     @ManyToOne
     @JoinColumn(name = "trip_id")
     private TripEntity trip;

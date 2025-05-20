@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 
 public class RecommendationService {
 
-    //@Value("${opentrip.api.key}")
-    //private String apiKey;
+    @Value("${opentrip.api.key}")
+    private String apiKey;
 
     //public CoordinatesDTO getCoordinates (String city){
 
