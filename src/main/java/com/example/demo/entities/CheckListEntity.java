@@ -3,6 +3,9 @@ package com.example.demo.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "CheckList")
 @Getter
@@ -11,6 +14,7 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 @Builder
+
 public class CheckListEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,6 +24,9 @@ public class CheckListEntity {
     private boolean status;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;
+    @JoinColumn(name = "trip_id", nullable = false)
+    private TripEntity trip;
+
+    @OneToMany(mappedBy = "checklist", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CheckListItemEntity> items = new ArrayList<>();
 }
