@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -16,6 +17,7 @@ import java.util.Date;
 @ToString
 @Builder
 public class ExpenseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,5 +26,9 @@ public class ExpenseEntity {
     private String description;
     @NotNull
     private Double amount;
-    private Date date;
+    private LocalDate date;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
+
 }

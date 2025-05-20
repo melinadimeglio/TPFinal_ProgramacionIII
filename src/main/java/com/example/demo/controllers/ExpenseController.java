@@ -66,10 +66,17 @@ public class ExpenseController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/average")
+    @GetMapping("/averageAllUsers")
     public ResponseEntity<Double> getAverageExpense() {
         Double average = expenseService.getAverageExpense();
         return ResponseEntity.ok(average);
     }
+
+    @GetMapping("/averageByUserId/{id}")
+    public ResponseEntity<Double> getAverageExpensesById(@PathVariable Long id) {
+        Double average = expenseService.getAverageExpenseById(id);
+        return ResponseEntity.ok(average);
+    }
+
 
 }
