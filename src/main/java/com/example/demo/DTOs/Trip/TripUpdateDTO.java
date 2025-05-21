@@ -13,7 +13,6 @@ import java.time.LocalDate;
 public class TripUpdateDTO {
 
     private String destination;
-    private LocalDate startDate;
     private LocalDate endDate;
     private Double estimatedBudget;
     private Integer passengers;

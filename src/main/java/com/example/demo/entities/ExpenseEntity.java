@@ -25,7 +25,6 @@ public class ExpenseEntity {
     private ExpenseCategory category;
     private String description;
     @NotNull
-    private Double amount;
     private LocalDate date;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
