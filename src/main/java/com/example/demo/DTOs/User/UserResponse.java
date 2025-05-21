@@ -1,10 +1,9 @@
 package com.example.demo.DTOs.User;
 
 import com.example.demo.DTOs.Trip.TripResumeDTO;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -15,27 +14,16 @@ import java.util.Set;
 @ToString
 @Builder
 
-public class UserResponseDTO {
+public class UserResponse {
 
-    @NotBlank
+    private Long id;
     private String username;
-
-    @Email
-    @NotBlank
     private String email;
-
-    @NotBlank
-    private String password;
-
-    @NotBlank
     private String dni;
-
+    private LocalDateTime fechaRegistro;
     private String category;
-
     private Set<String> preferencias;
-
     private boolean active;
-
     private List<TripResumeDTO> destinos; // ver si devolver en vez de id, una lista con los destinos
 
 }
