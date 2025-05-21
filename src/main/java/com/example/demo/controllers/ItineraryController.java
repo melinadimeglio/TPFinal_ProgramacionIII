@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTOs.Activity.ActivityResponseDTO;
 import com.example.demo.DTOs.Itinerary.ItineraryCreateDTO;
 import com.example.demo.DTOs.Itinerary.ItineraryResponseDTO;
 import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
@@ -66,10 +67,26 @@ public class ItineraryController {
                             schema = @Schema(implementation = ItineraryResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Itinerary not found")
     })
-    // Obtener un itinerario por ID
     @GetMapping("/{id}")
     public ResponseEntity<ItineraryResponseDTO> getItineraryById(@PathVariable Long id) {
         return ResponseEntity.ok(itineraryService.findById(id));
+    }
+
+    @Operation(
+            summary = "Get itineraries by user ID",
+            description = "Retrieves all itineraries associated with a specific user."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Itineraries retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ItineraryResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "User not found or no itineraries for user"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<ItineraryResponseDTO>> findByUserId(@PathVariable Long userId) {
+        List<ItineraryResponseDTO> activity = itineraryService.findByUserId(userId);
+        return ResponseEntity.ok(activity);
     }
 
     @Operation(
@@ -85,7 +102,6 @@ public class ItineraryController {
             @ApiResponse(responseCode = "201", description = "Itinerary successfully created"),
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
-    // Crear un nuevo itinerario
     @PostMapping
     public ResponseEntity<Void> createItinerary(@RequestBody ItineraryCreateDTO dto) {
         if (dto.getDate() == null || dto.getTripId() == null || dto.getUserId() == null) {
@@ -95,7 +111,6 @@ public class ItineraryController {
         itineraryService.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-
 
 
     @Operation(

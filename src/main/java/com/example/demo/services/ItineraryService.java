@@ -1,8 +1,10 @@
 package com.example.demo.services;
 
+import com.example.demo.DTOs.Expense.ExpenseResponseDTO;
 import com.example.demo.DTOs.Itinerary.ItineraryCreateDTO;
 import com.example.demo.DTOs.Itinerary.ItineraryResponseDTO;
 import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
+import com.example.demo.entities.ExpenseEntity;
 import com.example.demo.entities.ItineraryEntity;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
@@ -49,6 +51,10 @@ public class ItineraryService {
                 .orElseThrow(() -> new NoSuchElementException("No se encontró el itinerario"));
     }
 
+    public List<ItineraryResponseDTO> findByUserId(Long userId) {
+        List<ItineraryEntity> itineraries = itineraryRepository.findByUserId(userId);
+        return itineraryMapper.toDTOList(itineraries);
+    }
 
     public void save(ItineraryCreateDTO dto){
         ItineraryEntity entity = itineraryMapper.toEntity(dto);
