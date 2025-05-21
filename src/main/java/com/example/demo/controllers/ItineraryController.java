@@ -104,7 +104,7 @@ public class ItineraryController {
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
     @PostMapping
-    public ResponseEntity<Void> createItinerary(@Valid @RequestBody ItineraryCreateDTO dto) {
+    public ResponseEntity<Void> createItinerary(@RequestBody @Valid ItineraryCreateDTO dto) {
         itineraryService.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -131,7 +131,7 @@ public class ItineraryController {
     // Actualizar un itinerario
     @PutMapping("/{id}")
     public ResponseEntity<ItineraryResponseDTO> updateItinerary(@PathVariable Long id,
-                                                           @RequestBody ItineraryUpdateDTO dto) {
+                                                           @RequestBody @Valid ItineraryUpdateDTO dto) {
         itineraryService.update(id, dto);
         return ResponseEntity.ok(itineraryService.findById(id));
     }

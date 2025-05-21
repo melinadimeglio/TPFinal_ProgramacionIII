@@ -2,6 +2,7 @@ package com.example.demo.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -22,8 +23,8 @@ public class ItineraryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull(message = "La fecha del itinerario es obligatoria.")
     private LocalDate date;
-    private LocalTime time;
     private String notes;
 
     @OneToMany(mappedBy = "itinerary", fetch = FetchType.LAZY)

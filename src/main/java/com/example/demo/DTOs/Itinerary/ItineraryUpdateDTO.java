@@ -1,6 +1,7 @@
 package com.example.demo.DTOs.Itinerary;
 
 
+import jakarta.validation.constraints.FutureOrPresent;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -14,7 +15,7 @@ import java.time.LocalTime;
 
 public class ItineraryUpdateDTO {
 
+    @FutureOrPresent(message = "La fecha debe ser el dia de hoy o posterior.")
     private LocalDate date;
-    private LocalTime time;
 
 }

@@ -1,6 +1,7 @@
 package com.example.demo.DTOs.User;
 
 import com.example.demo.DTOs.Trip.TripResumeDTO;
+import com.example.demo.enums.UserCategory;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -21,7 +22,7 @@ public class UserResponse {
     private String email;
     private String dni;
     private LocalDateTime fechaRegistro;
-    private String category;
+    private UserCategory category;
     private Set<String> preferencias;
     private boolean active;
     private List<TripResumeDTO> destinos; // ver si devolver en vez de id, una lista con los destinos

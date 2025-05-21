@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,7 +67,7 @@ public class TripController {
     public ResponseEntity<Void> createTrip(
             @RequestBody(description = "Data for the new trip", required = true,
                     content = @Content(schema = @Schema(implementation = TripCreateDTO.class)))
-            @org.springframework.web.bind.annotation.RequestBody TripCreateDTO tripCreateDTO) {
+            @org.springframework.web.bind.annotation.RequestBody @Valid TripCreateDTO tripCreateDTO) {
 
         if (tripCreateDTO.getDestination().isBlank()) {
             throw new IllegalArgumentException("El destino no puede estar vacío.");
@@ -88,7 +89,7 @@ public class TripController {
             @PathVariable Long id,
             @RequestBody(description = "Updated trip data", required = true,
                     content = @Content(schema = @Schema(implementation = TripUpdateDTO.class)))
-            @org.springframework.web.bind.annotation.RequestBody TripUpdateDTO tripUpdateDTO) {
+            @org.springframework.web.bind.annotation.RequestBody @Valid TripUpdateDTO tripUpdateDTO) {
 
         tripService.update(id, tripUpdateDTO);
         return ResponseEntity.ok().build();

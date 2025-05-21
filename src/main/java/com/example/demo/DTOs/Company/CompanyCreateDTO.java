@@ -15,23 +15,23 @@ import java.util.List;
 
 public class CompanyCreateDTO {
 
-    @NotBlank
+    @NotBlank(message = "El nombre de usuario no debe estar vacio.")
     private String username;
 
-    @Email
-    @NotBlank
+    @Email(message = "El email debe tener un formato valido.")
+    @NotBlank(message = "El email no debe estar vacio.")
     private String email;
 
-    @NotBlank
+    @NotBlank(message = "La contraseña no debe estar vacia")
     private String password;
 
-    @NotBlank
+    @NotBlank(message = "El TAX ID no debe estar vacio.")
     private String taxId;
 
-    @NotBlank
+    @NotBlank(message = "La ubicacion no debe estar vacia.")
     private String location;
 
-    @NotBlank
+    @NotBlank(message = "El telefono no debe estar vacio.")
     private String phone;
 
     private boolean active;

@@ -7,11 +7,11 @@ import com.example.demo.entities.UserEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = TripMapper.class)
 public interface UserMapper {
 
     UserResponse toDTO(UserEntity user);
-    UserEntity toUserEntity (UserResponse userDTO);
+    UserEntity toUserEntity (UserCreateDTO userDTO);
     UserCreateDTO toResponseDTO(UserEntity user);
     void updateUserEntityFromDTO (UserUpdateDTO dto, @MappingTarget UserEntity user);
 

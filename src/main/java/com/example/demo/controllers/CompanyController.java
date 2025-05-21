@@ -4,6 +4,7 @@ import com.example.demo.entities.CompanyEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.services.CompanyService;
 import com.example.demo.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,7 @@ public class CompanyController {
 
     // Crear una nueva empresa
     @PostMapping
-    public ResponseEntity<CompanyEntity> createCompany(@RequestBody CompanyEntity company) {
+    public ResponseEntity<CompanyEntity> createCompany(@RequestBody @Valid CompanyEntity company) {
         if (company.getUsername() == null || company.getUsername().isBlank()) {
             throw new IllegalArgumentException("El nombre de usuario no puede estar vacío.");
         }
@@ -48,7 +49,7 @@ public class CompanyController {
     // Actualizar una empresa existente
     @PutMapping("/{id}")
     public ResponseEntity<CompanyEntity> updateCompany(@PathVariable Long id,
-                                                 @RequestBody CompanyEntity updatedCompany) {
+                                                 @RequestBody @Valid CompanyEntity updatedCompany) {
         CompanyEntity existing = companyService.findById(id);
 
         existing.setUsername(updatedCompany.getUsername());

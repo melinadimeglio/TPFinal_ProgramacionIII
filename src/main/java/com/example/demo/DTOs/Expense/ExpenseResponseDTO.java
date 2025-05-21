@@ -1,4 +1,5 @@
 package com.example.demo.DTOs.Expense;
+import com.example.demo.enums.ExpenseCategory;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -12,7 +13,7 @@ import java.time.LocalDate;
 public class ExpenseResponseDTO {
 
     private Long id;
-    private String category;
+    private ExpenseCategory category;
     private String description;
     private Double amount;
     private LocalDate date;

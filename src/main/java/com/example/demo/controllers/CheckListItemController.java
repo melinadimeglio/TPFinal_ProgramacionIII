@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -82,7 +83,7 @@ public class CheckListItemController {
     })
     // Crear un nuevo ítem
     @PostMapping
-    public ResponseEntity<CheckListItemEntity> createItem(@RequestBody CheckListItemEntity item) {
+    public ResponseEntity<CheckListItemEntity> createItem(@RequestBody @Valid CheckListItemEntity item) {
         if (item.getDescription() == null || item.getDescription().isBlank()) {
             throw new IllegalArgumentException("El ítem no puede estar vacío.");
         }
@@ -111,7 +112,7 @@ public class CheckListItemController {
     // Actualizar un ítem
     @PutMapping("/{id}")
     public ResponseEntity<CheckListItemEntity> updateItem(@PathVariable Long id,
-                                                      @RequestBody CheckListItemEntity updatedItem) {
+                                                      @RequestBody @Valid CheckListItemEntity updatedItem) {
         CheckListItemEntity existing = checkListItemService.findById(id);
 
         existing.setDescription(updatedItem.getDescription());

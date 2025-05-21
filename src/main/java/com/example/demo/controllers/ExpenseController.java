@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -99,7 +100,7 @@ public class ExpenseController {
             @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PostMapping
-    public ResponseEntity<Void> createExpense(@RequestBody ExpenseCreateDTO dto) {
+    public ResponseEntity<Void> createExpense(@RequestBody @Valid ExpenseCreateDTO dto) {
         if (dto.getAmount() == null || dto.getAmount() <= 0) {
             throw new IllegalArgumentException("Amount must be greater than 0.");
         }
@@ -131,7 +132,7 @@ public class ExpenseController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<ExpenseResponseDTO> updateExpense(@PathVariable Long id,
-                                                       @RequestBody ExpenseUpdateDTO dto) {
+                                                       @RequestBody @Valid ExpenseUpdateDTO dto) {
         expenseService.update(id, dto);
         return ResponseEntity.ok(expenseService.findById(id));
     }

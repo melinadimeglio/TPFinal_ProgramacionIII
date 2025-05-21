@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -102,10 +103,7 @@ public class ActivityController {
             @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PostMapping
-    public ResponseEntity<Void> createActivity(@RequestBody ActivityCreateDTO dto) {
-        if (dto.getDescription() == null || dto.getDescription().isBlank()) {
-            throw new IllegalArgumentException("Description must not be empty.");
-        }
+    public ResponseEntity<Void> createActivity(@Valid @RequestBody ActivityCreateDTO dto) {
         activityService.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -134,7 +132,7 @@ public class ActivityController {
     @PutMapping("/{id}")
     public ResponseEntity<ActivityResponseDTO> updateActivity(
             @PathVariable Long id,
-            @RequestBody ActivityUpdateDTO dto) {
+            @RequestBody @Valid ActivityUpdateDTO dto) {
 
         activityService.update(id, dto);
         ActivityResponseDTO updated = activityService.findById(id);

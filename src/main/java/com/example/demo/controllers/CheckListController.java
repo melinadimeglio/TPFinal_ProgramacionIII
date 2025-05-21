@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -84,7 +85,7 @@ public class CheckListController {
     })
     // Crear un nuevo ítem
     @PostMapping
-    public ResponseEntity<CheckListEntity> createItem(@RequestBody CheckListEntity item) {
+    public ResponseEntity<CheckListEntity> createItem(@RequestBody @Valid CheckListEntity item) {
         if (item.getItem() == null || item.getItem().isBlank()) {
             throw new IllegalArgumentException("El ítem no puede estar vacío.");
         }
@@ -113,7 +114,7 @@ public class CheckListController {
     // Actualizar un ítem
     @PutMapping("/{id}")
     public ResponseEntity<CheckListEntity> updateItem(@PathVariable Long id,
-                                                      @RequestBody CheckListEntity updatedItem) {
+                                                      @RequestBody @Valid CheckListEntity updatedItem) {
         CheckListEntity existing = checkListService.findById(id);
 
         existing.setItem(updatedItem.getItem());

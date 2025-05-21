@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.DTOs.User.UserResponse;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public List<UserEntity> findAll(){
+    public List<UserResponse> findAll(){
         return userRepository.findAll();
     }
 

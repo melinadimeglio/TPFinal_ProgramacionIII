@@ -20,7 +20,6 @@ public class ItineraryResponseDTO {
 
     private Long id;
     private LocalDate date;
-    private LocalTime time;
     private String notes;
     private List<ActivityResumeDTO> activities;
     private Long userId;

@@ -1,7 +1,11 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTOs.User.UserCreateDTO;
+import com.example.demo.DTOs.User.UserResponse;
 import com.example.demo.entities.UserEntity;
+import com.example.demo.mappers.UserMapper;
 import com.example.demo.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,39 +18,41 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserMapper userMapper) {
         this.userService = userService;
+        this.userMapper = userMapper;
     }
 
     // Obtener todos los usuarios
     @GetMapping
-    public ResponseEntity<List<UserEntity>> getAllUsers() {
+    public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.findAll());
     }
 
     // Obtener un usuario por ID
     @GetMapping("/{id}")
-    public ResponseEntity<UserEntity> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         UserEntity user = userService.findById(id);
-        return ResponseEntity.ok(user);
+        UserResponse userResponse = userMapper.toDTO(user);
+        return ResponseEntity.ok(userResponse);
     }
 
     // Crear un nuevo usuario
     @PostMapping
-    public ResponseEntity<UserEntity> createUser(@RequestBody UserEntity user) {
-        if (user.getUsername() == null || user.getUsername().isBlank()) {
-            throw new IllegalArgumentException("El nombre de usuario no puede estar vacío.");
-        }
-        userService.save(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+    public ResponseEntity<UserResponse> createUser(@RequestBody @Valid UserCreateDTO user) {
+        UserEntity userEntity = userMapper.toUserEntity(user);
+        userService.save(userEntity);
+        UserResponse response = userMapper.toDTO(userEntity);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // Actualizar un usuario existente
     @PutMapping("/{id}")
     public ResponseEntity<UserEntity> updateUser(@PathVariable Long id,
-                                                 @RequestBody UserEntity updatedUser) {
+                                                 @RequestBody @Valid UserEntity updatedUser) {
         UserEntity existing = userService.findById(id);
 
         existing.setUsername(updatedUser.getUsername());
