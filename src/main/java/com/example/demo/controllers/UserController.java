@@ -1,10 +1,13 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTOs.Trip.TripResponseDTO;
 import com.example.demo.DTOs.User.UserCreateDTO;
 import com.example.demo.DTOs.User.UserResponse;
+import com.example.demo.DTOs.User.UserUpdateDTO;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.mappers.UserMapper;
 import com.example.demo.services.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,10 +37,10 @@ public class UserController {
 
     // Obtener un usuario por ID
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
-        UserEntity user = userService.findById(id);
-        UserResponse userResponse = userMapper.toDTO(user);
-        return ResponseEntity.ok(userResponse);
+    public ResponseEntity<UserResponse> getTripById(
+            @Parameter(description = "ID of the user to retrieve", required = true)
+            @PathVariable Long id) {
+        return ResponseEntity.ok(userMapper.toDTO(userService.findById(id)));
     }
 
     // Crear un nuevo usuario
@@ -51,28 +54,23 @@ public class UserController {
 
     // Actualizar un usuario existente
     @PutMapping("/{id}")
-    public ResponseEntity<UserEntity> updateUser(@PathVariable Long id,
-                                                 @RequestBody @Valid UserEntity updatedUser) {
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id,
+                                                   @RequestBody @Valid UserUpdateDTO updatedUserDTO) {
         UserEntity existing = userService.findById(id);
-
-        existing.setUsername(updatedUser.getUsername());
-        existing.setEmail(updatedUser.getEmail());
-        existing.setPassword(updatedUser.getPassword());
-        existing.setDni(updatedUser.getDni());
-        existing.setCategory(updatedUser.getCategory());
-        existing.setPreferencias(updatedUser.getPreferencias());
-        existing.setActive(updatedUser.isActive());
-        existing.setTrips(updatedUser.getTrips());
-
-        userService.save(existing);
-        return ResponseEntity.ok(existing);
+        userMapper.updateUserEntityFromDTO(updatedUserDTO, existing);
+        UserEntity saved = userService.save(existing);
+        UserResponse response = userMapper.toDTO(saved);
+        return ResponseEntity.ok(response);
     }
+
 
     // Eliminar un usuario
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        UserEntity user = userService.findById(id);
-        userService.delete(user);
+    public ResponseEntity<Void> deleteUser(
+            @Parameter(description = "ID of the user to delete", required = true)
+            @PathVariable Long id) {
+
+        userService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

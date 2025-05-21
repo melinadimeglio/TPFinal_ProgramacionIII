@@ -16,6 +16,6 @@ import java.time.LocalTime;
 public class ItineraryUpdateDTO {
 
     @FutureOrPresent(message = "La fecha debe ser el dia de hoy o posterior.")
-    private LocalDate date;
+    private LocalDate itineraryDate;
 
 }

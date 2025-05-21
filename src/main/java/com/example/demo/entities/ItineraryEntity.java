@@ -1,5 +1,6 @@
 package com.example.demo.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -24,7 +25,8 @@ public class ItineraryEntity {
     private Long id;
 
     @NotNull(message = "La fecha del itinerario es obligatoria.")
-    private LocalDate date;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate itineraryDate;
     private String notes;
 
     @OneToMany(mappedBy = "itinerary", fetch = FetchType.LAZY)

@@ -19,7 +19,7 @@ import java.util.List;
 public class ItineraryResponseDTO {
 
     private Long id;
-    private LocalDate date;
+    private LocalDate itineraryDate;
     private String notes;
     private List<ActivityResumeDTO> activities;
     private Long userId;

@@ -69,9 +69,6 @@ public class TripController {
                     content = @Content(schema = @Schema(implementation = TripCreateDTO.class)))
             @org.springframework.web.bind.annotation.RequestBody @Valid TripCreateDTO tripCreateDTO) {
 
-        if (tripCreateDTO.getDestination().isBlank()) {
-            throw new IllegalArgumentException("El destino no puede estar vacío.");
-        }
 
         tripService.save(tripCreateDTO);
         return ResponseEntity.status(HttpStatus.CREATED).build();

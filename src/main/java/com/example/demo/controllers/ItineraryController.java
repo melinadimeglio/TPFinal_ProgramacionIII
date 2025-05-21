@@ -4,7 +4,10 @@ import com.example.demo.DTOs.Activity.ActivityResponseDTO;
 import com.example.demo.DTOs.Itinerary.ItineraryCreateDTO;
 import com.example.demo.DTOs.Itinerary.ItineraryResponseDTO;
 import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
+import com.example.demo.DTOs.User.UserResponse;
 import com.example.demo.entities.ItineraryEntity;
+import com.example.demo.mappers.ItineraryMapper;
+import com.example.demo.mappers.UserMapper;
 import com.example.demo.services.ItineraryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,10 +32,13 @@ import org.springframework.web.bind.annotation.*;
 public class ItineraryController {
 
     private final ItineraryService itineraryService;
+    private final ItineraryMapper itineraryMapper;
+
 
     @Autowired
-    public ItineraryController(ItineraryService itineraryService) {
+    public ItineraryController(ItineraryService itineraryService, ItineraryMapper itineraryMapper) {
         this.itineraryService = itineraryService;
+        this.itineraryMapper = itineraryMapper;
     }
 
     @GetMapping
@@ -104,9 +110,12 @@ public class ItineraryController {
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
     @PostMapping
-    public ResponseEntity<Void> createItinerary(@RequestBody @Valid ItineraryCreateDTO dto) {
-        itineraryService.save(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<ItineraryResponseDTO> createUser(@RequestBody @Valid ItineraryCreateDTO itinerary) {
+        ItineraryEntity itineraryEntity = itineraryMapper.toEntity(itinerary);
+        System.out.println(itinerary);
+        itineraryService.save(itineraryEntity);
+        ItineraryResponseDTO response = itineraryMapper.toDTO(itineraryEntity);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
 

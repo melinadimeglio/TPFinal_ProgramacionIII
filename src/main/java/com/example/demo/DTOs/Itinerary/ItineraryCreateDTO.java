@@ -1,10 +1,10 @@
 package com.example.demo.DTOs.Itinerary;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -15,7 +15,8 @@ import java.time.LocalTime;
 public class ItineraryCreateDTO {
 
     @NotNull(message = "La fecha del itinerario es obligatoria.")
-    private LocalDate date;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate itineraryDate;
     private String notes;
     private Long userId;
     private Long tripId;
