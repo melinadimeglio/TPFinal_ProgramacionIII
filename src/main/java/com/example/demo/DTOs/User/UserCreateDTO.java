@@ -34,8 +34,4 @@ public class UserCreateDTO {
 
     private Set<String> preferencias;
 
-    private boolean active;
-
-    private List<TripResumeDTO> destinos; // ver si devolver en vez de id, una lista con los destinos
-
 }

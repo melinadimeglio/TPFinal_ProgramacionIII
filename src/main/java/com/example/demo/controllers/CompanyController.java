@@ -54,7 +54,7 @@ public class CompanyController {
         existing.setUsername(updatedCompany.getUsername());
         existing.setEmail(updatedCompany.getEmail());
         existing.setPassword(updatedCompany.getPassword());
-        existing.setTax_id(updatedCompany.getTax_id());
+        existing.setTaxId(updatedCompany.getTaxId());
         existing.setPhone(updatedCompany.getPhone());
         existing.setLocation(updatedCompany.getLocation());
         existing.setActive(updatedCompany.isActive());
