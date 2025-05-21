@@ -12,6 +12,7 @@ import java.time.LocalTime;
 @Builder
 
 public class ActivityResponseDTO {
+    private Long id;
     private Double price;
     private boolean availability;
     private String description;
