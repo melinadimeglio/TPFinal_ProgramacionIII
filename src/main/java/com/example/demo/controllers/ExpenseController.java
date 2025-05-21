@@ -63,6 +63,25 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseService.findById(id));
     }
 
+
+
+    @Operation(
+            summary = "Get expenses by user ID",
+            description = "Retrieves all expenses associated with a specific user ID."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Expenses retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ExpenseResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "User not found or no expenses for user"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<ExpenseResponseDTO>> findByUserId(@PathVariable Long userId) {
+        List<ExpenseResponseDTO> expenses = expenseService.findByUserId(userId);
+        return ResponseEntity.ok(expenses);
+    }
+
     @Operation(
             summary = "Create a new expense",
             description = "Creates a new expense for a specific user, including category, amount, description, and date.",
@@ -117,6 +136,7 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseService.findById(id));
     }
 
+
     @Operation(
             summary = "Delete an expense by ID",
             description = "Deletes the expense corresponding to the provided ID if it exists.",
@@ -161,4 +181,8 @@ public class ExpenseController {
     public ResponseEntity<Double> getAverageExpensesByUser(@PathVariable Long id) {
         return ResponseEntity.ok(expenseService.getAverageExpenseByUserId(id));
     }
+
+
+
+
 }
