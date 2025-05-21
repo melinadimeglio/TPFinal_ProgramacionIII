@@ -23,6 +23,8 @@ public class ExpenseEntity {
     private Long id;
     @Enumerated(EnumType.STRING)
     private ExpenseCategory category;
+    @NotNull
+    private Double amount;
     private String description;
     @NotNull
     private LocalDate date;

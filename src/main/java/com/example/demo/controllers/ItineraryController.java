@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import java.util.List;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -103,11 +104,7 @@ public class ItineraryController {
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
     @PostMapping
-    public ResponseEntity<Void> createItinerary(@RequestBody ItineraryCreateDTO dto) {
-        if (dto.getDate() == null || dto.getTripId() == null || dto.getUserId() == null) {
-            throw new IllegalArgumentException("La fecha, el viaje y el usuario no pueden estar vacíos.");
-        }
-
+    public ResponseEntity<Void> createItinerary(@Valid @RequestBody ItineraryCreateDTO dto) {
         itineraryService.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

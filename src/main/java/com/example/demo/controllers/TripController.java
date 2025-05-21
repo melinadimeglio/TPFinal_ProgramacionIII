@@ -1,5 +1,8 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTOs.Trip.TripCreateDTO;
+import com.example.demo.DTOs.Trip.TripResponseDTO;
+import com.example.demo.DTOs.Trip.TripUpdateDTO;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.services.TripService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,118 +30,83 @@ public class TripController {
         this.tripService = tripService;
     }
 
-
-    @Operation(
-            summary = "Get all trips",
-            description = "Returns a list of all trips registered in the system."
-    )
+    @Operation(summary = "Get all trips", description = "Returns a list of all trips.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of trips retrieved successfully",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TripEntity.class)))
+                            schema = @Schema(implementation = TripResponseDTO.class)))
     })
     @GetMapping
-    public ResponseEntity<List<TripEntity>> getAllTrips() {
+    public ResponseEntity<List<TripResponseDTO>> getAllTrips() {
         return ResponseEntity.ok(tripService.findAll());
     }
 
-
-    @Operation(
-            summary = "Get a trip by ID",
-            description = "Returns a specific trip by its ID if it exists.",
-            parameters = {
-                    @Parameter(name = "id", description = "ID of the trip to retrieve", required = true)
-            }
-    )
+    @Operation(summary = "Get a trip by ID", description = "Returns a specific trip by its ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Trip found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TripEntity.class))),
+                            schema = @Schema(implementation = TripResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Trip not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<TripEntity> getTripById(@PathVariable Long id) {
-        TripEntity trip = tripService.findById(id);
-        return ResponseEntity.ok(trip);
+    public ResponseEntity<TripResponseDTO> getTripById(
+            @Parameter(description = "ID of the trip to retrieve", required = true)
+            @PathVariable Long id) {
+        return ResponseEntity.ok(tripService.findById(id));
     }
 
-
-    @Operation(
-            summary = "Create a new trip",
-            description = "Creates a new trip, including destination, dates, estimated budget, number of passengers and status.",
-            requestBody = @RequestBody(
-                    description = "Data of the new trip to register",
-                    required = true,
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TripEntity.class))
-            )
-    )
+    @Operation(summary = "Create a new trip", description = "Creates a new trip and returns the created trip.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Trip created successfully"),
+            @ApiResponse(responseCode = "201", description = "Trip created successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TripResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
     @PostMapping
-    public ResponseEntity<TripEntity> createTrip(@RequestBody TripEntity trip) {
-        if (trip.getDestination() == null || trip.getDestination().isBlank()) {
+    public ResponseEntity<Void> createTrip(
+            @RequestBody(description = "Data for the new trip", required = true,
+                    content = @Content(schema = @Schema(implementation = TripCreateDTO.class)))
+            @org.springframework.web.bind.annotation.RequestBody TripCreateDTO tripCreateDTO) {
+
+        if (tripCreateDTO.getDestination().isBlank()) {
             throw new IllegalArgumentException("El destino no puede estar vacío.");
         }
-        tripService.save(trip);
-        return ResponseEntity.status(HttpStatus.CREATED).body(trip);
+
+        tripService.save(tripCreateDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @Operation(
-            summary = "Update a trip by ID",
-            description = "Updates the information of a registered trip using its ID and the new provided data.",
-            parameters = {
-                    @Parameter(name = "id", description = "ID of the trip to update", required = true)
-            },
-            requestBody = @RequestBody(
-                    description = "Updated data of the trip",
-                    required = true,
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TripEntity.class))
-            )
-    )
+    @Operation(summary = "Update a trip by ID", description = "Updates a trip by its ID.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Trip updated successfully",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TripEntity.class))),
+            @ApiResponse(responseCode = "200", description = "Trip updated successfully"),
             @ApiResponse(responseCode = "404", description = "Trip not found"),
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<TripEntity> updateTrip(@PathVariable Long id,
-                                                 @RequestBody TripEntity updatedTrip) {
-        TripEntity existing = tripService.findById(id);
+    public ResponseEntity<Void> updateTrip(
+            @Parameter(description = "ID of the trip to update", required = true)
+            @PathVariable Long id,
+            @RequestBody(description = "Updated trip data", required = true,
+                    content = @Content(schema = @Schema(implementation = TripUpdateDTO.class)))
+            @org.springframework.web.bind.annotation.RequestBody TripUpdateDTO tripUpdateDTO) {
 
-        existing.setDestination(updatedTrip.getDestination());
-        existing.setStartDate(updatedTrip.getStartDate());
-        existing.setEndDate(updatedTrip.getEndDate());
-        existing.setEstimatedBudget(updatedTrip.getEstimatedBudget());
-        existing.setPassengers(updatedTrip.getPassengers());
-        existing.setActive(updatedTrip.isActive());
-
-        tripService.save(existing);
-        return ResponseEntity.ok(existing);
+        tripService.update(id, tripUpdateDTO);
+        return ResponseEntity.ok().build();
     }
 
-
-    @Operation(
-            summary = "Delete a trip by ID",
-            description = "Deletes the trip corresponding to the provided ID if it exists.",
-            parameters = {
-                    @Parameter(name = "id", description = "ID of the trip to delete", required = true)
-            }
-    )
+    @Operation(summary = "Delete a trip by ID", description = "Deletes a trip by its ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Trip deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Trip not found")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTrip(@PathVariable Long id) {
-        TripEntity trip = tripService.findById(id);
-        tripService.delete(trip);
+    public ResponseEntity<Void> deleteTrip(
+            @Parameter(description = "ID of the trip to delete", required = true)
+            @PathVariable Long id) {
+
+        tripService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }
+
 

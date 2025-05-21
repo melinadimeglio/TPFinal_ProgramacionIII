@@ -11,17 +11,15 @@ import org.mapstruct.MappingTarget;
 import java.util.List;
 
 @Mapper(componentModel = "spring", uses = {ActivityMapper.class})
-
 public interface ItineraryMapper {
+
     @Mapping(source = "user.id", target = "userId")
     @Mapping(source = "trip.id", target = "tripId")
-    @Mapping(source = "activities", target = "activities")
     ItineraryResponseDTO toDTO(ItineraryEntity entity);
 
     List<ItineraryResponseDTO> toDTOList(List<ItineraryEntity> entities);
 
-    @Mapping(target = "trip.id", source = "tripId")
-    @Mapping(target = "user.id", source = "userId")
+    // SIN @Mapping: user y trip los maneja el service
     ItineraryEntity toEntity(ItineraryCreateDTO dto);
 
     void updateEntityFromDTO(ItineraryUpdateDTO dto, @MappingTarget ItineraryEntity entity);

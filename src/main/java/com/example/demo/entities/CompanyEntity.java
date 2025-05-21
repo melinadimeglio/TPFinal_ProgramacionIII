@@ -36,7 +36,7 @@ public class CompanyEntity {
 
     @NotBlank
     @Column(unique = true)
-    private String tax_id;
+    private String taxId;
 
     @NotBlank
     private String location;

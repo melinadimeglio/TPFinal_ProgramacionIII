@@ -29,7 +29,7 @@ public class CompanyService {
     }
 
     public void save(CompanyEntity company){
-        if (companyRepository.existsByTaxId(company.getTax_id())){
+        if (companyRepository.existsByTaxId(company.getTaxId())){
             throw new IllegalArgumentException("El Tax ID ya se encuentra registrado en el sistema.");
         }
         companyRepository.save(company);

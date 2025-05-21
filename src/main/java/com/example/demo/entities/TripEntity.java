@@ -31,7 +31,7 @@ public class TripEntity {
     @ManyToMany(mappedBy = "trips")
     private Set<UserEntity> users;
 
-    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CheckListEntity> checklist;
 
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)

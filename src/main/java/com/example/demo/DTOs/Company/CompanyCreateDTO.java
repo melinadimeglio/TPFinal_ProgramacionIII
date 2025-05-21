@@ -26,7 +26,7 @@ public class CompanyCreateDTO {
     private String password;
 
     @NotBlank
-    private String tax_id;
+    private String taxId;
 
     @NotBlank
     private String location;
