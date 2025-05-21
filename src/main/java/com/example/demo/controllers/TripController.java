@@ -37,7 +37,6 @@ public class TripController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = TripEntity.class)))
     })
-    // Obtener todos los viajes
     @GetMapping
     public ResponseEntity<List<TripEntity>> getAllTrips() {
         return ResponseEntity.ok(tripService.findAll());
@@ -57,7 +56,6 @@ public class TripController {
                             schema = @Schema(implementation = TripEntity.class))),
             @ApiResponse(responseCode = "404", description = "Trip not found")
     })
-    // Obtener un viaje por ID
     @GetMapping("/{id}")
     public ResponseEntity<TripEntity> getTripById(@PathVariable Long id) {
         TripEntity trip = tripService.findById(id);
@@ -79,7 +77,6 @@ public class TripController {
             @ApiResponse(responseCode = "201", description = "Trip created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
-    // Crear un nuevo viaje
     @PostMapping
     public ResponseEntity<TripEntity> createTrip(@RequestBody TripEntity trip) {
         if (trip.getDestination() == null || trip.getDestination().isBlank()) {
@@ -109,7 +106,6 @@ public class TripController {
             @ApiResponse(responseCode = "404", description = "Trip not found"),
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
-    // Actualizar un viaje existente
     @PutMapping("/{id}")
     public ResponseEntity<TripEntity> updateTrip(@PathVariable Long id,
                                                  @RequestBody TripEntity updatedTrip) {
@@ -138,7 +134,6 @@ public class TripController {
             @ApiResponse(responseCode = "204", description = "Trip deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Trip not found")
     })
-    // Eliminar un viaje
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTrip(@PathVariable Long id) {
         TripEntity trip = tripService.findById(id);
