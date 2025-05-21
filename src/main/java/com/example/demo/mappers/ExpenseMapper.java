@@ -16,7 +16,6 @@ public interface ExpenseMapper {
     ExpenseResponseDTO toDTO(ExpenseEntity entity);
 
     List<ExpenseResponseDTO> toDTOList(List<ExpenseEntity> entities);
-
     @Mapping(source = "userId", target = "user.id")
     ExpenseEntity toEntity(ExpenseCreateDTO dto);
 

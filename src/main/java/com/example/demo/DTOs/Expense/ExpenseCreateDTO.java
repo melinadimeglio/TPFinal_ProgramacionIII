@@ -16,6 +16,6 @@ public class ExpenseCreateDTO {
     private String description;
     private Double amount;
     private LocalDate date;
-    private String username;
+    private String userId;
 
 }
