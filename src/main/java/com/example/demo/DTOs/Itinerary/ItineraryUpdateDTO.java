@@ -12,7 +12,6 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @Builder
 
-
 public class ItineraryUpdateDTO {
 
     private LocalDate date;

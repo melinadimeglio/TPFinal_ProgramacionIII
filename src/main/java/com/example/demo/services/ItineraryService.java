@@ -26,10 +26,7 @@ public class ItineraryService {
     private final UserRepository userRepository;
 
     @Autowired
-    public ItineraryService(ItineraryRepository itineraryRepository,
-                            ItineraryMapper itineraryMapper,
-                            TripRepository tripRepository,
-                            UserRepository userRepository) {
+    public ItineraryService(ItineraryRepository itineraryRepository, ItineraryMapper itineraryMapper, TripRepository tripRepository, UserRepository userRepository) {
         this.itineraryRepository = itineraryRepository;
         this.itineraryMapper = itineraryMapper;
         this.tripRepository = tripRepository;
@@ -56,19 +53,24 @@ public class ItineraryService {
         return itineraryMapper.toDTOList(itineraries);
     }
 
-    public void save(ItineraryCreateDTO dto){
+    public ItineraryResponseDTO save(ItineraryCreateDTO dto) {
+        if (dto.getUserId() == null || dto.getTripId() == null) {
+            throw new IllegalArgumentException("El usuario y el viaje no pueden ser nulos.");
+        }
+
         ItineraryEntity entity = itineraryMapper.toEntity(dto);
 
-        TripEntity trip = tripRepository.findById(dto.getTripId())
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el viaje"));
-
         UserEntity user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el usuario"));
+                .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado"));
 
-        entity.setTrip(trip);
+        TripEntity trip = tripRepository.findById(dto.getTripId())
+                .orElseThrow(() -> new NoSuchElementException("Viaje no encontrado"));
+
         entity.setUser(user);
+        entity.setTrip(trip);
 
-        itineraryRepository.save(entity);
+        ItineraryEntity saved = itineraryRepository.save(entity);
+        return itineraryMapper.toDTO(saved);
     }
 
 
