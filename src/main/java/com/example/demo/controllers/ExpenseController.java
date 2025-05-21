@@ -181,8 +181,4 @@ public class ExpenseController {
     public ResponseEntity<Double> getAverageExpensesByUser(@PathVariable Long id) {
         return ResponseEntity.ok(expenseService.getAverageExpenseByUserId(id));
     }
-
-
-
-
 }

@@ -3,6 +3,7 @@ package com.example.demo.controllers;
 import com.example.demo.DTOs.Activity.ActivityCreateDTO;
 import com.example.demo.DTOs.Activity.ActivityResponseDTO;
 import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
+import com.example.demo.DTOs.Expense.ExpenseResponseDTO;
 import com.example.demo.entities.ActivityEntity;
 import com.example.demo.entities.ItineraryEntity;
 import com.example.demo.entities.UserEntity;
@@ -48,6 +49,24 @@ public class ActivityController {
     public ResponseEntity<List<ActivityResponseDTO>> getAllActivities() {
         return ResponseEntity.ok(activityService.findAll());
     }
+
+    @Operation(
+            summary = "Get activities by user ID",
+            description = "Retrieves all activities created by a specific user."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Activities retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ActivityResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "User not found or no activities for user"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<ActivityResponseDTO>> findByUserId(@PathVariable Long userId) {
+        List<ActivityResponseDTO> activity = activityService.findByUserId(userId);
+        return ResponseEntity.ok(activity);
+    }
+
 
     @Operation(
             summary = "Get an activity by ID",
@@ -119,9 +138,6 @@ public class ActivityController {
         ActivityResponseDTO updated = activityService.findById(id);
         return ResponseEntity.ok(updated);
     }
-
-
-
 
 
     @Operation(

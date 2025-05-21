@@ -3,7 +3,9 @@ package com.example.demo.services;
 import com.example.demo.DTOs.Activity.ActivityCreateDTO;
 import com.example.demo.DTOs.Activity.ActivityResponseDTO;
 import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
+import com.example.demo.DTOs.Expense.ExpenseResponseDTO;
 import com.example.demo.entities.ActivityEntity;
+import com.example.demo.entities.ExpenseEntity;
 import com.example.demo.mappers.ActivityMapper;
 import com.example.demo.repositories.ActivityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +50,11 @@ public class ActivityService {
         ActivityEntity entity = activityRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No se encontró la actividad"));
         activityRepository.delete(entity);
+    }
+
+    public List<ActivityResponseDTO> findByUserId(Long userId) {
+        List<ActivityEntity> activity = activityRepository.findByUserId(userId);
+        return activityMapper.toDTOList(activity);
     }
 
     public ActivityEntity getEntityById(Long id) {
