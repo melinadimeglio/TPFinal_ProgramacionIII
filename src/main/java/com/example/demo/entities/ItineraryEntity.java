@@ -32,4 +32,8 @@ public class ItineraryEntity {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
+
+    @ManyToOne
+    @JoinColumn(name = "trip_id", nullable = false)
+    private TripEntity trip;
 }

@@ -21,5 +21,6 @@ public class ItineraryResponseDTO {
     private String notes;
     private List<ActivityResponseDTO> activities;
     private Long userId;
+    private Long tripId;
 
 }

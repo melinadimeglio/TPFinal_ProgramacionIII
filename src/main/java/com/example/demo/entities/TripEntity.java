@@ -34,4 +34,7 @@ public class TripEntity {
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)
     private List<CheckListEntity> checklist;
 
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)
+    private List<ItineraryEntity> itineraries;
+
 }

@@ -88,12 +88,14 @@ public class ItineraryController {
     // Crear un nuevo itinerario
     @PostMapping
     public ResponseEntity<Void> createItinerary(@RequestBody ItineraryCreateDTO dto) {
-        if (dto.getDate() == null) {
-            throw new IllegalArgumentException("La fecha no puede estar vacía.");
+        if (dto.getDate() == null || dto.getTripId() == null || dto.getUserId() == null) {
+            throw new IllegalArgumentException("La fecha, el viaje y el usuario no pueden estar vacíos.");
         }
+
         itineraryService.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
 
 
     @Operation(

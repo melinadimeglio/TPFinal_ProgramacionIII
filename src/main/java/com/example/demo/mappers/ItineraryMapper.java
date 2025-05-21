@@ -14,12 +14,14 @@ import java.util.List;
 
 public interface ItineraryMapper {
     @Mapping(source = "user.id", target = "userId")
-    @Mapping(source = "activities", target = "activities") // usa ActivityMapper automáticamente
+    @Mapping(source = "trip.id", target = "tripId")
+    @Mapping(source = "activities", target = "activities")
     ItineraryResponseDTO toDTO(ItineraryEntity entity);
 
     List<ItineraryResponseDTO> toDTOList(List<ItineraryEntity> entities);
 
-    @Mapping(source = "username", target = "user.username") // opcional, depende si lo usás
+    @Mapping(target = "trip.id", source = "tripId")
+    @Mapping(target = "user.id", source = "userId")
     ItineraryEntity toEntity(ItineraryCreateDTO dto);
 
     void updateEntityFromDTO(ItineraryUpdateDTO dto, @MappingTarget ItineraryEntity entity);

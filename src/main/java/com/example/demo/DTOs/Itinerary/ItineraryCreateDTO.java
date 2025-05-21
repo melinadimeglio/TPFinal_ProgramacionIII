@@ -16,6 +16,7 @@ public class ItineraryCreateDTO {
     private LocalDate date;
     private LocalTime time;
     private String notes;
-    private String username;
+    private Long userId;
+    private Long tripId;
 
 }
