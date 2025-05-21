@@ -3,7 +3,6 @@ package com.example.demo.controllers;
 import com.example.demo.entities.CheckListEntity;
 import com.example.demo.entities.CheckListItemEntity;
 import com.example.demo.services.CheckListItemService;
-import com.example.demo.services.CheckListService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
