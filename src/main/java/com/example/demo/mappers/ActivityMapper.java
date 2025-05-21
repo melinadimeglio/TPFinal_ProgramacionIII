@@ -2,6 +2,7 @@ package com.example.demo.mappers;
 
 import com.example.demo.DTOs.Activity.ActivityCreateDTO;
 import com.example.demo.DTOs.Activity.ActivityResponseDTO;
+import com.example.demo.DTOs.Activity.ActivityResumeDTO;
 import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
 import com.example.demo.entities.ActivityEntity;
 import org.mapstruct.Mapper;
@@ -24,4 +25,9 @@ public interface ActivityMapper {
     ActivityEntity toEntity(ActivityCreateDTO dto);
 
     void updateEntityFromDTO(ActivityUpdateDTO dto, @MappingTarget ActivityEntity entity);
+
+    @Mapping(source = "description", target = "description")
+    ActivityResumeDTO toResumeDTO(ActivityEntity entity);
+
+    List<ActivityResumeDTO> toResumeDTOList(List<ActivityEntity> entities);
 }
