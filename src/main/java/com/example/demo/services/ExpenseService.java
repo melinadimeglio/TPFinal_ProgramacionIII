@@ -56,6 +56,13 @@ public class ExpenseService{
         expenseRepository.delete(entity);
     }
 
+    public List<ExpenseResponseDTO> findByUserId(Long userId) {
+        List<ExpenseEntity> expenses = expenseRepository.findByUserId(userId);
+        return expenseMapper.toDTOList(expenses);
+    }
+
+
+
     public Double getAverageExpenseByUserId(Long id) {
         List<ExpenseEntity> expenses = expenseRepository.findByUserId(id);
         if (expenses.isEmpty()) return 0.0;
