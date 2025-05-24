@@ -28,7 +28,7 @@ public class ExpenseCreateDTO {
     @NotNull(message = "La fecha es obligatoria.")
     private LocalDate date;
 
-    @NotBlank(message = "El ID del usuario es obligatorio.")
-    private String userId;
+    @NotNull(message = "El ID del usuario es obligatorio.")
+    private Long userId;
 
 }

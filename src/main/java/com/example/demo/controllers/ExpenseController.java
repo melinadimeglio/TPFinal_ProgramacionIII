@@ -96,17 +96,16 @@ public class ExpenseController {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Expense successfully created"),
+            @ApiResponse(responseCode = "201", description = "Expense successfully created",
+                    content = @Content(schema = @Schema(implementation = ExpenseResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PostMapping
-    public ResponseEntity<Void> createExpense(@RequestBody @Valid ExpenseCreateDTO dto) {
-        if (dto.getAmount() == null || dto.getAmount() <= 0) {
-            throw new IllegalArgumentException("Amount must be greater than 0.");
-        }
-        expenseService.save(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<ExpenseResponseDTO> createExpense(@RequestBody @Valid ExpenseCreateDTO dto) {
+        ExpenseResponseDTO createdExpense = expenseService.save(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdExpense);
     }
+
 
     @Operation(
             summary = "Update an existing expense",
@@ -178,8 +177,8 @@ public class ExpenseController {
                     content = @Content(schema = @Schema(implementation = Double.class))),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
-    @GetMapping("/averageByUserId/{id}")
-    public ResponseEntity<Double> getAverageExpensesByUser(@PathVariable Long id) {
-        return ResponseEntity.ok(expenseService.getAverageExpenseByUserId(id));
+    @GetMapping("/averageByUserId/{userId}")
+    public ResponseEntity<Double> getAverageExpensesByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(expenseService.getAverageExpenseByUserId(userId));
     }
 }
