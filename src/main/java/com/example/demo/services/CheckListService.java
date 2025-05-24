@@ -33,4 +33,8 @@ public class CheckListService {
     public void delete(CheckListEntity checkListEntity){
         checkListRepository.delete(checkListEntity);
     }
+
+    public List<CheckListEntity> findByUserId(Long userId) {
+        return checkListRepository.findByUserId(userId);
+    }
 }

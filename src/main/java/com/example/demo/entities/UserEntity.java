@@ -8,6 +8,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -46,8 +47,15 @@ public class UserEntity {
     @ElementCollection
     private Set<String> preferencias;
 
-    private boolean active;
-    @ManyToOne
-    @JoinColumn(name = "trip_id")
-    private TripEntity trip;
+    @Builder.Default
+    private boolean active = true;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_trip",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "trip_id")
+    )
+    private Set<TripEntity> trips = new HashSet<>();
+
 }

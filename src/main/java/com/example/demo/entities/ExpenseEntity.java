@@ -2,10 +2,10 @@ package com.example.demo.entities;
 
 import com.example.demo.enums.ExpenseCategory;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDate;
+
 
 @Entity
 @Table(name = "Expense")
@@ -16,13 +16,20 @@ import java.util.Date;
 @ToString
 @Builder
 public class ExpenseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Enumerated(EnumType.STRING)
     private ExpenseCategory category;
-    private String description;
-    @NotNull
+
     private Double amount;
-    private Date date;
+    private String description;
+
+    private LocalDate date;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 }

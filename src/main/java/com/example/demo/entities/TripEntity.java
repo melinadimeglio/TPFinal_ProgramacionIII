@@ -1,12 +1,16 @@
 package com.example.demo.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import org.springframework.lang.NonNull;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "Trip")
@@ -15,19 +19,28 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@Builder
 public class TripEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotNull
+
     private String destination;
-    private LocalDate starDate;
+
+    private LocalDate startDate;
+
     private LocalDate endDate;
+
     private Double estimatedBudget;
-    private int passengers;
-    private boolean active;
+
+    private int companions;
+    private boolean active = true;
+
+    @ManyToMany(mappedBy = "trips")
+    private Set<UserEntity> users;
+
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CheckListEntity> checklist;
 
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)
-    private List<UserEntity> users;
+    private List<ItineraryEntity> itineraries;
 }

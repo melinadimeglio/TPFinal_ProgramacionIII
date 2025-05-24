@@ -1,7 +1,9 @@
 package com.example.demo.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -22,10 +24,17 @@ public class ItineraryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDate date;
-    private LocalTime time;
+    private LocalDate itineraryDate;
     private String notes;
 
     @OneToMany(mappedBy = "itinerary", fetch = FetchType.LAZY)
     private List<ActivityEntity> activities;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
+
+    @ManyToOne
+    @JoinColumn(name = "trip_id", nullable = false)
+    private TripEntity trip;
 }

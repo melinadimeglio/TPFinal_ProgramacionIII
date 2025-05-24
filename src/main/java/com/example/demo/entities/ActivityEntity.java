@@ -21,8 +21,13 @@ public class ActivityEntity {
     private Long id;
 
     private Double price;
-    private boolean availability;
+
+    private String name;
+
     private String description;
+
+    @Column(nullable = false)
+    private boolean available = true;
 
     @Enumerated(EnumType.STRING)
     private ActivityCategory category;
@@ -32,7 +37,14 @@ public class ActivityEntity {
     private LocalTime endTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "itinerary_id", nullable = false)
+    @JoinColumn(name = "itinerary_id")
     private ItineraryEntity itinerary;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
+
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    private CompanyEntity company;
 }
