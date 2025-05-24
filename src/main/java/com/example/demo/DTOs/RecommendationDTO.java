@@ -11,7 +11,9 @@ import lombok.*;
 
 public class RecommendationDTO {
 
-    private String nombre;
-    private String tipo;
+    private String name;
+    private String description;
+    private Double lat;
+    private Double lon;
 
 }
