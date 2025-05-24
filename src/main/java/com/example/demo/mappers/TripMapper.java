@@ -6,9 +6,7 @@ import com.example.demo.DTOs.Trip.TripResumeDTO;
 import com.example.demo.DTOs.Trip.TripUpdateDTO;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
 import java.util.List;
 import java.util.Set;
@@ -23,10 +21,10 @@ public interface TripMapper {
 
     TripResumeDTO toResumeDTO(TripEntity entity);
 
-    @Mapping(target = "users", ignore = true) // los setea el service, no el mapper
+    @Mapping(target = "users", ignore = true)
     TripEntity toEntity(TripCreateDTO dto);
 
-
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDTO(TripUpdateDTO dto, @MappingTarget TripEntity entity);
 
     default List<Long> mapUsersToIds(Set<UserEntity> users) {

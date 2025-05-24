@@ -18,7 +18,7 @@ public class TripResponseDTO {
     private LocalDate startDate;
     private LocalDate endDate;
     private Double estimatedBudget;
-    private int passengers;
+    private int companions;
     private boolean active;
     private List<Long> userIds;
 

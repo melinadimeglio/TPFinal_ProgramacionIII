@@ -21,7 +21,7 @@ public class TripUpdateDTO {
     private Double estimatedBudget;
 
     @Min(value = 1, message = "Debe haber al menos un pasajero.")
-    private Integer passengers;
+    private Integer companions;
 
     private Boolean active;
 

@@ -41,7 +41,7 @@ public class TripService {
         return tripMapper.toDTO(trip);
     }
 
-    public void save(TripCreateDTO dto) {
+    public TripResponseDTO save(TripCreateDTO dto) {
         TripEntity entity = tripMapper.toEntity(dto);
 
         if (dto.getUserIds() != null && !dto.getUserIds().isEmpty()) {
@@ -50,22 +50,33 @@ public class TripService {
             entity.setUsers(users);
         }
 
-        tripRepository.save(entity);
+        TripEntity saved = tripRepository.save(entity);
+        return tripMapper.toDTO(saved);
     }
 
-    public void update(Long id, TripUpdateDTO dto) {
-        TripEntity existingTrip = tripRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el viaje con ID " + id));
 
-        tripMapper.updateEntityFromDTO(dto, existingTrip);
-        tripRepository.save(existingTrip);
+    public TripResponseDTO update(Long id, TripUpdateDTO dto) {
+        TripEntity entity = tripRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Trip not found"));
+
+        tripMapper.updateEntityFromDTO(dto, entity);
+        TripEntity updated = tripRepository.save(entity);
+
+        return tripMapper.toDTO(updated);
     }
 
-    // Eliminar un viaje por ID
+
     public void delete(Long id) {
         TripEntity trip = tripRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No se encontró el viaje con ID " + id));
         tripRepository.delete(trip);
     }
+
+    public List<TripResponseDTO> findByUserId(Long userId) {
+        List<TripEntity> trips = tripRepository.findByUsersId(userId);
+        return tripMapper.toDTOList(trips);
+    }
+
 }
+
 

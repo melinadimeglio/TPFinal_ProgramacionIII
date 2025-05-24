@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTOs.Trip.TripCreateDTO;
 import com.example.demo.DTOs.Trip.TripResponseDTO;
 import com.example.demo.DTOs.User.UserCreateDTO;
 import com.example.demo.DTOs.User.UserResponse;
@@ -7,7 +8,12 @@ import com.example.demo.DTOs.User.UserUpdateDTO;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.mappers.UserMapper;
 import com.example.demo.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,13 +35,11 @@ public class UserController {
         this.userMapper = userMapper;
     }
 
-    // Obtener todos los usuarios
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.findAll());
     }
 
-    // Obtener un usuario por ID
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getTripById(
             @Parameter(description = "ID of the user to retrieve", required = true)
@@ -43,7 +47,33 @@ public class UserController {
         return ResponseEntity.ok(userMapper.toDTO(userService.findById(id)));
     }
 
-    // Crear un nuevo usuario
+
+    @Operation(
+            summary = "Create a new trip",
+            description = "This endpoint allows creating a new trip by providing destination, dates, estimated budget, number of companions, and a list of user IDs.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Trip details to be created",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = TripCreateDTO.class)
+                    )
+            )
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Trip successfully created",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = TripResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input data"
+            )
+    })
     @PostMapping
     public ResponseEntity<UserResponse> createUser(@RequestBody @Valid UserCreateDTO user) {
         UserEntity userEntity = userMapper.toUserEntity(user);

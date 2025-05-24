@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Trips", description = "Operations related to users trips")
 @RestController
 @RequestMapping("/trips")
 public class TripController {
@@ -56,6 +58,7 @@ public class TripController {
         return ResponseEntity.ok(tripService.findById(id));
     }
 
+
     @Operation(summary = "Create a new trip", description = "Creates a new trip and returns the created trip.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Trip created successfully",
@@ -64,33 +67,63 @@ public class TripController {
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
     @PostMapping
-    public ResponseEntity<Void> createTrip(
+    public ResponseEntity<TripResponseDTO> createTrip(
             @RequestBody(description = "Data for the new trip", required = true,
                     content = @Content(schema = @Schema(implementation = TripCreateDTO.class)))
             @org.springframework.web.bind.annotation.RequestBody @Valid TripCreateDTO tripCreateDTO) {
 
-
-        tripService.save(tripCreateDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        TripResponseDTO responseDTO = tripService.save(tripCreateDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
+
+
+    @Operation(
+            summary = "Get trips by user ID",
+            description = "Returns all trips associated with a specific user ID."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Trips found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = TripResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found"
+            )
+    })
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<TripResponseDTO>> getTripsByUserId(
+            @Parameter(description = "ID of the user whose trips will be retrieved", required = true)
+            @PathVariable Long userId) {
+        List<TripResponseDTO> trips = tripService.findByUserId(userId);
+        return ResponseEntity.ok(trips);
+    }
+
 
     @Operation(summary = "Update a trip by ID", description = "Updates a trip by its ID.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Trip updated successfully"),
+            @ApiResponse(responseCode = "200", description = "Trip updated successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TripResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Trip not found"),
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateTrip(
+    public ResponseEntity<TripResponseDTO> updateTrip(
             @Parameter(description = "ID of the trip to update", required = true)
             @PathVariable Long id,
             @RequestBody(description = "Updated trip data", required = true,
                     content = @Content(schema = @Schema(implementation = TripUpdateDTO.class)))
             @org.springframework.web.bind.annotation.RequestBody @Valid TripUpdateDTO tripUpdateDTO) {
 
-        tripService.update(id, tripUpdateDTO);
-        return ResponseEntity.ok().build();
+        TripResponseDTO updatedTrip = tripService.update(id, tripUpdateDTO);
+        return ResponseEntity.ok(updatedTrip);
     }
+
 
     @Operation(summary = "Delete a trip by ID", description = "Deletes a trip by its ID.")
     @ApiResponses(value = {
