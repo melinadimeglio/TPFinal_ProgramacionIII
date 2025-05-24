@@ -16,14 +16,16 @@ public class GeocodingService {
 
     public Coordinates getCoordinates (String destino){
         String url = "https://nominatim.openstreetmap.org/search?q=" + UriUtils.encode(destino, StandardCharsets.UTF_8)
-                + "&format=json&limit=1";
+                + "&format=json&limit=2";
 
         ResponseEntity<NominatimResponse[]> response = restTemplate.getForEntity(url, NominatimResponse[].class);
         NominatimResponse[] result = response.getBody();
 
         if (result != null && result.length > 0){
             double lat = Double.parseDouble(result[0].getLat());
-            double lon = Double.parseDouble(result[1].getLon());
+            double lon = Double.parseDouble(result[0].getLon());
+            //double lat = Double.parseDouble(result[0].getLat());
+            //double lon = Double.parseDouble(result[1].getLon());
             return new Coordinates(lat, lon);
         }
 

@@ -1,12 +1,15 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTOs.RecommendationDTO;
 import com.example.demo.DTOs.Trip.TripCreateDTO;
 import com.example.demo.DTOs.Trip.TripResponseDTO;
 import com.example.demo.DTOs.Trip.TripUpdateDTO;
 import com.example.demo.entities.TripEntity;
+import com.example.demo.services.RecommendationService;
 import com.example.demo.services.TripService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -27,11 +30,15 @@ import java.util.List;
 public class TripController {
 
     private final TripService tripService;
+    private final RecommendationService recommendationService;
+
+    public TripController(TripService tripService, RecommendationService recommendationService) {
+        this.tripService = tripService;
+        this.recommendationService = recommendationService;
+    }
 
     @Autowired
-    public TripController(TripService tripService) {
-        this.tripService = tripService;
-    }
+
 
     @Operation(summary = "Get all trips", description = "Returns a list of all trips.")
     @ApiResponses(value = {
@@ -138,6 +145,31 @@ public class TripController {
         tripService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(
+            summary = "Obtener recomendaciones de actividades para un viaje",
+            description = "Devuelve una lista de actividades sugeridas en base al destino, fechas u otros datos del viaje especificado."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Lista de recomendaciones generada exitosamente",
+                    content = @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = RecommendationDTO.class))
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Viaje no encontrado"
+            )
+    })
+    @GetMapping("/{tripId}/recommendations")
+    public ResponseEntity<List<RecommendationDTO>> getRecommendations(@PathVariable Long tripId){
+        List<RecommendationDTO> recomemendations = recommendationService.getRecommendationsForTrip(tripId);
+        return ResponseEntity.ok(recomemendations);
+    }
+
 }
 
 

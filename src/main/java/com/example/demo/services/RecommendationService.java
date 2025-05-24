@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,9 +39,16 @@ public class RecommendationService {
         TripEntity trip = tripService.getTripById(tripId);
         Coordinates coords = geocodingService.getCoordinates(trip.getDestination());
 
+        System.out.println("Lon: " + coords.getLon() + ", Lat: " + coords.getLat());
+        //System.out.println("URL construida: " + url);
+
         String url = String.format(
-                "https://api.opentripmap.com/0.1/en/places/radius?radius=5000&lon=%f&lat=%f&format=geojson&apikey=%s",
-                coords.getLon(), coords.getLat(), apiKey);
+                Locale.US,
+                "https://api.opentripmap.com/0.1/en/places/radius?radius=%d&lon=%.6f&lat=%.6f&format=geojson&limit=10&apikey=%s",
+                5000, coords.getLon(), coords.getLat(), apiKey
+        );
+
+        System.out.println("URL construida: " + url);
 
         ResponseEntity<PlacesResponse> response = restTemplate.exchange(url, HttpMethod.GET, null, PlacesResponse.class);
         List<Feature> features = response.getBody().getFeatures();

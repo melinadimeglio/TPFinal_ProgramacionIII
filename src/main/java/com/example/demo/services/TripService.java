@@ -77,6 +77,12 @@ public class TripService {
         return tripMapper.toDTOList(trips);
     }
 
+    //necesario para la api
+    public TripEntity getTripById(Long id) {
+        return tripRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Trip not found"));
+    }
+
 }
 
 

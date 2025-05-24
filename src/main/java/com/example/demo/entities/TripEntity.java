@@ -35,7 +35,7 @@ public class TripEntity {
     private int companions;
     private boolean active = true;
 
-    @ManyToMany(mappedBy = "trips")
+    @ManyToMany(mappedBy = "trips", fetch = FetchType.EAGER)
     private Set<UserEntity> users;
 
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
