@@ -22,7 +22,6 @@ public class ItineraryCreateDTO {
     @NotNull(message = "El usuario es obligatorio.")
     private Long userId;
     @NotNull(message = "El viaje es obligatorio.")
-
     private Long tripId;
 
 }

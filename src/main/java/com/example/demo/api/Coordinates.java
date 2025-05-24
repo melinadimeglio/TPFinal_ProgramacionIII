@@ -1,4 +1,4 @@
-package com.example.demo.DTOs;
+package com.example.demo.api;
 
 import lombok.*;
 
@@ -9,10 +9,9 @@ import lombok.*;
 @ToString
 @Builder
 
-public class CoordinatesDTO {
+public class Coordinates {
 
     private double lat;
     private double lon;
-    private String name;
 
 }

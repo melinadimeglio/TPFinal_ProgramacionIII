@@ -67,5 +67,12 @@ public class TripService {
                 .orElseThrow(() -> new NoSuchElementException("No se encontró el viaje con ID " + id));
         tripRepository.delete(trip);
     }
+
+    // necesario para la api
+    public TripEntity getTripById(Long id) {
+        return tripRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("No se encontró el viaje con ID " + id));
+    }
+
 }
 
