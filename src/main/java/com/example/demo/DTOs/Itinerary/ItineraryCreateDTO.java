@@ -18,7 +18,11 @@ public class ItineraryCreateDTO {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate itineraryDate;
     private String notes;
+
+    @NotNull(message = "El usuario es obligatorio.")
     private Long userId;
+    @NotNull(message = "El viaje es obligatorio.")
+
     private Long tripId;
 
 }

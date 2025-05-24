@@ -19,7 +19,8 @@ public interface ItineraryMapper {
 
     List<ItineraryResponseDTO> toDTOList(List<ItineraryEntity> entities);
 
-    // SIN @Mapping: user y trip los maneja el service
+    @Mapping(source = "tripId", target = "trip.id")
+    @Mapping(source = "userId", target = "user.id")
     ItineraryEntity toEntity(ItineraryCreateDTO dto);
 
     void updateEntityFromDTO(ItineraryUpdateDTO dto, @MappingTarget ItineraryEntity entity);

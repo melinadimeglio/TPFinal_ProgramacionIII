@@ -1,33 +1,32 @@
 package com.example.demo.mappers;
 
-import com.example.demo.DTOs.Activity.ActivityCreateDTO;
-import com.example.demo.DTOs.Activity.ActivityResponseDTO;
-import com.example.demo.DTOs.Activity.ActivityResumeDTO;
-import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
+import com.example.demo.DTOs.Activity.*;
 import com.example.demo.entities.ActivityEntity;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface ActivityMapper {
 
-    @Mapping(source = "itinerary.id", target = "itineraryId")
-    @Mapping(source = "user.id", target = "userId")
+    @Mapping(target = "user.id", source = "userId")
+    @Mapping(target = "company", ignore = true)
+    @Mapping(target = "itinerary.id", source = "itineraryId")
+    ActivityEntity toEntity(UserActivityCreateDTO dto);
+
+    // 2. Crear actividad desde empresa
+    @Mapping(target = "company.id", source = "companyId")
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "itinerary", ignore = true)
+    ActivityEntity toEntity(CompanyActivityCreateDTO dto);
+
+    // 3. Convertir entidad a DTO de respuesta
+    @Mapping(target = "itineraryId", source = "itinerary.id")
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "companyId", source = "company.id")
     ActivityResponseDTO toDTO(ActivityEntity entity);
 
-    List<ActivityResponseDTO> toDTOList(List<ActivityEntity> entities);
-
-    @Mapping(source = "itineraryId", target = "itinerary.id")
-    @Mapping(source = "userId", target = "user.id")
-    ActivityEntity toEntity(ActivityCreateDTO dto);
-
+    // 4. Actualizar campos desde DTO
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDTO(ActivityUpdateDTO dto, @MappingTarget ActivityEntity entity);
-
-    @Mapping(source = "description", target = "description")
-    ActivityResumeDTO toResumeDTO(ActivityEntity entity);
-
-    List<ActivityResumeDTO> toResumeDTOList(List<ActivityEntity> entities);
 }

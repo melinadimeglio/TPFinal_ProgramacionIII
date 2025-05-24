@@ -16,11 +16,12 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @Builder
 
-public class ActivityCreateDTO {
+public class UserActivityCreateDTO {
 
-    @NotNull(message = "El precio es obligatorio.")
-    @DecimalMin(value = "0.0", inclusive = true, message = "El precio no puede ser negativo.")
     private Double price;
+
+    @NotBlank(message = "El nombre es obligatorio")
+    private String name;
 
     @NotBlank(message = "La descripción es obligatoria.")
     private String description;
@@ -32,13 +33,12 @@ public class ActivityCreateDTO {
     @FutureOrPresent(message = "La fecha debe ser hoy o en el futuro.")
     private LocalDate date;
 
-    @NotNull(message = "La hora de inicio es obligatoria.")
     private LocalTime startTime;
 
-    @NotNull(message = "La hora de fin es obligatoria.")
     private LocalTime endTime;
 
     private Long itineraryId;
-    private Long userId;
 
+    @NotNull(message = "El ID del usuario es obligatorio.")
+    private Long userId;
 }
