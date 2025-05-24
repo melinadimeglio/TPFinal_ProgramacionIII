@@ -4,9 +4,7 @@ import com.example.demo.DTOs.Itinerary.ItineraryCreateDTO;
 import com.example.demo.DTOs.Itinerary.ItineraryResponseDTO;
 import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
 import com.example.demo.entities.ItineraryEntity;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
 import java.util.List;
 
@@ -23,5 +21,6 @@ public interface ItineraryMapper {
     @Mapping(source = "userId", target = "user.id")
     ItineraryEntity toEntity(ItineraryCreateDTO dto);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDTO(ItineraryUpdateDTO dto, @MappingTarget ItineraryEntity entity);
 }

@@ -24,5 +24,4 @@ public class ItineraryResponseDTO {
     private List<ActivityResumeDTO> activities;
     private Long userId;
     private Long tripId;
-
 }

@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Activities", description = "Operations related to users and companies activities")
 @RestController
 @RequestMapping("/activities")
 public class ActivityController {
@@ -193,11 +195,15 @@ public class ActivityController {
                     description = "Activity not found"
             )
     })
-    @PutMapping
-    public ResponseEntity<ActivityResponseDTO> updateActivity(@RequestBody @Valid ActivityUpdateDTO dto) {
-        ActivityResponseDTO updated = activityService.updateAndReturn(dto); // nuevo método
+    @PutMapping("/{id}")
+    public ResponseEntity<ActivityResponseDTO> updateActivity(
+            @PathVariable Long id,
+            @RequestBody @Valid ActivityUpdateDTO dto
+    ) {
+        ActivityResponseDTO updated = activityService.updateAndReturn(id, dto);
         return ResponseEntity.ok(updated);
     }
+
 
 
     @Operation(

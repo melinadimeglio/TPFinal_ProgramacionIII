@@ -53,7 +53,7 @@ public class ItineraryService {
         return itineraryMapper.toDTOList(itineraries);
     }
 
-    /*public ItineraryResponseDTO save(ItineraryCreateDTO dto) {
+    public ItineraryResponseDTO save(ItineraryCreateDTO dto) {
         if (dto.getUserId() == null || dto.getTripId() == null) {
             throw new IllegalArgumentException("El usuario y el viaje no pueden ser nulos.");
         }
@@ -71,19 +71,16 @@ public class ItineraryService {
 
         ItineraryEntity saved = itineraryRepository.save(entity);
         return itineraryMapper.toDTO(saved);
-    }*/
-
-    public ItineraryEntity save(ItineraryEntity itinerary) {
-        return itineraryRepository.save(itinerary);
     }
 
 
-
-    public void update(Long id, ItineraryUpdateDTO dto) {
+        public ItineraryResponseDTO updateAndReturn(Long id, ItineraryUpdateDTO dto) {
         ItineraryEntity entity = getEntityById(id);
         itineraryMapper.updateEntityFromDTO(dto, entity);
-        itineraryRepository.save(entity);
+        ItineraryEntity saved = itineraryRepository.save(entity);
+        return itineraryMapper.toDTO(saved);
     }
+
 
     public void delete(Long id) {
         ItineraryEntity entity = getEntityById(id);

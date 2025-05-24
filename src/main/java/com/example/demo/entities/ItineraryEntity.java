@@ -24,8 +24,6 @@ public class ItineraryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "La fecha del itinerario es obligatoria.")
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate itineraryDate;
     private String notes;
 

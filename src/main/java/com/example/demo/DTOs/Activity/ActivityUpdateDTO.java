@@ -18,9 +18,6 @@ import java.time.LocalTime;
 
 public class ActivityUpdateDTO {
 
-    @NotNull(message = "El ID de la actividad es obligatorio.")
-    private Long id;
-
     @DecimalMin(value = "0.0", inclusive = true, message = "El precio no puede ser negativo.")
     private Double price;
 

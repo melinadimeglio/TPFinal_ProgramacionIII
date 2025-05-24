@@ -100,8 +100,8 @@ public class ActivityService {
                 .collect(Collectors.toList());
     }
 
-    public ActivityResponseDTO updateAndReturn(ActivityUpdateDTO dto) {
-        ActivityEntity entity = activityRepository.findById(dto.getId())
+    public ActivityResponseDTO updateAndReturn(Long id,ActivityUpdateDTO dto) {
+        ActivityEntity entity = activityRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Actividad no encontrada"));
 
         activityMapper.updateEntityFromDTO(dto, entity);
