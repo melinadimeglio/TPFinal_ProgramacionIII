@@ -1,5 +1,8 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTOs.CheckList.CheckListCreateDTO;
+import com.example.demo.DTOs.CheckList.CheckListResponseDTO;
+import com.example.demo.DTOs.CheckList.CheckListUpdateDTO;
 import com.example.demo.entities.CheckListEntity;
 import com.example.demo.services.CheckListService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,148 +24,104 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 
-@Tag(name = "CheckList", description = "Operations related to users' checklist")
+@Tag(name = "Checklists", description = "Operations related to user travel checklists")
 @RestController
 @RequestMapping("/checklists")
+@RequiredArgsConstructor
 public class CheckListController {
 
     private final CheckListService checkListService;
 
-    @Autowired
-    public CheckListController(CheckListService checkListService) {
-        this.checkListService = checkListService;
-    }
-
-
     @Operation(
-            summary = "Get all checklist items",
-            description = "Returns a list of all checklist items registered in the system."
+            summary = "Create a new checklist",
+            description = "Creates a new checklist for a specific user and trip.",
+            requestBody = @RequestBody(
+                    required = true,
+                    description = "Checklist data",
+                    content = @Content(schema = @Schema(implementation = CheckListCreateDTO.class))
+            )
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Checklist retrieved successfully",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CheckListEntity.class))),
-            @ApiResponse(responseCode = "204", description = "No checklist items found")
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Checklist successfully created",
+                    content = @Content(schema = @Schema(implementation = CheckListResponseDTO.class))
+            ),
+            @ApiResponse(responseCode = "400", description = "Invalid data")
     })
-    // Obtener todos los ítems del checklist
+    @PostMapping
+    public ResponseEntity<CheckListResponseDTO> create(
+            @org.springframework.web.bind.annotation.RequestBody @Valid CheckListCreateDTO dto) {
+        CheckListResponseDTO created = checkListService.create(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @Operation(
+            summary = "Update a checklist by ID",
+            description = "Updates a checklist with new data, including its name, user, trip and status.",
+            requestBody = @RequestBody(
+                    required = true,
+                    description = "Checklist update data",
+                    content = @Content(schema = @Schema(implementation = CheckListUpdateDTO.class))
+            )
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Checklist updated successfully",
+                    content = @Content(schema = @Schema(implementation = CheckListResponseDTO.class))
+            ),
+            @ApiResponse(responseCode = "404", description = "Checklist not found"),
+            @ApiResponse(responseCode = "400", description = "Invalid input data")
+    })
+    @PutMapping("/{id}")
+    public ResponseEntity<CheckListResponseDTO> update(
+            @PathVariable Long id,
+            @org.springframework.web.bind.annotation.RequestBody @Valid CheckListUpdateDTO dto) {
+        CheckListResponseDTO updated = checkListService.update(id, dto);
+        return ResponseEntity.ok(updated);
+    }
+
+    @Operation(summary = "Get a checklist by ID", description = "Retrieves a checklist by its unique identifier.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Checklist found",
+                    content = @Content(schema = @Schema(implementation = CheckListResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Checklist not found")
+    })
+    @GetMapping("/{id}")
+    public ResponseEntity<CheckListResponseDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(checkListService.findById(id));
+    }
+
+    @Operation(summary = "Get all checklists", description = "Returns all checklists in the system.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of checklists",
+                    content = @Content(schema = @Schema(implementation = CheckListResponseDTO.class)))
+    })
     @GetMapping
-    public ResponseEntity<List<CheckListEntity>> getAllItems() {
+    public ResponseEntity<List<CheckListResponseDTO>> getAll() {
         return ResponseEntity.ok(checkListService.findAll());
     }
 
-
-    @Operation(
-            summary = "Get a checklist item by ID",
-            description = "Returns a specific checklist item by its ID if it exists.",
-            parameters = {
-                    @Parameter(name = "id", description = "ID of the checklist item to retrieve", required = true)
-            }
-    )
+    @Operation(summary = "Get all checklists by user ID", description = "Retrieves all checklists created by the specified user.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Checklist item found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CheckListEntity.class))),
-            @ApiResponse(responseCode = "404", description = "Checklist item not found")
+            @ApiResponse(responseCode = "200", description = "List of checklists for the user",
+                    content = @Content(schema = @Schema(implementation = CheckListResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "User not found or has no checklists")
     })
-    // Obtener un ítem por ID
-    @GetMapping("/{id}")
-    public ResponseEntity<CheckListEntity> getItemById(@PathVariable Long id) {
-        CheckListEntity item = checkListService.findById(id);
-        return ResponseEntity.ok(item);
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<CheckListResponseDTO>> getByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(checkListService.findByUserId(userId));
     }
 
-    @Operation(
-            summary = "Create a new checklist item",
-            description = "Creates a new checklist item for a user, including its text and status.",
-            requestBody = @RequestBody(
-                    description = "Checklist item data to be created",
-                    required = true,
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CheckListEntity.class)))
-    )
+    @Operation(summary = "Delete a checklist by ID", description = "Deletes the specified checklist and all its items.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Checklist item successfully created"),
-            @ApiResponse(responseCode = "400", description = "Invalid item data")
+            @ApiResponse(responseCode = "204", description = "Checklist deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Checklist not found")
     })
-    // Crear un nuevo ítem
-    @PostMapping
-    public ResponseEntity<CheckListEntity> createItem(@RequestBody @Valid CheckListEntity item) {
-        if (item.getItem() == null || item.getItem().isBlank()) {
-            throw new IllegalArgumentException("El ítem no puede estar vacío.");
-        }
-        checkListService.save(item);
-        return ResponseEntity.status(HttpStatus.CREATED).body(item);
-    }
-
-    @Operation(
-            summary = "Update a checklist item",
-            description = "Updates an existing checklist item by its ID.",
-            parameters = {
-                    @Parameter(name = "id", description = "ID of the item to update", required = true)
-            },
-            requestBody = @RequestBody(
-                    description = "Updated checklist item data",
-                    required = true,
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CheckListEntity.class)))
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Checklist item successfully updated",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CheckListEntity.class))),
-            @ApiResponse(responseCode = "404", description = "Checklist item not found")
-    })
-    // Actualizar un ítem
-    @PutMapping("/{id}")
-    public ResponseEntity<CheckListEntity> updateItem(@PathVariable Long id,
-                                                      @RequestBody @Valid CheckListEntity updatedItem) {
-        CheckListEntity existing = checkListService.findById(id);
-
-        existing.setItem(updatedItem.getItem());
-        existing.setStatus(updatedItem.isStatus());
-
-        checkListService.save(existing);
-        return ResponseEntity.ok(existing);
-    }
-
-
-    @Operation(
-            summary = "Delete a checklist item",
-            description = "Deletes a checklist item by its ID if it exists.",
-            parameters = {
-                    @Parameter(name = "id", description = "ID of the checklist item to delete", required = true)
-            }
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Checklist item successfully deleted"),
-            @ApiResponse(responseCode = "404", description = "Checklist item not found")
-    })
-    // Eliminar un ítem
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteItem(@PathVariable Long id) {
-        CheckListEntity item = checkListService.findById(id);
-        checkListService.delete(item);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        checkListService.delete(id);
         return ResponseEntity.noContent().build();
     }
-
-    @Operation(
-            summary = "Get checklist items by user ID",
-            description = "Returns the list of checklist items associated with a specific user ID.",
-            parameters = {
-                    @Parameter(name = "userId", description = "ID of the user", required = true)
-            }
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Checklist items retrieved successfully",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CheckListEntity.class))),
-            @ApiResponse(responseCode = "404", description = "User not found or has no items")
-    })
-    // Ver lista de CheckList por usuario
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<CheckListEntity>> getCheckListByUserId(@PathVariable Long userId) {
-        List<CheckListEntity> items = checkListService.findByUserId(userId);
-        return ResponseEntity.ok(items);
-    }
 }
-

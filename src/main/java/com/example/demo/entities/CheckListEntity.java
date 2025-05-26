@@ -21,9 +21,8 @@ public class CheckListEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //ver si dejamos esto, checklist tiene nombre?
-    private String item;
-    private boolean status;
+    private String name;
+    private boolean completed;
 
     @ManyToOne
     @JoinColumn(name = "trip_id", nullable = false)
