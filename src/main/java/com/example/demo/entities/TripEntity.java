@@ -19,6 +19,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+
 public class TripEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

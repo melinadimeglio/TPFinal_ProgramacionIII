@@ -4,6 +4,7 @@ import com.example.demo.DTOs.RecommendationDTO;
 import com.example.demo.DTOs.Trip.TripCreateDTO;
 import com.example.demo.DTOs.Trip.TripResponseDTO;
 import com.example.demo.DTOs.Trip.TripUpdateDTO;
+import com.example.demo.entities.CategoryEntity;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.enums.ActivityCategory;
@@ -181,16 +182,27 @@ public class TripController {
 
     @GetMapping("/{tripId}/recommendations/filtered")
     public ResponseEntity<List<RecommendationDTO>> getFilteredRecommendations(@PathVariable Long tripId){
-        List<RecommendationDTO> recomemendations = recommendationService.getRecommendationsForTrip(tripId);
-        TripEntity trip = tripRepository.findById(tripId).orElseThrow(NoSuchElementException::new);
-        Set<UserEntity> users = trip.getUsers();
+        List<RecommendationDTO> recomendations = recommendationService.getRecommendationsForTrip(tripId);
+        TripEntity trip = tripService.getTripById(tripId);
 
-        Set<UserPreferences> allPreferences = users.stream()
+        System.out.println("TRIP: " + trip);
+
+
+        Set<UserEntity> users = trip.getUsers();
+        System.out.println("USersss: " + users);
+
+        Set<String> allPreferences = users.stream()
                 .flatMap(user -> user.getPreferencias().stream())
+                .map(pref -> pref.getKindApi().toLowerCase())
                 .collect(Collectors.toSet());
 
-        List<RecommendationDTO> filteredRecommendations = recomemendations.stream()
-                .filter(rec -> allPreferences.contains(rec.getDescription()))
+        System.out.println("Usuarios del viaje: " + users.size());
+        users.forEach(u -> System.out.println(u.getPreferencias()));
+
+        List<RecommendationDTO> filteredRecommendations = recomendations.stream()
+                .filter(rec -> rec.getCategories().stream()
+                        .map(cat -> cat.getName().toLowerCase())
+                        .anyMatch(allPreferences::contains))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(filteredRecommendations);

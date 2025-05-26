@@ -17,8 +17,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,7 +54,6 @@ public class RecommendationService {
         ResponseEntity<PlacesResponse> response = restTemplate.exchange(url, HttpMethod.GET, null, PlacesResponse.class);
         List<Feature> features = response.getBody().getFeatures();
 
-        // Guardar entidades en la base
         List<RecommendationEntity> entities = features.stream()
                 .map(recommendationMapper::toEntity)
                 .peek(r -> r.setTrip(trip))
@@ -61,15 +62,9 @@ public class RecommendationService {
         recommendationRepository.saveAll(entities);
 
         return entities.stream()
-                .map(r -> {
-                    RecommendationDTO dto = new RecommendationDTO();
-                    dto.setName(r.getName());
-                    dto.setDescription(r.getDescription());
-                    dto.setLat(r.getLat());
-                    dto.setLon(r.getLon());
-                    return dto;
-                })
+                .map(recommendationMapper::toDTO)
                 .collect(Collectors.toList());
+
     }
 
 }

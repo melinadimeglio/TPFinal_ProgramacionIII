@@ -1,6 +1,9 @@
 package com.example.demo.DTOs;
 
+import com.example.demo.entities.CategoryEntity;
 import lombok.*;
+
+import java.util.Set;
 
 @Getter
 @Setter
@@ -12,7 +15,7 @@ import lombok.*;
 public class RecommendationDTO {
 
     private String name;
-    private String description;
+    private Set<CategoryEntity> categories;
     private Double lat;
     private Double lon;
 
