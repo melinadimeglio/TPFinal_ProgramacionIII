@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,12 +44,13 @@ public class ActivityService {
 
     public ActivityResponseDTO createFromUser(UserActivityCreateDTO dto) {
         ActivityEntity entity = activityMapper.toEntity(dto);
-
         entity.setAvailable(true);
 
-        UserEntity user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado"));
-        entity.setUser(user);
+        Set<UserEntity> users = dto.getUserIds().stream()
+                .map(id -> userRepository.findById(id)
+                        .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado con ID: " + id)))
+                .collect(Collectors.toSet());
+        entity.setUsers(users);
 
         if (dto.getItineraryId() != null) {
             ItineraryEntity itinerary = itineraryRepository.findById(dto.getItineraryId())
@@ -94,7 +96,7 @@ public class ActivityService {
     }
 
     public List<ActivityResponseDTO> findByUserId(Long userId) {
-        return activityRepository.findByUserId(userId)
+        return activityRepository.findByUsers_Id(userId)
                 .stream()
                 .map(activityMapper::toDTO)
                 .collect(Collectors.toList());

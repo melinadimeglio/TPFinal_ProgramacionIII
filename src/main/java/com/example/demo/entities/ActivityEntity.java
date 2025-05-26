@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Set;
 
 @Entity
 @Table(name = "Activity")
@@ -40,9 +41,14 @@ public class ActivityEntity {
     @JoinColumn(name = "itinerary_id")
     private ItineraryEntity itinerary;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private UserEntity user;
+    @ManyToMany
+    @JoinTable(
+            name = "activity_user",
+            joinColumns = @JoinColumn(name = "activity_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<UserEntity> users;
+
 
     @ManyToOne
     @JoinColumn(name = "company_id")

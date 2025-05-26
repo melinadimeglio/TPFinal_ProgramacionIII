@@ -1,14 +1,12 @@
 package com.example.demo.DTOs.Activity;
 
 import com.example.demo.enums.ActivityCategory;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -39,6 +37,7 @@ public class UserActivityCreateDTO {
 
     private Long itineraryId;
 
-    @NotNull(message = "El ID del usuario es obligatorio.")
-    private Long userId;
+    @NotNull(message = "Debe ingresar al menos un usuario.")
+    @Size(min = 1, message = "Debe haber al menos un usuario.")
+    private Set<Long> userIds;
 }

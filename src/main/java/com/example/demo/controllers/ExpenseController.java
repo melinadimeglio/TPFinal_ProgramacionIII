@@ -154,24 +154,8 @@ public class ExpenseController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(
-            summary = "Get average expense across all users",
-            description = "Calculates and returns the average of all expenses registered by all users."
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Average calculated successfully",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Double.class))),
-            @ApiResponse(responseCode = "500", description = "Internal error while calculating average")
-    })
-    @GetMapping("/averageAllUsers")
-    public ResponseEntity<Double> getAverageExpense() {
-        return ResponseEntity.ok(expenseService.getAverageExpense());
-    }
-
-    @Operation(summary = "Get average expense by user ID",
-            description = "Returns average of all expenses for a specific user.",
-            parameters = @Parameter(name = "id", description = "ID of the user", required = true))
+    @Operation(summary = "Get total-average of expenses (not divided) by user ID",
+            description = "Returns the average of full expense amounts where the user participated, regardless of how many users shared the cost.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User average calculated",
                     content = @Content(schema = @Schema(implementation = Double.class))),
@@ -181,4 +165,81 @@ public class ExpenseController {
     public ResponseEntity<Double> getAverageExpensesByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(expenseService.getAverageExpenseByUserId(userId));
     }
+
+    @Operation(
+            summary = "Get expenses by trip ID",
+            description = "Retrieves all expenses associated with a specific trip ID.",
+            parameters = {
+                    @Parameter(name = "tripId", description = "ID of the trip", required = true)
+            }
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Expenses retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ExpenseResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Trip not found or no expenses for trip"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/trip/{tripId}")
+    public ResponseEntity<List<ExpenseResponseDTO>> getExpensesByTripId(@PathVariable Long tripId) {
+        return ResponseEntity.ok(expenseService.findByTripId(tripId));
+    }
+
+    @Operation(
+            summary = "Get real average expense by user ID",
+            description = "Calcula el promedio real de lo que un usuario debe pagar considerando los gastos compartidos."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Promedio calculado correctamente",
+                    content = @Content(schema = @Schema(implementation = Double.class))),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
+    @GetMapping("/realAverageByUserId/{userId}")
+    public ResponseEntity<Double> getRealAverageExpense(@PathVariable Long userId) {
+        return ResponseEntity.ok(expenseService.getRealAverageExpenseByUser(userId));
+    }
+
+    @Operation(
+            summary = "Get average expense by trip ID",
+            description = "Returns the average amount of all expenses associated with a specific trip."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Average calculated successfully",
+                    content = @Content(schema = @Schema(implementation = Double.class))),
+            @ApiResponse(responseCode = "404", description = "Trip not found or no expenses for trip")
+    })
+    @GetMapping("/averageByTripId/{tripId}")
+    public ResponseEntity<Double> getAverageExpensesByTrip(@PathVariable Long tripId) {
+        return ResponseEntity.ok(expenseService.getAverageExpenseByTripId(tripId));
+    }
+
+    @Operation(
+            summary = "Get total expenses by trip ID",
+            description = "Returns the total amount of all expenses registered for a specific trip."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Total calculated successfully",
+                    content = @Content(schema = @Schema(implementation = Double.class))),
+            @ApiResponse(responseCode = "404", description = "Trip not found or no expenses for trip")
+    })
+    @GetMapping("/totalByTripId/{tripId}")
+    public ResponseEntity<Double> getTotalExpensesByTrip(@PathVariable Long tripId) {
+        return ResponseEntity.ok(expenseService.getTotalExpenseByTripId(tripId));
+    }
+
+    @Operation(
+            summary = "Get total real expenses by user ID",
+            description = "Returns the total amount a user must pay, considering the expense is divided among participants."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Total calculated successfully",
+                    content = @Content(schema = @Schema(implementation = Double.class))),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    @GetMapping("/realTotalByUserId/{userId}")
+    public ResponseEntity<Double> getTotalRealExpensesByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(expenseService.getTotalRealExpenseByUser(userId));
+    }
+
+
 }
