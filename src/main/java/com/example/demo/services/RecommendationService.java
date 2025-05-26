@@ -40,11 +40,10 @@ public class RecommendationService {
         Coordinates coords = geocodingService.getCoordinates(trip.getDestination());
 
         System.out.println("Lon: " + coords.getLon() + ", Lat: " + coords.getLat());
-        //System.out.println("URL construida: " + url);
 
         String url = String.format(
                 Locale.US,
-                "https://api.opentripmap.com/0.1/en/places/radius?radius=%d&lon=%.6f&lat=%.6f&format=geojson&limit=10&apikey=%s",
+                "https://api.opentripmap.com/0.1/en/places/radius?radius=%d&lon=%.6f&lat=%.6f&format=geojson&apikey=%s",
                 5000, coords.getLon(), coords.getLat(), apiKey
         );
 

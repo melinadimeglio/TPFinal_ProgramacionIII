@@ -1,6 +1,7 @@
 package com.example.demo.entities;
 
 import com.example.demo.enums.UserCategory;
+import com.example.demo.enums.UserPreferences;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -46,7 +47,8 @@ public class UserEntity {
     private UserCategory category;
 
     @ElementCollection
-    private Set<String> preferencias;
+    @Enumerated(EnumType.STRING)
+    private Set<UserPreferences> preferencias;
 
     @Builder.Default
     private boolean active = true;

@@ -5,6 +5,11 @@ import com.example.demo.DTOs.Trip.TripCreateDTO;
 import com.example.demo.DTOs.Trip.TripResponseDTO;
 import com.example.demo.DTOs.Trip.TripUpdateDTO;
 import com.example.demo.entities.TripEntity;
+import com.example.demo.entities.UserEntity;
+import com.example.demo.enums.ActivityCategory;
+import com.example.demo.enums.UserPreferences;
+import com.example.demo.repositories.TripRepository;
+import com.example.demo.repositories.UserRepository;
 import com.example.demo.services.RecommendationService;
 import com.example.demo.services.TripService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,6 +28,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Tag(name = "Trips", description = "Operations related to users trips")
 @RestController
@@ -31,10 +39,14 @@ public class TripController {
 
     private final TripService tripService;
     private final RecommendationService recommendationService;
+    private final UserRepository userRepository;
+    private final TripRepository tripRepository;
 
-    public TripController(TripService tripService, RecommendationService recommendationService) {
+    public TripController(TripService tripService, RecommendationService recommendationService, UserRepository userRepository, TripRepository tripRepository) {
         this.tripService = tripService;
         this.recommendationService = recommendationService;
+        this.userRepository = userRepository;
+        this.tripRepository = tripRepository;
     }
 
     @Operation(summary = "Get all trips", description = "Returns a list of all trips.")
@@ -165,6 +177,23 @@ public class TripController {
     public ResponseEntity<List<RecommendationDTO>> getRecommendations(@PathVariable Long tripId){
         List<RecommendationDTO> recomemendations = recommendationService.getRecommendationsForTrip(tripId);
         return ResponseEntity.ok(recomemendations);
+    }
+
+    @GetMapping("/{tripId}/recommendations/filtered")
+    public ResponseEntity<List<RecommendationDTO>> getFilteredRecommendations(@PathVariable Long tripId){
+        List<RecommendationDTO> recomemendations = recommendationService.getRecommendationsForTrip(tripId);
+        TripEntity trip = tripRepository.findById(tripId).orElseThrow(NoSuchElementException::new);
+        Set<UserEntity> users = trip.getUsers();
+
+        Set<UserPreferences> allPreferences = users.stream()
+                .flatMap(user -> user.getPreferencias().stream())
+                .collect(Collectors.toSet());
+
+        List<RecommendationDTO> filteredRecommendations = recomemendations.stream()
+                .filter(rec -> allPreferences.contains(rec.getDescription()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(filteredRecommendations);
     }
 
 }

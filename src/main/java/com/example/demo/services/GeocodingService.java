@@ -21,12 +21,23 @@ public class GeocodingService {
         ResponseEntity<NominatimResponse[]> response = restTemplate.getForEntity(url, NominatimResponse[].class);
         NominatimResponse[] result = response.getBody();
 
+
         if (result != null && result.length > 0){
             double lat = Double.parseDouble(result[0].getLat());
             double lon = Double.parseDouble(result[0].getLon());
-            //double lat = Double.parseDouble(result[0].getLat());
-            //double lon = Double.parseDouble(result[1].getLon());
+
             return new Coordinates(lat, lon);
+        } else if (result == null || result.length == 0) {
+            switch (destino.toLowerCase()) {
+                case "argentina":
+                    return new Coordinates(-38.4161, -63.6167); // Coordenadas del centro del país
+                case "mar del plata":
+                    return new Coordinates(-38.0055, -57.5426);
+                case "buenos aires":
+                    return new Coordinates(-34.6037, -58.3816);
+                // agregá otros destinos conocidos si querés
+            }
+            throw new RuntimeException("No se encontraron coordenadas para el destino ingresado.");
         }
 
         throw new RuntimeException("No se encontraron coordinadas para el destino ingresado.");
