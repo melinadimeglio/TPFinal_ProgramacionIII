@@ -37,9 +37,6 @@ public class TripController {
         this.recommendationService = recommendationService;
     }
 
-    @Autowired
-
-
     @Operation(summary = "Get all trips", description = "Returns a list of all trips.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of trips retrieved successfully",

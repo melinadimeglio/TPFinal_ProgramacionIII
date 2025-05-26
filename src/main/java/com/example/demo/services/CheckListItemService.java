@@ -50,17 +50,22 @@ public class CheckListItemService {
     }
 
     public CheckListItemResponseDTO update(Long id, CheckListItemUpdateDTO dto) {
+        // Buscar el ítem existente
         CheckListItemEntity entity = itemRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Item no encontrado"));
 
-        entity.setDescription(dto.getDescription());
-        entity.setStatus(dto.isStatus());
+        // Mapear los campos desde el DTO, ignorando nulls y checklist
+        itemMapper.updateEntityFromDTO(dto, entity);
 
+        // Asignar la checklist manualmente
         CheckListEntity checklist = checkListRepository.findById(dto.getChecklistId())
                 .orElseThrow(() -> new NoSuchElementException("Checklist no encontrada"));
+
         entity.setChecklist(checklist);
 
-        return itemMapper.toDTO(itemRepository.save(entity));
+        // Guardar y devolver como DTO
+        CheckListItemEntity updated = itemRepository.save(entity);
+        return itemMapper.toDTO(updated);
     }
 
 
