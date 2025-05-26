@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -20,6 +21,7 @@ public class ExpenseUpdateDTO {
     @Positive(message = "El monto debe ser positivo.")
     private Double amount;
     private LocalDate date;
-
+    private Set<Long> userIds;
+    private Long tripId;
 }
 

@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -26,6 +27,6 @@ public class ActivityResponseDTO {
 
     private Long itineraryId;
 
-    private Long userId;
+    private Set<Long> userIds;
     private Long companyId;
 }

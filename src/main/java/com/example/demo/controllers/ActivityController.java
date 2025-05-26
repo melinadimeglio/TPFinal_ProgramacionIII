@@ -34,27 +34,17 @@ public class ActivityController {
     }
 
     @Operation(
-            summary = "Create an activity by a user",
-            description = "This endpoint allows a user to create a new activity associated with their itinerary.",
+            summary = "Create an activity shared by one or more users",
+            description = "This endpoint allows one or more users to create a new shared activity associated with an itinerary.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Activity details to be created by the user",
+                    description = "Activity details including users who will participate",
                     required = true,
                     content = @Content(
+                            mediaType = "application/json",
                             schema = @Schema(implementation = UserActivityCreateDTO.class)
                     )
             )
     )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Activity successfully created",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ActivityResponseDTO.class)
-                    )
-            ),
-            @ApiResponse(responseCode = "400", description = "Invalid input data")
-    })
     @PostMapping("/user")
     public ResponseEntity<ActivityResponseDTO> createFromUser(@RequestBody @Valid UserActivityCreateDTO dto) {
         ActivityResponseDTO createdActivity = activityService.createFromUser(dto);
