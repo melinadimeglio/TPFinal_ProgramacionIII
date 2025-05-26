@@ -3,6 +3,8 @@ package com.example.demo.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Set;
+
 @Entity
 @Table(name = "Recommendation")
 @Getter
@@ -19,13 +21,18 @@ public class RecommendationEntity {
     private Long id;
 
     private String name;
-    private String description;
+
+    @ManyToMany(cascade = CascadeType.PERSIST)
+    @JoinTable(name = "recommendation_categories",
+            joinColumns = @JoinColumn(name = "recommendation_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private Set<CategoryEntity> categories;
     private Double lat;
     private Double lon;
 
     @ManyToOne
     @JoinColumn(name = "trip_id")
     private TripEntity trip;
-
 
 }
