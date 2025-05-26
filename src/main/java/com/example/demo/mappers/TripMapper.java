@@ -27,6 +27,7 @@ public interface TripMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDTO(TripUpdateDTO dto, @MappingTarget TripEntity entity);
 
+    @AfterMapping
     default List<Long> mapUsersToIds(Set<UserEntity> users) {
         if (users == null) return null;
         return users.stream().map(UserEntity::getId).toList();
