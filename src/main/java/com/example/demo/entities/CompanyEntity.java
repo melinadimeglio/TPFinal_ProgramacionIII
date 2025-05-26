@@ -20,25 +20,21 @@ public class CompanyEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
     private String username;
 
     @Column(unique = true)
     @Email
     private String email;
 
-    @NotBlank
+
     private String password;
     private String description;
 
-    @NotBlank
     private String phone;
 
-    @NotBlank
     @Column(unique = true)
     private String taxId;
 
-    @NotBlank
     private String location;
 
     @Builder.Default
