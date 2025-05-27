@@ -19,6 +19,7 @@ import java.util.Set;
 @AllArgsConstructor
 @ToString
 @Builder
+
 public class CredentialEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

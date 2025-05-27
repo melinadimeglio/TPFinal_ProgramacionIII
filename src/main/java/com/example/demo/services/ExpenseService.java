@@ -71,6 +71,8 @@ public class ExpenseService{
             budgetStatus = "⚠️ Se ha superado el presupuesto estimado.";
         } else if (total >= estimated * 0.5) {
             budgetStatus = "🔶 Se ha superado el 50% del presupuesto estimado.";
+        } else if (total == estimated){
+            budgetStatus = "❗ Has gastado todo el presupuesto disponible.";
         }
 
         ExpenseResponseDTO response = expenseMapper.toDTO(saved);
