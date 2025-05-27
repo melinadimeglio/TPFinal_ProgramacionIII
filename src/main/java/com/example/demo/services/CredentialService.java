@@ -1,7 +1,6 @@
 package com.example.demo.services;
 
-import com.example.demo.repositories.CheckListRepository;
-import com.example.demo.repositories.CredentialRepository;
+import com.example.demo.security.repositories.CredentialRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
