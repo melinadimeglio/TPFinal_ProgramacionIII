@@ -13,6 +13,7 @@ public class EnvironmentConfig {
         System.setProperty("db_url", Objects.requireNonNull(dotenv.get("DB_URL")));
         System.setProperty("db_user", Objects.requireNonNull(dotenv.get("DB_USER")));
         System.setProperty("db_password", Objects.requireNonNull(dotenv.get("DB_PASSWORD")));
-        System.setProperty("api_key", Objects.requireNonNull(dotenv.get("API_KEY")));
+        System.setProperty("API_KEY", Objects.requireNonNull(dotenv.get("API_KEY")));
+        System.setProperty("jwt_secret", dotenv.get("JWT_SECRET"));
     }
 }

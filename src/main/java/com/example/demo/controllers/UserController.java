@@ -82,7 +82,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // Actualizar un usuario existente
     @PutMapping("/{id}")
     public ResponseEntity<UserResponse> updateUser(@PathVariable Long id,
                                                    @RequestBody @Valid UserUpdateDTO updatedUserDTO) {
@@ -94,7 +93,6 @@ public class UserController {
     }
 
 
-    // Eliminar un usuario
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(
             @Parameter(description = "ID of the user to delete", required = true)

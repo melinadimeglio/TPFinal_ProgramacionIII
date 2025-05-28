@@ -3,6 +3,7 @@ import com.example.demo.enums.ExpenseCategory;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -17,6 +18,9 @@ public class ExpenseResponseDTO {
     private String description;
     private Double amount;
     private LocalDate date;
-    private Long userId;
+    private Set<Long> userIds;
+    private Double dividedAmount;
+    private Long tripId;
+    private String budgetWarning;
 
 }

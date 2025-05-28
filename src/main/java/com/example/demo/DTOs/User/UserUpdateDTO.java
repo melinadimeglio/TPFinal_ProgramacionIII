@@ -2,6 +2,7 @@ package com.example.demo.DTOs.User;
 
 import com.example.demo.DTOs.Trip.TripResumeDTO;
 import com.example.demo.enums.UserCategory;
+import com.example.demo.enums.UserPreferences;
 import jakarta.validation.constraints.Email;
 import lombok.*;
 
@@ -24,7 +25,7 @@ public class UserUpdateDTO {
     private String password;  // opcional para cambio de contraseña
     private String dni;
     private UserCategory category;
-    private Set<String> preferencias;
+    private Set<UserPreferences> preferencias;
     private Boolean active;
     private List<TripResumeDTO> destinos;
 

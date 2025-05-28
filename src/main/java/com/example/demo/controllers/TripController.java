@@ -1,12 +1,21 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTOs.RecommendationDTO;
 import com.example.demo.DTOs.Trip.TripCreateDTO;
 import com.example.demo.DTOs.Trip.TripResponseDTO;
 import com.example.demo.DTOs.Trip.TripUpdateDTO;
+import com.example.demo.entities.CategoryEntity;
 import com.example.demo.entities.TripEntity;
+import com.example.demo.entities.UserEntity;
+import com.example.demo.enums.ActivityCategory;
+import com.example.demo.enums.UserPreferences;
+import com.example.demo.repositories.TripRepository;
+import com.example.demo.repositories.UserRepository;
+import com.example.demo.services.RecommendationService;
 import com.example.demo.services.TripService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -20,6 +29,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Tag(name = "Trips", description = "Operations related to users trips")
 @RestController
@@ -27,10 +39,15 @@ import java.util.List;
 public class TripController {
 
     private final TripService tripService;
+    private final RecommendationService recommendationService;
+    private final UserRepository userRepository;
+    private final TripRepository tripRepository;
 
-    @Autowired
-    public TripController(TripService tripService) {
+    public TripController(TripService tripService, RecommendationService recommendationService, UserRepository userRepository, TripRepository tripRepository) {
         this.tripService = tripService;
+        this.recommendationService = recommendationService;
+        this.userRepository = userRepository;
+        this.tripRepository = tripRepository;
     }
 
     @Operation(summary = "Get all trips", description = "Returns a list of all trips.")
@@ -138,6 +155,59 @@ public class TripController {
         tripService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(
+            summary = "Obtener recomendaciones de actividades para un viaje",
+            description = "Devuelve una lista de actividades sugeridas en base al destino, fechas u otros datos del viaje especificado."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Lista de recomendaciones generada exitosamente",
+                    content = @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = RecommendationDTO.class))
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Viaje no encontrado"
+            )
+    })
+    @GetMapping("/{tripId}/recommendations")
+    public ResponseEntity<List<RecommendationDTO>> getRecommendations(@PathVariable Long tripId){
+        List<RecommendationDTO> recomemendations = recommendationService.getRecommendationsForTrip(tripId);
+        return ResponseEntity.ok(recomemendations);
+    }
+
+    @GetMapping("/{tripId}/recommendations/filtered")
+    public ResponseEntity<List<RecommendationDTO>> getFilteredRecommendations(@PathVariable Long tripId){
+        List<RecommendationDTO> recomendations = recommendationService.getRecommendationsForTrip(tripId);
+        TripEntity trip = tripService.getTripById(tripId);
+
+        System.out.println("TRIP: " + trip);
+
+
+        Set<UserEntity> users = trip.getUsers();
+        System.out.println("USersss: " + users);
+
+        Set<String> allPreferences = users.stream()
+                .flatMap(user -> user.getPreferencias().stream())
+                .map(pref -> pref.getKindApi().toLowerCase())
+                .collect(Collectors.toSet());
+
+        System.out.println("Usuarios del viaje: " + users.size());
+        users.forEach(u -> System.out.println(u.getPreferencias()));
+
+        List<RecommendationDTO> filteredRecommendations = recomendations.stream()
+                .filter(rec -> rec.getCategories().stream()
+                        .map(cat -> cat.getName().toLowerCase())
+                        .anyMatch(allPreferences::contains))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(filteredRecommendations);
+    }
+
 }
 
 

@@ -4,9 +4,11 @@ import com.example.demo.enums.ExpenseCategory;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -28,7 +30,10 @@ public class ExpenseCreateDTO {
     @NotNull(message = "La fecha es obligatoria.")
     private LocalDate date;
 
-    @NotNull(message = "El ID del usuario es obligatorio.")
-    private Long userId;
+    @NotNull(message = "Debe ingresar al menos un usuario.")
+    @Size(min = 1, message = "Debe haber al menos un usuario para dividir el gasto.")
+    private Set<Long> userIds;
 
+    @NotNull(message = "El ID del viaje es obligatorio.")
+    private Long tripId;
 }

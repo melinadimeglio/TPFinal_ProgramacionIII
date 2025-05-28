@@ -10,8 +10,10 @@ import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.mappers.UserMapper;
 import com.example.demo.repositories.UserRepository;
+import com.example.demo.security.entities.CredentialEntity;
 import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,14 +25,17 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
+    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
     @Autowired
-    public UserService(UserRepository userRepository, UserMapper userMapper) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
     }
+
 
     public List<UserResponse> findAll() {
         List<UserEntity> users = userRepository.findAll();
@@ -44,6 +49,12 @@ public class UserService {
     }
 
     public UserEntity save(UserEntity user) {
+        CredentialEntity credential = new CredentialEntity();
+        credential.setEmail(user.getEmail());
+        credential.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        credential.setUser(user);
+        user.setCredential(credential);
         return userRepository.save(user);
     }
 
@@ -55,7 +66,6 @@ public class UserService {
         userRepository.save(existingUser);
     }
 
-    // Eliminar un viaje por ID
     public void delete(Long id) {
         UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No se encontró el viaje con ID " + id));

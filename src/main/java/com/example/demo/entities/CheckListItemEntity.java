@@ -25,9 +25,4 @@ public class CheckListItemEntity {
     @ManyToOne
     @JoinColumn(name = "checklist_id", nullable = false)
     private CheckListEntity checklist;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;
-
 }

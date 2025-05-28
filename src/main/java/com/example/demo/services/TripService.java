@@ -12,6 +12,7 @@ import com.example.demo.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -42,16 +43,18 @@ public class TripService {
     }
 
     public TripResponseDTO save(TripCreateDTO dto) {
-        TripEntity entity = tripMapper.toEntity(dto);
 
-        if (dto.getUserIds() != null && !dto.getUserIds().isEmpty()) {
-            Set<UserEntity> users = userRepository.findAllById(dto.getUserIds())
-                    .stream().collect(Collectors.toSet());
-            entity.setUsers(users);
+        TripEntity trip = tripMapper.toEntity(dto);
+
+        Set<UserEntity> users = new HashSet<>(userRepository.findAllById(dto.getUserIds()));
+        trip.setUsers(users);
+
+        for (UserEntity user : users) {
+            user.getTrips().add(trip);
         }
 
-        TripEntity saved = tripRepository.save(entity);
-        return tripMapper.toDTO(saved);
+        TripEntity savedTrip = tripRepository.save(trip);
+        return tripMapper.toDTO(savedTrip);
     }
 
 
@@ -75,6 +78,12 @@ public class TripService {
     public List<TripResponseDTO> findByUserId(Long userId) {
         List<TripEntity> trips = tripRepository.findByUsersId(userId);
         return tripMapper.toDTOList(trips);
+    }
+
+    //necesario para la api
+    public TripEntity getTripById(Long id) {
+        return tripRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Trip not found"));
     }
 
 }

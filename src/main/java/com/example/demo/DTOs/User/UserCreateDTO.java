@@ -2,6 +2,7 @@ package com.example.demo.DTOs.User;
 
 import com.example.demo.DTOs.Trip.TripResumeDTO;
 import com.example.demo.enums.UserCategory;
+import com.example.demo.enums.UserPreferences;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -33,6 +34,6 @@ public class UserCreateDTO {
 
     private UserCategory category;
 
-    private Set<String> preferencias;
+    private Set<UserPreferences> preferencias;
 
 }

@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Entity
@@ -29,7 +31,15 @@ public class ExpenseEntity {
 
     private LocalDate date;
 
+    @ManyToMany
+    @JoinTable(
+            name = "expense_user",
+            joinColumns = @JoinColumn(name = "expense_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<UserEntity> users = new HashSet<>();
+
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;
+    @JoinColumn(name = "trip_id", nullable = false)
+    private TripEntity trip;
 }

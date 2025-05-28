@@ -1,6 +1,8 @@
 package com.example.demo.entities;
 
 import com.example.demo.enums.UserCategory;
+import com.example.demo.enums.UserPreferences;
+import com.example.demo.security.entities.CredentialEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -17,8 +19,8 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 @Builder
+
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,7 +47,8 @@ public class UserEntity {
     private UserCategory category;
 
     @ElementCollection
-    private Set<String> preferencias;
+    @Enumerated(EnumType.STRING)
+    private Set<UserPreferences> preferencias;
 
     @Builder.Default
     private boolean active = true;
@@ -57,5 +60,8 @@ public class UserEntity {
             inverseJoinColumns = @JoinColumn(name = "trip_id")
     )
     private Set<TripEntity> trips = new HashSet<>();
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private CredentialEntity credential;
 
 }
