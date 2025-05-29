@@ -28,6 +28,7 @@ public class UserEntity {
     private Long id;
 
     @NotBlank
+    @Column(unique = true)
     private String username;
 
     @Column(unique = true)
