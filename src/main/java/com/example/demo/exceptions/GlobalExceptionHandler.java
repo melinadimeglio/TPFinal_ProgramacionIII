@@ -45,5 +45,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errores);
     }
 
+    @ExceptionHandler(RepitedElementException.class)
+    public ResponseEntity<String> handleRepitedElementExceptions (RepitedElementException e){
+        String message = e.getMessage() != null ? e.getMessage() : "El elemento ya existe y debe ser único.";
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(message);
+    }
 
 }
