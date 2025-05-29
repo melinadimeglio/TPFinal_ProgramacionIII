@@ -3,6 +3,7 @@ package com.example.demo.DTOs.User;
 import com.example.demo.DTOs.Trip.TripResumeDTO;
 import com.example.demo.enums.UserCategory;
 import com.example.demo.enums.UserPreferences;
+import com.example.demo.security.enums.Role;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -34,7 +35,7 @@ public class UserCreateDTO {
     @NotBlank(message = "El DNI no debe estar vacio.")
     private String dni;
 
-    private UserCategory category;
+    private Role role;
 
     private Set<UserPreferences> preferencias;
 
