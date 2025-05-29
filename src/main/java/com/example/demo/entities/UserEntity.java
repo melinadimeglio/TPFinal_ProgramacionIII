@@ -3,6 +3,7 @@ package com.example.demo.entities;
 import com.example.demo.enums.UserCategory;
 import com.example.demo.enums.UserPreferences;
 import com.example.demo.security.entities.CredentialEntity;
+import com.example.demo.security.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -44,7 +45,7 @@ public class UserEntity {
     private LocalDateTime fechaRegistro;
 
     @Enumerated(EnumType.STRING)
-    private UserCategory category;
+    private Role role;
 
     @ElementCollection
     @Enumerated(EnumType.STRING)

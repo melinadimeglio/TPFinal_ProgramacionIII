@@ -49,7 +49,7 @@ public class SecurityConfig {
             Exception {
         http.authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/api/**").hasRole("USER")
+                        .requestMatchers("/api/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/admin/users").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers(
