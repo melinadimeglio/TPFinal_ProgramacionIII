@@ -15,24 +15,17 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring", uses = GeometryHelper.class)
 public interface RecommendationMapper {
 
-    default Set<CategoryEntity> parseKinds(String kinds) {
-        if (kinds == null || kinds.isBlank()) return Set.of();
-        return Arrays.stream(kinds.split(","))
-                .map(String::trim)
-                .map(name -> CategoryEntity.builder().name(name).build())
-                .collect(Collectors.toSet());
-    }
 
     @Mapping(target = "lat", source = "geometry", qualifiedByName = "extractLat")
     @Mapping(target = "lon", source = "geometry", qualifiedByName = "extractLon")
     @Mapping(source = "properties.name", target = "name")
-    @Mapping(expression = "java(parseKinds(feature.getProperties().getKinds()))", target = "categories")
+    @Mapping(target = "categories", ignore = true)
     RecommendationDTO toDTO (Feature feature);
 
     @Mapping(target = "lat", source = "geometry", qualifiedByName = "extractLat")
     @Mapping(target = "lon", source = "geometry", qualifiedByName = "extractLon")
     @Mapping(source = "properties.name", target = "name")
-    @Mapping(expression = "java(parseKinds(feature.getProperties().getKinds()))", target = "categories")
+    @Mapping(target = "categories", ignore = true)
     RecommendationEntity toEntity (Feature feature);
 
     RecommendationDTO toDTO(RecommendationEntity entity);

@@ -5,10 +5,12 @@ import com.example.demo.DTOs.Trip.TripResponseDTO;
 import com.example.demo.api.Coordinates;
 import com.example.demo.api.Feature;
 import com.example.demo.api.PlacesResponse;
+import com.example.demo.entities.CategoryEntity;
 import com.example.demo.entities.RecommendationEntity;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.mappers.RecommendationMapper;
 import com.example.demo.mappers.TripMapper;
+import com.example.demo.repositories.CategoryRepository;
 import com.example.demo.repositories.RecommendationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,10 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,7 +33,7 @@ public class RecommendationService {
     private final RecommendationMapper recommendationMapper;
     private final RecommendationRepository recommendationRepository;
     private final TripService tripService;
-    private final TripMapper tripMapper;
+    private final CategoryRepository categoryRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
     public List<RecommendationDTO> getRecommendationsForTrip(Long tripId) {
@@ -49,14 +48,17 @@ public class RecommendationService {
                 5000, coords.getLon(), coords.getLat(), apiKey
         );
 
-        System.out.println("URL construida: " + url);
-
         ResponseEntity<PlacesResponse> response = restTemplate.exchange(url, HttpMethod.GET, null, PlacesResponse.class);
         List<Feature> features = response.getBody().getFeatures();
 
         List<RecommendationEntity> entities = features.stream()
-                .map(recommendationMapper::toEntity)
-                .peek(r -> r.setTrip(trip))
+                .map(feature -> {
+                    RecommendationEntity entity = recommendationMapper.toEntity(feature);
+                    entity.setTrip(trip);
+                    Set<CategoryEntity> categories = getOrCreateCategories(feature.getProperties().getKinds());
+                    entity.setCategories(categories);
+                    return entity;
+                })
                 .collect(Collectors.toList());
 
         recommendationRepository.saveAll(entities);
@@ -65,6 +67,20 @@ public class RecommendationService {
                 .map(recommendationMapper::toDTO)
                 .collect(Collectors.toList());
 
+    }
+
+    public Set<CategoryEntity> getOrCreateCategories(String kinds) {
+        if (kinds == null || kinds.isBlank()) return Set.of();
+
+        return Arrays.stream(kinds.split(","))
+                .map(String::trim)
+                .map(this::getOrCreateCategory)
+                .collect(Collectors.toSet());
+    }
+
+    public CategoryEntity getOrCreateCategory(String name) {
+        return categoryRepository.findByName(name)
+                .orElseGet(() -> categoryRepository.save(CategoryEntity.builder().name(name).build()));
     }
 
 }
