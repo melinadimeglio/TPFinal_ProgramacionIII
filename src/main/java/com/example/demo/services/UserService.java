@@ -13,6 +13,7 @@ import com.example.demo.repositories.UserRepository;
 import com.example.demo.security.entities.CredentialEntity;
 import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -71,6 +72,15 @@ public class UserService {
                 .orElseThrow(() -> new NoSuchElementException("No se encontró el viaje con ID " + id));
         userRepository.delete(user);
     }
+
+    public void deleteAccount(String username) {
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username " + username));
+
+        user.setActive(false);
+        userRepository.save(user);
+    }
+
 
 }
 
