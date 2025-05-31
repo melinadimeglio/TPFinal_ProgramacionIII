@@ -18,6 +18,7 @@ public class CompanyResponseDTO {
     private String email;
     private String taxId;
     private String location;
+    private String description;
     private String phone;
     private boolean active;
     private List<ActivityResumeDTO> activities;

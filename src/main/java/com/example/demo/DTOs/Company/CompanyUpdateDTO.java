@@ -23,6 +23,7 @@ public class CompanyUpdateDTO {
     private String location;
     private String phone;
     private Boolean active;
+    private String description;
     private List<ActivityResumeDTO> activities;
 
 }

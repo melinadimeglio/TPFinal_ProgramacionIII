@@ -34,8 +34,8 @@ public class CompanyCreateDTO {
     @NotBlank(message = "El telefono no debe estar vacio.")
     private String phone;
 
-    private boolean active;
+    @NotBlank(message = "La descripcion no puede estar vacia")
+    private String description;
 
     private List<ActivityResumeDTO> activities;
-
 }
