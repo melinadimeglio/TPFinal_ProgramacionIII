@@ -216,4 +216,57 @@ public class ActivityController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Update a company activity",
+            description = "Allows a company to update one of its own activities. Only the company that owns the activity can modify it.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Activity fields to update",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ActivityUpdateDTO.class)
+                    )
+            )
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Activity updated successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ActivityResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "400", description = "Invalid input data"),
+            @ApiResponse(responseCode = "404", description = "Activity not found or company mismatch")
+    })
+    @PutMapping("/company/{companyId}/activities/{activityId}")
+    public ResponseEntity<ActivityResponseDTO> updateActivityByCompany(
+            @PathVariable Long companyId,
+            @PathVariable Long activityId,
+            @RequestBody @Valid ActivityUpdateDTO dto) {
+
+        ActivityResponseDTO updated = activityService.updateActivityByCompany(companyId, activityId, dto);
+        return ResponseEntity.ok(updated);
+    }
+
+    @Operation(
+            summary = "Delete a company activity",
+            description = "Allows a company to delete one of its own activities. Only the company that owns the activity can delete it."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Activity deleted successfully"
+            ),
+            @ApiResponse(responseCode = "404", description = "Activity not found or company mismatch")
+    })
+    @DeleteMapping("/company/{companyId}/activities/{activityId}")
+    public ResponseEntity<Void> deleteActivityByCompany(
+            @PathVariable Long companyId,
+            @PathVariable Long activityId) {
+
+        activityService.deleteActivityByCompany(companyId, activityId);
+        return ResponseEntity.noContent().build();
+    }
 }

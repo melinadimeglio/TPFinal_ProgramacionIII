@@ -124,4 +124,30 @@ public class ActivityService {
         }
         activityRepository.deleteById(id);
     }
+
+    public ActivityResponseDTO updateActivityByCompany(Long companyId, Long activityId, ActivityUpdateDTO dto) {
+        ActivityEntity activity = activityRepository.findById(activityId)
+                .orElseThrow(() -> new NoSuchElementException("La actividad no existe"));
+
+        if (activity.getCompany() == null || !activity.getCompany().getId().equals(companyId)) {
+            throw new IllegalArgumentException("No tienes permiso para modificar esta actividad");
+        }
+
+        activityMapper.updateEntityFromDTO(dto, activity);
+        activityRepository.save(activity);
+
+        return activityMapper.toDTO(activity);
+    }
+
+    public void deleteActivityByCompany(Long companyId, Long activityId) {
+        ActivityEntity activity = activityRepository.findById(activityId)
+                .orElseThrow(() -> new NoSuchElementException("La actividad no existe"));
+
+        if (activity.getCompany() == null || !activity.getCompany().getId().equals(companyId)) {
+            throw new IllegalArgumentException("No tienes permiso para eliminar esta actividad");
+        }
+
+        activityRepository.delete(activity);
+    }
+
 }
