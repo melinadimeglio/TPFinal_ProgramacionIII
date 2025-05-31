@@ -46,7 +46,7 @@ public class UserService {
 
     public UserEntity findById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No user with id " + id));
+                .orElseThrow(() -> new NoSuchElementException("No se encontró el usuario con ID: " + id));
     }
 
     public UserEntity save(UserEntity user) {
@@ -61,7 +61,7 @@ public class UserService {
 
     public void update(Long id, UserUpdateDTO dto) {
         UserEntity existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el viaje con ID " + id));
+                .orElseThrow(() -> new NoSuchElementException("No se encontró el usuario con ID: " + id));
 
         userMapper.updateUserEntityFromDTO(dto, existingUser);
         userRepository.save(existingUser);
@@ -69,15 +69,22 @@ public class UserService {
 
     public void delete(Long id) {
         UserEntity user = userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el viaje con ID " + id));
+                .orElseThrow(() -> new NoSuchElementException("No se encontró el usuario con ID: " + id));
         userRepository.delete(user);
     }
 
     public void deleteAccount(String username) {
         UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username: " + username));
 
         userRepository.delete(user);
+    }
+
+    public UserResponse getProfileByUsername(String username){
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username: " + username));
+
+        return userMapper.toDTO(user);
     }
 
 

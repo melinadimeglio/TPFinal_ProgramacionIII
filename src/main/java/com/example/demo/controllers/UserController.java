@@ -106,13 +106,23 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/me")
+    @RequestMapping("/me")
+    @DeleteMapping("/delete")
     public ResponseEntity<String> deleteAccount(Authentication authentication) {
         String username = authentication.getName();
 
         userService.deleteAccount(username);
 
         return ResponseEntity.ok("Cuenta eliminada correctamente");
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getProfile(Authentication authentication) {
+        String username = authentication.getName();
+
+        UserResponse profile = userService.getProfileByUsername(username);
+
+        return ResponseEntity.ok(profile);
     }
 }
 
