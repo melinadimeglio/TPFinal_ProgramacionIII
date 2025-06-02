@@ -51,6 +51,8 @@ public class UserService {
         credential.setEmail(user.getEmail());
         credential.setPassword(passwordEncoder.encode(user.getPassword()));
 
+        //HAY QUE GUARDAR LAS CREDENCIALES TAMBIEN!
+
         //credential.setUser(user);
 
         UserEntity userEntity = userMapper.toUserEntity(user);
