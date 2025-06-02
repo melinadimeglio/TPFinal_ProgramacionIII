@@ -1,7 +1,10 @@
 package com.example.demo.services;
 
-import com.example.demo.DTOs.User.Response.UserResponse;
+import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
+import com.example.demo.DTOs.User.Request.UserCreateDTO;
+import com.example.demo.DTOs.User.Response.UserResponseDTO;
 import com.example.demo.DTOs.User.UserUpdateDTO;
+import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.mappers.UserMapper;
 import com.example.demo.repositories.UserRepository;
@@ -31,25 +34,29 @@ public class UserService {
     }
 
 
-    public List<UserResponse> findAll() {
+    public List<UserResponseDTO> findAll() {
         List<UserEntity> users = userRepository.findAll();
         return userMapper.toDTOList(users);
     }
 
+    public UserResponseDTO findById(Long id) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("No se encontró el user con ID " + id));
 
-    public UserEntity findById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el usuario con ID: " + id));
+        return userMapper.toDTO(user);
     }
 
-    public UserEntity save(UserEntity user) {
+    public UserResponseDTO save(UserCreateDTO user) {
         CredentialEntity credential = new CredentialEntity();
         credential.setEmail(user.getEmail());
-        credential.setPassword(passwordEncoder.encode(user.getCredential().getPassword()));
+        credential.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        credential.setUser(user);
-        user.setCredential(credential);
-        return userRepository.save(user);
+        //credential.setUser(user);
+
+        UserEntity userEntity = userMapper.toUserEntity(user);
+        UserEntity savedUser = userRepository.save(userEntity);
+
+        return userMapper.toDTO(savedUser);
     }
 
     public void update(Long id, UserUpdateDTO dto) {
@@ -71,10 +78,10 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username: " + username));
 
         user.setActive(false);
-        credentialService.deleteCredential(user.getEmail());
+        //credentialService.deleteCredential(user.getEmail());
     }
 
-    public UserResponse getProfileByUsername(String username){
+    public UserResponseDTO getProfileByUsername(String username){
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username: " + username));
 

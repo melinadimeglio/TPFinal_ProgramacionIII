@@ -3,8 +3,9 @@ package com.example.demo.controllers;
 import com.example.demo.DTOs.Trip.Request.TripCreateDTO;
 import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
 import com.example.demo.DTOs.User.Request.UserCreateDTO;
-import com.example.demo.DTOs.User.Response.UserResponse;
+import com.example.demo.DTOs.User.Response.UserResponseDTO;
 import com.example.demo.DTOs.User.UserUpdateDTO;
+import com.example.demo.controllers.hateoas.UserModelAssembler;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.mappers.UserMapper;
 import com.example.demo.services.UserService;
@@ -16,11 +17,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.text.html.parser.Entity;
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -29,25 +34,28 @@ public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
+    private final UserModelAssembler assembler;
 
     @Autowired
-    public UserController(UserService userService, UserMapper userMapper) {
+    public UserController(UserService userService, UserMapper userMapper, UserModelAssembler assembler) {
         this.userService = userService;
         this.userMapper = userMapper;
+        this.assembler = assembler;
     }
 
     @GetMapping
-    public ResponseEntity<List<UserResponse>> getAllUsers() {
-        return ResponseEntity.ok(userService.findAll());
+    public ResponseEntity<CollectionModel<EntityModel<UserResponseDTO>>> getAllUsers() {
+        List<UserResponseDTO> users = userService.findAll();
+
+        return ResponseEntity.ok(assembler.toCollectionModel(users));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getTripById(
-            @Parameter(description = "ID of the user to retrieve", required = true)
-            @PathVariable Long id) {
-        return ResponseEntity.ok(userMapper.toDTO(userService.findById(id)));
-    }
+    public ResponseEntity<EntityModel<UserResponseDTO>> getUserById(@PathVariable Long id) {
+        UserResponseDTO user = userService.findById(id);
 
+        return ResponseEntity.ok(assembler.toModel(user));
+    }
 
     @Operation(
             summary = "Create a new trip",
@@ -76,28 +84,25 @@ public class UserController {
             )
     })
     @PostMapping
-    public ResponseEntity<UserResponse> createUser(@RequestBody @Valid UserCreateDTO user) {
-        UserEntity userEntity = userMapper.toUserEntity(user);
-        userService.save(userEntity);
-        UserResponse response = userMapper.toDTO(userEntity);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody @Valid UserCreateDTO user) {
+        UserResponseDTO responseDTO = userService.save(tripCreateDTO);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id,
-                                                   @RequestBody @Valid UserUpdateDTO updatedUserDTO) {
+    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long id,
+                                                      @RequestBody @Valid UserUpdateDTO updatedUserDTO) {
         UserEntity existing = userService.findById(id);
         userMapper.updateUserEntityFromDTO(updatedUserDTO, existing);
         UserEntity saved = userService.save(existing);
-        UserResponse response = userMapper.toDTO(saved);
+        UserResponseDTO response = userMapper.toDTO(saved);
         return ResponseEntity.ok(response);
     }
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(
-            @Parameter(description = "ID of the user to delete", required = true)
-            @PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
 
         userService.delete(id);
         return ResponseEntity.noContent().build();
@@ -114,10 +119,10 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> getProfile(Authentication authentication) {
+    public ResponseEntity<UserResponseDTO> getProfile(Authentication authentication) {
         String username = authentication.getName();
 
-        UserResponse profile = userService.getProfileByUsername(username);
+        UserResponseDTO profile = userService.getProfileByUsername(username);
 
         return ResponseEntity.ok(profile);
     }
