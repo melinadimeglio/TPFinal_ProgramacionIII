@@ -88,10 +88,7 @@ public class TripController {
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
     @PostMapping
-    public ResponseEntity<TripResponseDTO> createTrip(
-            @RequestBody(description = "Data for the new trip", required = true,
-                    content = @Content(schema = @Schema(implementation = TripCreateDTO.class)))
-            @org.springframework.web.bind.annotation.RequestBody @Valid TripCreateDTO tripCreateDTO) {
+    public ResponseEntity<TripResponseDTO> createTrip(@RequestBody @Valid TripCreateDTO tripCreateDTO) {
 
         TripResponseDTO responseDTO = tripService.save(tripCreateDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);

@@ -16,7 +16,7 @@ import java.util.Set;
 @ToString(exclude = {"active", "role"})
 @Builder
 
-public class UserResponse {
+public class UserResponseDTO {
 
     private Long id;
     private String username;
