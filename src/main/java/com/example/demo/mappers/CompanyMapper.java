@@ -4,21 +4,21 @@ import com.example.demo.DTOs.Company.CompanyCreateDTO;
 import com.example.demo.DTOs.Company.CompanyResponseDTO;
 import com.example.demo.DTOs.Company.CompanyUpdateDTO;
 import com.example.demo.entities.CompanyEntity;
-import org.mapstruct.*;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface CompanyMapper {
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "activities", ignore = true)
+
+    CompanyResponseDTO toDTO(CompanyEntity company);
     CompanyEntity toEntity(CompanyCreateDTO dto);
 
-    CompanyResponseDTO toResponseDTO(CompanyEntity entity);
+    List<CompanyResponseDTO> toDTOList(List<CompanyEntity> companies);
 
-    List<CompanyResponseDTO> toResponseDTOList(List<CompanyEntity> entities);
+    void updateCompanyEntityFromDTO(CompanyUpdateDTO dto, @MappingTarget CompanyEntity entity);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateEntityFromDTO(CompanyUpdateDTO dto, @MappingTarget CompanyEntity entity);
 }

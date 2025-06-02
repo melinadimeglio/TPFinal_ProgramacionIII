@@ -4,8 +4,7 @@ import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
 import com.example.demo.DTOs.Activity.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.ActivityResponseDTO;
-import com.example.demo.entities.ActivityEntity;
-import com.example.demo.mappers.ActivityMapper;
+import com.example.demo.controllers.hateoas.ActivityModelAssembler;
 import com.example.demo.services.ActivityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,11 +14,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Tag(name = "Activities", description = "Operations related to users and companies activities")
 @RestController
@@ -27,10 +31,12 @@ import java.util.List;
 public class ActivityController {
 
     private final ActivityService activityService;
+    private final ActivityModelAssembler assembler;
 
     @Autowired
-    public ActivityController(ActivityService activityService) {
+    public ActivityController(ActivityService activityService, ActivityModelAssembler assembler) {
         this.activityService = activityService;
+        this.assembler = assembler;
     }
 
     @Operation(
@@ -94,8 +100,10 @@ public class ActivityController {
             @ApiResponse(responseCode = "404", description = "Company not found or has no activities")
     })
     @GetMapping("/company/{companyId}")
-    public ResponseEntity<List<ActivityResponseDTO>> getByCompanyId(@PathVariable Long companyId) {
-        return ResponseEntity.ok(activityService.findByCompanyId(companyId));
+    public ResponseEntity<CollectionModel<EntityModel<ActivityResponseDTO>>> getByCompanyId(@PathVariable Long companyId) {
+        List<ActivityResponseDTO> activities = activityService.findByCompanyId(companyId);
+
+        return ResponseEntity.ok(assembler.toCollectionModelByCompany(activities, companyId));
     }
 
     @Operation(
@@ -113,8 +121,10 @@ public class ActivityController {
             )
     })
     @GetMapping
-    public ResponseEntity<List<ActivityResponseDTO>> getAllActivities() {
-        return ResponseEntity.ok(activityService.findAll());
+    public ResponseEntity<CollectionModel<EntityModel<ActivityResponseDTO>>> getAllActivities() {
+        List<ActivityResponseDTO> activities = activityService.findAll();
+
+        return ResponseEntity.ok(assembler.toCollectionModel(activities));
     }
 
     @Operation(
@@ -136,8 +146,10 @@ public class ActivityController {
             )
     })
     @GetMapping("/{id}")
-    public ResponseEntity<ActivityResponseDTO> getActivityById(@PathVariable Long id) {
-        return ResponseEntity.ok(activityService.findById(id));
+    public ResponseEntity<EntityModel<ActivityResponseDTO>> getActivityById(@PathVariable Long id) {
+        ActivityResponseDTO activity = activityService.findById(id);
+
+        return ResponseEntity.ok(assembler.toModel(activity));
     }
 
     @Operation(
@@ -159,8 +171,10 @@ public class ActivityController {
             )
     })
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<ActivityResponseDTO>> getActivitiesByUserId(@PathVariable Long userId) {
-        return ResponseEntity.ok(activityService.findByUserId(userId));
+    public ResponseEntity<CollectionModel<EntityModel<ActivityResponseDTO>>> getActivitiesByUserId(@PathVariable Long userId) {
+        List<ActivityResponseDTO> activities = activityService.findByUserId(userId);
+
+        return ResponseEntity.ok(assembler.toCollectionModelByUser(activities, userId));
     }
 
     @Operation(

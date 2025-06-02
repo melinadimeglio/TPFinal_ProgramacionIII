@@ -3,6 +3,7 @@ package com.example.demo.controllers;
 import com.example.demo.DTOs.CheckList.CheckListCreateDTO;
 import com.example.demo.DTOs.CheckList.CheckListResponseDTO;
 import com.example.demo.DTOs.CheckList.CheckListUpdateDTO;
+import com.example.demo.controllers.hateoas.CheckListModelAssembler;
 import com.example.demo.entities.CheckListEntity;
 import com.example.demo.services.CheckListService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +16,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,10 +30,16 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 @Tag(name = "Checklists", description = "Operations related to user travel checklists")
 @RestController
 @RequestMapping("/checklists")
-@RequiredArgsConstructor
 public class CheckListController {
 
     private final CheckListService checkListService;
+    private final CheckListModelAssembler assembler;
+
+    @Autowired
+    public CheckListController(CheckListService checkListService, CheckListModelAssembler assembler) {
+        this.checkListService = checkListService;
+        this.assembler = assembler;
+    }
 
     @Operation(
             summary = "Create a new checklist",
@@ -89,8 +98,10 @@ public class CheckListController {
             @ApiResponse(responseCode = "404", description = "Checklist not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<CheckListResponseDTO> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(checkListService.findById(id));
+    public ResponseEntity<EntityModel<CheckListResponseDTO>> getById(@PathVariable Long id) {
+        CheckListResponseDTO checkList = checkListService.findById(id);
+
+        return ResponseEntity.ok(assembler.toModel(checkList));
     }
 
     @Operation(summary = "Get all checklists", description = "Returns all checklists in the system.")
@@ -99,8 +110,10 @@ public class CheckListController {
                     content = @Content(schema = @Schema(implementation = CheckListResponseDTO.class)))
     })
     @GetMapping
-    public ResponseEntity<List<CheckListResponseDTO>> getAll() {
-        return ResponseEntity.ok(checkListService.findAll());
+    public ResponseEntity<CollectionModel<EntityModel<CheckListResponseDTO>>> getAll() {
+        List<CheckListResponseDTO> checklists = checkListService.findAll();
+
+        return ResponseEntity.ok(assembler.toCollectionModel(checklists));
     }
 
     @Operation(summary = "Get all checklists by user ID", description = "Retrieves all checklists created by the specified user.")
@@ -110,8 +123,10 @@ public class CheckListController {
             @ApiResponse(responseCode = "404", description = "User not found or has no checklists")
     })
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<CheckListResponseDTO>> getByUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(checkListService.findByUserId(userId));
+    public ResponseEntity<CollectionModel<EntityModel<CheckListResponseDTO>>> getByUser(@PathVariable Long userId) {
+        List<CheckListResponseDTO> checklists = checkListService.findByUserId(userId);
+
+        return ResponseEntity.ok(assembler.toCollectionModelByUser(checklists, userId));
     }
 
     @Operation(summary = "Delete a checklist by ID", description = "Deletes the specified checklist and all its items.")

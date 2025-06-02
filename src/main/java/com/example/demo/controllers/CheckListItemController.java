@@ -3,6 +3,7 @@ package com.example.demo.controllers;
 import com.example.demo.DTOs.CheckList.CheckListItemCreateDTO;
 import com.example.demo.DTOs.CheckList.CheckListItemResponseDTO;
 import com.example.demo.DTOs.CheckList.CheckListItemUpdateDTO;
+import com.example.demo.controllers.hateoas.CheckListItemModelAssembler;
 import com.example.demo.services.CheckListItemService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,6 +15,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,13 +30,16 @@ import java.util.List;
 public class CheckListItemController {
 
     private final CheckListItemService service;
+    private final CheckListItemModelAssembler assembler;
 
     @Operation(summary = "Get all items", description = "Returns a list of all items from all checklists.")
     @ApiResponse(responseCode = "200", description = "Items successfully retrieved",
             content = @Content(schema = @Schema(implementation = CheckListItemResponseDTO.class)))
     @GetMapping
-    public ResponseEntity<List<CheckListItemResponseDTO>> getAll() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<CollectionModel<EntityModel<CheckListItemResponseDTO>>> getAll() {
+        List<CheckListItemResponseDTO> items = service.findAll();
+
+        return ResponseEntity.ok(assembler.toCollectionModel(items));
     }
 
 
@@ -44,8 +50,10 @@ public class CheckListItemController {
             @ApiResponse(responseCode = "404", description = "Item not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<CheckListItemResponseDTO> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(service.findById(id));
+    public ResponseEntity<EntityModel<CheckListItemResponseDTO>> getById(@PathVariable Long id) {
+        CheckListItemResponseDTO checkListItem = service.findById(id);
+
+        return ResponseEntity.ok(assembler.toModel(checkListItem));
     }
 
     @Operation(
