@@ -4,6 +4,7 @@ import com.example.demo.DTOs.RecommendationDTO;
 import com.example.demo.DTOs.Trip.Request.TripCreateDTO;
 import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
 import com.example.demo.DTOs.Trip.TripUpdateDTO;
+import com.example.demo.controllers.hateoas.TripModelAssembler;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.repositories.TripRepository;
@@ -20,6 +21,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,12 +41,15 @@ public class TripController {
     private final RecommendationService recommendationService;
     private final UserRepository userRepository;
     private final TripRepository tripRepository;
+    private final TripModelAssembler assembler;
 
-    public TripController(TripService tripService, RecommendationService recommendationService, UserRepository userRepository, TripRepository tripRepository) {
+    @Autowired
+    public TripController(TripService tripService, RecommendationService recommendationService, UserRepository userRepository, TripRepository tripRepository, TripModelAssembler assembler) {
         this.tripService = tripService;
         this.recommendationService = recommendationService;
         this.userRepository = userRepository;
         this.tripRepository = tripRepository;
+        this.assembler = assembler;
     }
 
     @Operation(summary = "Get all trips", description = "Returns a list of all trips.")
@@ -52,8 +59,10 @@ public class TripController {
                             schema = @Schema(implementation = TripResponseDTO.class)))
     })
     @GetMapping
-    public ResponseEntity<List<TripResponseDTO>> getAllTrips() {
-        return ResponseEntity.ok(tripService.findAll());
+    public ResponseEntity<CollectionModel<EntityModel<TripResponseDTO>>> getAllTrips() {
+        List<TripResponseDTO> trips = tripService.findAll();
+
+        return ResponseEntity.ok(assembler.toCollectionModel(trips));
     }
 
     @Operation(summary = "Get a trip by ID", description = "Returns a specific trip by its ID.")
@@ -64,10 +73,10 @@ public class TripController {
             @ApiResponse(responseCode = "404", description = "Trip not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<TripResponseDTO> getTripById(
-            @Parameter(description = "ID of the trip to retrieve", required = true)
-            @PathVariable Long id) {
-        return ResponseEntity.ok(tripService.findById(id));
+    public ResponseEntity<EntityModel<TripResponseDTO>> getTripById(@PathVariable Long id) {
+        TripResponseDTO trip = tripService.findById(id);
+
+        return ResponseEntity.ok(assembler.toModel(trip));
     }
 
 
@@ -108,11 +117,10 @@ public class TripController {
             )
     })
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<TripResponseDTO>> getTripsByUserId(
-            @Parameter(description = "ID of the user whose trips will be retrieved", required = true)
-            @PathVariable Long userId) {
+    public ResponseEntity<CollectionModel<EntityModel<TripResponseDTO>>> getTripsByUserId(@PathVariable Long userId) {
         List<TripResponseDTO> trips = tripService.findByUserId(userId);
-        return ResponseEntity.ok(trips);
+
+        return ResponseEntity.ok(assembler.toCollectionModelByUser(trips, userId));
     }
 
 
