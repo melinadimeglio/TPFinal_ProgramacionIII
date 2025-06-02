@@ -1,6 +1,6 @@
 package com.example.demo.controllers.hateoas;
 
-import com.example.demo.DTOs.Activity.ActivityResponseDTO;
+import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.controllers.ActivityController;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;

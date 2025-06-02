@@ -1,4 +1,4 @@
-package com.example.demo.DTOs.CheckList;
+package com.example.demo.DTOs.CheckList.Response;
 
 import lombok.*;
 

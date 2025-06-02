@@ -1,12 +1,11 @@
 package com.example.demo.services;
 
-import com.example.demo.DTOs.Trip.TripCreateDTO;
-import com.example.demo.DTOs.Trip.TripResponseDTO;
+import com.example.demo.DTOs.Trip.Request.TripCreateDTO;
+import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
 import com.example.demo.DTOs.Trip.TripUpdateDTO;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.mappers.TripMapper;
-import com.example.demo.repositories.ActivityRepository;
 import com.example.demo.repositories.TripRepository;
 import com.example.demo.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class TripService {

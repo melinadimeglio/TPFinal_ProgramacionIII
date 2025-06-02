@@ -1,6 +1,5 @@
-package com.example.demo.DTOs.Itinerary;
+package com.example.demo.DTOs.Itinerary.Request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

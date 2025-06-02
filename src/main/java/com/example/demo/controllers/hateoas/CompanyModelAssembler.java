@@ -1,8 +1,6 @@
 package com.example.demo.controllers.hateoas;
 
-import com.example.demo.DTOs.CheckList.CheckListItemResponseDTO;
-import com.example.demo.DTOs.Company.CompanyResponseDTO;
-import com.example.demo.controllers.CheckListItemController;
+import com.example.demo.DTOs.Company.Response.CompanyResponseDTO;
 import com.example.demo.controllers.CompanyController;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;

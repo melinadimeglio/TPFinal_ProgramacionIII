@@ -1,7 +1,6 @@
 package com.example.demo.services;
 
 import com.example.demo.DTOs.RecommendationDTO;
-import com.example.demo.DTOs.Trip.TripResponseDTO;
 import com.example.demo.api.Coordinates;
 import com.example.demo.api.Feature;
 import com.example.demo.api.PlacesResponse;
@@ -9,7 +8,6 @@ import com.example.demo.entities.CategoryEntity;
 import com.example.demo.entities.RecommendationEntity;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.mappers.RecommendationMapper;
-import com.example.demo.mappers.TripMapper;
 import com.example.demo.repositories.CategoryRepository;
 import com.example.demo.repositories.RecommendationRepository;
 import lombok.RequiredArgsConstructor;

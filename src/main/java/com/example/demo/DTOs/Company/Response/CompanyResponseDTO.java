@@ -1,6 +1,6 @@
-package com.example.demo.DTOs.Company;
+package com.example.demo.DTOs.Company.Response;
 
-import com.example.demo.DTOs.Activity.ActivityResumeDTO;
+import com.example.demo.DTOs.Activity.Response.ActivityResumeDTO;
 import lombok.*;
 
 import java.util.List;

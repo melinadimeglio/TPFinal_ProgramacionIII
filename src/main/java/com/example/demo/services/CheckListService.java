@@ -1,7 +1,7 @@
 package com.example.demo.services;
 
-import com.example.demo.DTOs.CheckList.CheckListCreateDTO;
-import com.example.demo.DTOs.CheckList.CheckListResponseDTO;
+import com.example.demo.DTOs.CheckList.Request.CheckListCreateDTO;
+import com.example.demo.DTOs.CheckList.Response.CheckListResponseDTO;
 import com.example.demo.DTOs.CheckList.CheckListUpdateDTO;
 import com.example.demo.entities.CheckListEntity;
 import com.example.demo.mappers.CheckListMapper;

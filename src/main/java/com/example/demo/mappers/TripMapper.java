@@ -1,8 +1,8 @@
 package com.example.demo.mappers;
 
-import com.example.demo.DTOs.Trip.TripCreateDTO;
-import com.example.demo.DTOs.Trip.TripResponseDTO;
-import com.example.demo.DTOs.Trip.TripResumeDTO;
+import com.example.demo.DTOs.Trip.Request.TripCreateDTO;
+import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
+import com.example.demo.DTOs.Trip.Response.TripResumeDTO;
 import com.example.demo.DTOs.Trip.TripUpdateDTO;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;

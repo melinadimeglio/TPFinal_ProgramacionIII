@@ -1,6 +1,6 @@
 package com.example.demo.DTOs.Company;
 
-import com.example.demo.DTOs.Activity.ActivityResumeDTO;
+import com.example.demo.DTOs.Activity.Response.ActivityResumeDTO;
 import jakarta.validation.constraints.Email;
 import lombok.*;
 

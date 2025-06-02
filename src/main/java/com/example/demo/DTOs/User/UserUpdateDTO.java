@@ -1,7 +1,6 @@
 package com.example.demo.DTOs.User;
 
-import com.example.demo.DTOs.Trip.TripResumeDTO;
-import com.example.demo.enums.UserCategory;
+import com.example.demo.DTOs.Trip.Response.TripResumeDTO;
 import com.example.demo.enums.UserPreferences;
 import com.example.demo.security.enums.Role;
 import jakarta.validation.constraints.Email;

@@ -1,4 +1,4 @@
-package com.example.demo.DTOs.Activity;
+package com.example.demo.DTOs.Activity.Request;
 
 import com.example.demo.enums.ActivityCategory;
 import jakarta.validation.constraints.*;

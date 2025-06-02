@@ -1,17 +1,10 @@
 package com.example.demo.services;
 
-
-import com.example.demo.DTOs.Activity.ActivityResponseDTO;
-import com.example.demo.DTOs.CheckList.CheckListItemCreateDTO;
-import com.example.demo.DTOs.CheckList.CheckListItemResponseDTO;
-import com.example.demo.DTOs.CheckList.CheckListItemUpdateDTO;
-import com.example.demo.DTOs.Company.CompanyCreateDTO;
-import com.example.demo.DTOs.Company.CompanyResponseDTO;
+import com.example.demo.DTOs.Company.Response.CompanyResponseDTO;
 import com.example.demo.DTOs.Company.CompanyUpdateDTO;
 import com.example.demo.entities.*;
 import com.example.demo.mappers.CompanyMapper;
 import com.example.demo.repositories.CompanyRepository;
-import com.example.demo.security.entities.CredentialEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,9 +14,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class CompanyService {
+
     private final CompanyRepository companyRepository;
     private final CompanyMapper companyMapper;
-
 
     @Autowired
     public CompanyService(CompanyRepository companyRepository, CompanyMapper companyMapper) {
@@ -43,7 +36,6 @@ public class CompanyService {
                 .map(companyMapper::toDTO)
                 .collect(Collectors.toList());
     }
-
 
     /*
     public CompanyResponseDTO save(CompanyCreateDTO companyCreateDTO) {
@@ -77,9 +69,6 @@ public class CompanyService {
         if (companyRepository.existsByTaxId(company.getTaxId())){
             throw new IllegalArgumentException("El Tax ID ya se encuentra registrado en el sistema.");
         }
-        CompanyEntity company = companyMapper.toEntity(createDTO);
-        CompanyEntity saved = companyRepository.save(company);
-        return companyMapper.toResponseDTO(saved);
+        companyRepository.save(company);
     }
-
 }

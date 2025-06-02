@@ -1,20 +1,17 @@
 package com.example.demo.controllers;
 
-import com.example.demo.DTOs.CheckList.CheckListCreateDTO;
-import com.example.demo.DTOs.CheckList.CheckListResponseDTO;
+import com.example.demo.DTOs.CheckList.Request.CheckListCreateDTO;
+import com.example.demo.DTOs.CheckList.Response.CheckListResponseDTO;
 import com.example.demo.DTOs.CheckList.CheckListUpdateDTO;
 import com.example.demo.controllers.hateoas.CheckListModelAssembler;
-import com.example.demo.entities.CheckListEntity;
 import com.example.demo.services.CheckListService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -23,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 

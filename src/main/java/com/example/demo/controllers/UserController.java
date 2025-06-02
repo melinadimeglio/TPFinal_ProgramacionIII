@@ -1,9 +1,9 @@
 package com.example.demo.controllers;
 
-import com.example.demo.DTOs.Trip.TripCreateDTO;
-import com.example.demo.DTOs.Trip.TripResponseDTO;
-import com.example.demo.DTOs.User.UserCreateDTO;
-import com.example.demo.DTOs.User.UserResponse;
+import com.example.demo.DTOs.Trip.Request.TripCreateDTO;
+import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
+import com.example.demo.DTOs.User.Request.UserCreateDTO;
+import com.example.demo.DTOs.User.Response.UserResponse;
 import com.example.demo.DTOs.User.UserUpdateDTO;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.mappers.UserMapper;
@@ -14,14 +14,11 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

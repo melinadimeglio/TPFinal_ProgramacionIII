@@ -1,4 +1,4 @@
-package com.example.demo.DTOs.Expense;
+package com.example.demo.DTOs.Expense.Response;
 import com.example.demo.enums.ExpenseCategory;
 import lombok.*;
 

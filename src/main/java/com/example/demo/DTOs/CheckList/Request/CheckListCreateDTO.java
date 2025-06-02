@@ -1,10 +1,8 @@
-package com.example.demo.DTOs.CheckList;
+package com.example.demo.DTOs.CheckList.Request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-
-import java.util.List;
 
 @Getter
 @Setter

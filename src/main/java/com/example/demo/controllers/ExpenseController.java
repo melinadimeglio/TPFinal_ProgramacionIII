@@ -1,9 +1,9 @@
 package com.example.demo.controllers;
 
-import com.example.demo.DTOs.Expense.ExpenseCreateDTO;
-import com.example.demo.DTOs.Expense.ExpenseResponseDTO;
+import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
+import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
 import com.example.demo.DTOs.Expense.ExpenseUpdateDTO;
-import com.example.demo.entities.ExpenseEntity;
+import com.example.demo.controllers.hateoas.ExpenseModelAssembler;
 import com.example.demo.services.ExpenseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -12,8 +12,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.ServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,10 +29,12 @@ import java.util.List;
 public class ExpenseController {
 
     private final ExpenseService expenseService;
+    private final ExpenseModelAssembler assembler;
 
     @Autowired
-    public ExpenseController(ExpenseService expenseService) {
+    public ExpenseController(ExpenseService expenseService, ExpenseModelAssembler assembler) {
         this.expenseService = expenseService;
+        this.assembler = assembler;
     }
 
     @Operation(
@@ -42,8 +47,10 @@ public class ExpenseController {
                             schema = @Schema(implementation = ExpenseResponseDTO.class)))
     })
     @GetMapping
-    public ResponseEntity<List<ExpenseResponseDTO>> getAllExpenses() {
-        return ResponseEntity.ok(expenseService.findAll());
+    public ResponseEntity<CollectionModel<EntityModel<ExpenseResponseDTO>>> getAllExpenses() {
+        List<ExpenseResponseDTO> expenses = expenseService.findAll();
+
+        return ResponseEntity.ok(assembler.toCollectionModel(expenses));
     }
 
     @Operation(
@@ -60,11 +67,11 @@ public class ExpenseController {
             @ApiResponse(responseCode = "404", description = "Expense not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<ExpenseResponseDTO> getExpenseById(@PathVariable Long id) {
-        return ResponseEntity.ok(expenseService.findById(id));
+    public ResponseEntity<EntityModel<ExpenseResponseDTO>> getExpenseById(@PathVariable Long id) {
+        ExpenseResponseDTO expense = expenseService.findById(id);
+
+        return ResponseEntity.ok(assembler.toModel(expense));
     }
-
-
 
     @Operation(
             summary = "Get expenses by user ID",
@@ -78,9 +85,10 @@ public class ExpenseController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<ExpenseResponseDTO>> findByUserId(@PathVariable Long userId) {
+    public ResponseEntity<CollectionModel<EntityModel<ExpenseResponseDTO>>> findByUserId(@PathVariable Long userId) {
         List<ExpenseResponseDTO> expenses = expenseService.findByUserId(userId);
-        return ResponseEntity.ok(expenses);
+
+        return ResponseEntity.ok(assembler.toCollectionModelByUser(expenses, userId));
     }
 
     @Operation(
@@ -181,8 +189,10 @@ public class ExpenseController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/trip/{tripId}")
-    public ResponseEntity<List<ExpenseResponseDTO>> getExpensesByTripId(@PathVariable Long tripId) {
-        return ResponseEntity.ok(expenseService.findByTripId(tripId));
+    public ResponseEntity<CollectionModel<EntityModel<ExpenseResponseDTO>>> getExpensesByTripId(@PathVariable Long tripId) {
+        List<ExpenseResponseDTO> expenses = expenseService.findByTripId(tripId);
+
+        return ResponseEntity.ok(assembler.toCollectionModelByTrip(expenses, tripId));
     }
 
     @Operation(

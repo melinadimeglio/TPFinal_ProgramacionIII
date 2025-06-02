@@ -1,4 +1,4 @@
-package com.example.demo.DTOs.Trip;
+package com.example.demo.DTOs.Trip.Response;
 
 import lombok.*;
 

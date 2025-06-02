@@ -1,11 +1,10 @@
 package com.example.demo.services;
 
-import com.example.demo.DTOs.Expense.ExpenseCreateDTO;
-import com.example.demo.DTOs.Expense.ExpenseResponseDTO;
+import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
+import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
 import com.example.demo.DTOs.Expense.ExpenseUpdateDTO;
 import com.example.demo.entities.ExpenseEntity;
 import com.example.demo.entities.TripEntity;
-import com.example.demo.entities.UserEntity;
 import com.example.demo.mappers.ExpenseMapper;
 import com.example.demo.repositories.ExpenseRepository;
 import com.example.demo.repositories.TripRepository;
