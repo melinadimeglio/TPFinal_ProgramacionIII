@@ -1,7 +1,7 @@
 package com.example.demo.controllers;
 
-import com.example.demo.DTOs.CheckList.CheckListItemCreateDTO;
-import com.example.demo.DTOs.CheckList.CheckListItemResponseDTO;
+import com.example.demo.DTOs.CheckList.Request.CheckListItemCreateDTO;
+import com.example.demo.DTOs.CheckList.Response.CheckListItemResponseDTO;
 import com.example.demo.DTOs.CheckList.CheckListItemUpdateDTO;
 import com.example.demo.controllers.hateoas.CheckListItemModelAssembler;
 import com.example.demo.services.CheckListItemService;

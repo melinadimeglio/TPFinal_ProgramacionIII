@@ -1,17 +1,11 @@
 package com.example.demo.services;
 
-import com.example.demo.DTOs.Trip.TripCreateDTO;
-import com.example.demo.DTOs.Trip.TripResponseDTO;
-import com.example.demo.DTOs.Trip.TripUpdateDTO;
-import com.example.demo.DTOs.User.UserCreateDTO;
-import com.example.demo.DTOs.User.UserResponse;
+import com.example.demo.DTOs.User.Response.UserResponse;
 import com.example.demo.DTOs.User.UserUpdateDTO;
-import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.mappers.UserMapper;
 import com.example.demo.repositories.UserRepository;
 import com.example.demo.security.entities.CredentialEntity;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,9 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {

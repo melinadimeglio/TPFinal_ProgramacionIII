@@ -1,6 +1,8 @@
 package com.example.demo.mappers;
 
 import com.example.demo.DTOs.CheckList.*;
+import com.example.demo.DTOs.CheckList.Request.CheckListItemCreateDTO;
+import com.example.demo.DTOs.CheckList.Response.CheckListItemResponseDTO;
 import com.example.demo.entities.CheckListItemEntity;
 import org.mapstruct.*;
 

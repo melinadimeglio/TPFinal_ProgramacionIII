@@ -1,8 +1,10 @@
 package com.example.demo.mappers;
 
 import com.example.demo.DTOs.Activity.*;
+import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
+import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
+import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.entities.ActivityEntity;
-import com.example.demo.entities.UserEntity;
 import org.mapstruct.*;
 
 import java.util.List;

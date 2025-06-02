@@ -1,11 +1,9 @@
 package com.example.demo.controllers;
 
-import com.example.demo.DTOs.Company.CompanyResponseDTO;
+import com.example.demo.DTOs.Company.Response.CompanyResponseDTO;
 import com.example.demo.controllers.hateoas.CompanyModelAssembler;
 import com.example.demo.entities.CompanyEntity;
-import com.example.demo.entities.UserEntity;
 import com.example.demo.services.CompanyService;
-import com.example.demo.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;

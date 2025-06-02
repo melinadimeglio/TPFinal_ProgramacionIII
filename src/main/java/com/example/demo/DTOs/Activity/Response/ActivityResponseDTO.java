@@ -1,4 +1,4 @@
-package com.example.demo.DTOs.Activity;
+package com.example.demo.DTOs.Activity.Response;
 
 import com.example.demo.enums.ActivityCategory;
 import lombok.*;

@@ -1,14 +1,11 @@
 package com.example.demo.controllers;
 
 import com.example.demo.DTOs.RecommendationDTO;
-import com.example.demo.DTOs.Trip.TripCreateDTO;
-import com.example.demo.DTOs.Trip.TripResponseDTO;
+import com.example.demo.DTOs.Trip.Request.TripCreateDTO;
+import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
 import com.example.demo.DTOs.Trip.TripUpdateDTO;
-import com.example.demo.entities.CategoryEntity;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
-import com.example.demo.enums.ActivityCategory;
-import com.example.demo.enums.UserPreferences;
 import com.example.demo.repositories.TripRepository;
 import com.example.demo.repositories.UserRepository;
 import com.example.demo.services.RecommendationService;
@@ -23,13 +20,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 

@@ -1,10 +1,8 @@
 package com.example.demo.services;
 
-import com.example.demo.DTOs.Expense.ExpenseResponseDTO;
-import com.example.demo.DTOs.Itinerary.ItineraryCreateDTO;
-import com.example.demo.DTOs.Itinerary.ItineraryResponseDTO;
+import com.example.demo.DTOs.Itinerary.Request.ItineraryCreateDTO;
+import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
-import com.example.demo.entities.ExpenseEntity;
 import com.example.demo.entities.ItineraryEntity;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;

@@ -1,9 +1,9 @@
 package com.example.demo.controllers;
 
 import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
-import com.example.demo.DTOs.Activity.CompanyActivityCreateDTO;
-import com.example.demo.DTOs.Activity.UserActivityCreateDTO;
-import com.example.demo.DTOs.Activity.ActivityResponseDTO;
+import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
+import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
+import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.controllers.hateoas.ActivityModelAssembler;
 import com.example.demo.services.ActivityService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Tag(name = "Activities", description = "Operations related to users and companies activities")
 @RestController

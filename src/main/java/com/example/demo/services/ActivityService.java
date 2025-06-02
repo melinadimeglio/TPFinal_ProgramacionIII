@@ -1,8 +1,8 @@
 package com.example.demo.services;
 
-import com.example.demo.DTOs.Activity.CompanyActivityCreateDTO;
-import com.example.demo.DTOs.Activity.UserActivityCreateDTO;
-import com.example.demo.DTOs.Activity.ActivityResponseDTO;
+import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
+import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
+import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
 import com.example.demo.entities.ActivityEntity;
 import com.example.demo.entities.CompanyEntity;

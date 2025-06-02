@@ -1,16 +1,10 @@
 package com.example.demo.services;
 
-import com.example.demo.DTOs.Activity.ActivityResponseDTO;
-import com.example.demo.DTOs.CheckList.CheckListItemCreateDTO;
-import com.example.demo.DTOs.CheckList.CheckListItemResponseDTO;
-import com.example.demo.DTOs.CheckList.CheckListItemUpdateDTO;
-import com.example.demo.DTOs.Company.CompanyCreateDTO;
-import com.example.demo.DTOs.Company.CompanyResponseDTO;
+import com.example.demo.DTOs.Company.Response.CompanyResponseDTO;
 import com.example.demo.DTOs.Company.CompanyUpdateDTO;
 import com.example.demo.entities.*;
 import com.example.demo.mappers.CompanyMapper;
 import com.example.demo.repositories.CompanyRepository;
-import com.example.demo.security.entities.CredentialEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

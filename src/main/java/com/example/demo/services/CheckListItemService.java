@@ -1,16 +1,14 @@
 package com.example.demo.services;
 
-import com.example.demo.DTOs.CheckList.CheckListItemCreateDTO;
-import com.example.demo.DTOs.CheckList.CheckListItemResponseDTO;
+import com.example.demo.DTOs.CheckList.Request.CheckListItemCreateDTO;
+import com.example.demo.DTOs.CheckList.Response.CheckListItemResponseDTO;
 import com.example.demo.DTOs.CheckList.CheckListItemUpdateDTO;
 import com.example.demo.entities.CheckListEntity;
 import com.example.demo.entities.CheckListItemEntity;
 import com.example.demo.mappers.CheckListItemMapper;
 import com.example.demo.repositories.CheckListItemRepository;
 import com.example.demo.repositories.CheckListRepository;
-import com.example.demo.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

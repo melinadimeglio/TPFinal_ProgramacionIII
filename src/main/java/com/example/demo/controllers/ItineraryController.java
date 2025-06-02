@@ -1,9 +1,8 @@
 package com.example.demo.controllers;
 
-import com.example.demo.DTOs.Itinerary.ItineraryCreateDTO;
-import com.example.demo.DTOs.Itinerary.ItineraryResponseDTO;
+import com.example.demo.DTOs.Itinerary.Request.ItineraryCreateDTO;
+import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
-import com.example.demo.entities.ItineraryEntity;
 import com.example.demo.mappers.ItineraryMapper;
 import com.example.demo.services.ItineraryService;
 import io.swagger.v3.oas.annotations.Operation;

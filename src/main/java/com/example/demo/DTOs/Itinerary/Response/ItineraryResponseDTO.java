@@ -1,13 +1,11 @@
-package com.example.demo.DTOs.Itinerary;
+package com.example.demo.DTOs.Itinerary.Response;
 
-import com.example.demo.DTOs.Activity.ActivityResponseDTO;
-import com.example.demo.DTOs.Activity.ActivityResumeDTO;
+import com.example.demo.DTOs.Activity.Response.ActivityResumeDTO;
 
 
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 @Getter

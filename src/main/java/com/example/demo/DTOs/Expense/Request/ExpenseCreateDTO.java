@@ -1,7 +1,6 @@
-package com.example.demo.DTOs.Expense;
+package com.example.demo.DTOs.Expense.Request;
 
 import com.example.demo.enums.ExpenseCategory;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
