@@ -36,6 +36,4 @@ public class CompanyCreateDTO {
 
     @NotBlank(message = "La descripcion no puede estar vacia")
     private String description;
-
-    private List<ActivityResumeDTO> activities;
 }
