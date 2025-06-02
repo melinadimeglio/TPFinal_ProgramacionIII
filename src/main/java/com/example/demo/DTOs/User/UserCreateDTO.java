@@ -35,8 +35,5 @@ public class UserCreateDTO {
     @NotBlank(message = "El DNI no debe estar vacio.")
     private String dni;
 
-    private Role role;
-
     private Set<UserPreferences> preferencias;
-
 }
