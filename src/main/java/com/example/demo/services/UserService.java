@@ -77,8 +77,7 @@ public class UserService {
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username " + username));
 
-        user.setActive(false);
-        userRepository.save(user);
+        userRepository.delete(user);
     }
 
 
