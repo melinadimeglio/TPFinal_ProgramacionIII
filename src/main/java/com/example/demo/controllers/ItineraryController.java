@@ -3,6 +3,7 @@ package com.example.demo.controllers;
 import com.example.demo.DTOs.Itinerary.Request.ItineraryCreateDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
+import com.example.demo.controllers.hateoas.ItineraryModelAssembler;
 import com.example.demo.mappers.ItineraryMapper;
 import com.example.demo.services.ItineraryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,6 +14,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,12 +28,12 @@ import java.util.List;
 public class ItineraryController {
 
     private final ItineraryService itineraryService;
-    private final ItineraryMapper itineraryMapper;
+    private final ItineraryModelAssembler assembler;
 
     @Autowired
-    public ItineraryController(ItineraryService itineraryService, ItineraryMapper itineraryMapper) {
+    public ItineraryController(ItineraryService itineraryService, ItineraryModelAssembler assembler) {
         this.itineraryService = itineraryService;
-        this.itineraryMapper = itineraryMapper;
+        this.assembler = assembler;
     }
 
     @Operation(
@@ -79,8 +82,10 @@ public class ItineraryController {
             )
     })
     @GetMapping
-    public ResponseEntity<List<ItineraryResponseDTO>> getAllItineraries() {
-        return ResponseEntity.ok(itineraryService.findAll());
+    public ResponseEntity<CollectionModel<EntityModel<ItineraryResponseDTO>>> getAllItineraries() {
+        List<ItineraryResponseDTO> itineraries = itineraryService.findAll();
+
+        return ResponseEntity.ok(assembler.toCollectionModel(itineraries));
     }
 
     @Operation(
@@ -110,9 +115,10 @@ public class ItineraryController {
             )
     })
     @GetMapping("/{id}")
-    public ResponseEntity<ItineraryResponseDTO> getItineraryById(@PathVariable Long id) {
+    public ResponseEntity<EntityModel<ItineraryResponseDTO>> getItineraryById(@PathVariable Long id) {
         ItineraryResponseDTO response = itineraryService.findById(id);
-        return ResponseEntity.ok(response);
+
+        return ResponseEntity.ok(assembler.toModel(response));
     }
 
 
@@ -142,9 +148,10 @@ public class ItineraryController {
             )
     })
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<ItineraryResponseDTO>> getItinerariesByUserId(@PathVariable Long userId) {
-        List<ItineraryResponseDTO> responses = itineraryService.findByUserId(userId);
-        return ResponseEntity.ok(responses);
+    public ResponseEntity<CollectionModel<EntityModel<ItineraryResponseDTO>>> getItinerariesByUserId(@PathVariable Long userId) {
+        List<ItineraryResponseDTO> itineraries = itineraryService.findByUserId(userId);
+
+        return ResponseEntity.ok(assembler.toCollectionModelByUser(itineraries, userId));
     }
 
     @Operation(
