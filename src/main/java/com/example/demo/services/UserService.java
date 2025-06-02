@@ -9,13 +9,18 @@ import com.example.demo.entities.UserEntity;
 import com.example.demo.mappers.UserMapper;
 import com.example.demo.repositories.UserRepository;
 import com.example.demo.security.entities.CredentialEntity;
+import com.example.demo.security.entities.RoleEntity;
+import com.example.demo.security.enums.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.example.demo.security.repositories.CredentialRepository;
+
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 @Service
 public class UserService {
@@ -23,16 +28,16 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final CredentialService credentialService;
+    private final CredentialRepository credentialRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, CredentialService credentialService) {
+    public UserService(UserRepository userRepository, UserMapper userMapper,
+                       PasswordEncoder passwordEncoder, CredentialRepository credentialRepository) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
-        this.credentialService = credentialService;
+        this.credentialRepository = credentialRepository;
     }
-
 
     public List<UserResponseDTO> findAll() {
         List<UserEntity> users = userRepository.findAll();
@@ -41,32 +46,39 @@ public class UserService {
 
     public UserResponseDTO findById(Long id) {
         UserEntity user = userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el user con ID " + id));
-
+                .orElseThrow(() -> new NoSuchElementException("No se encontró el usuario con ID: " + id));
         return userMapper.toDTO(user);
     }
 
     public UserResponseDTO save(UserCreateDTO user) {
-        CredentialEntity credential = new CredentialEntity();
-        credential.setEmail(user.getEmail());
-        credential.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        //HAY QUE GUARDAR LAS CREDENCIALES TAMBIEN!
-
-        //credential.setUser(user);
-
         UserEntity userEntity = userMapper.toUserEntity(user);
         UserEntity savedUser = userRepository.save(userEntity);
+
+        RoleEntity userRole = RoleEntity.builder()
+                .role(Role.ROLE_USER)
+                .build();
+
+        CredentialEntity credential = CredentialEntity.builder()
+                .email(user.getEmail())
+                .password(passwordEncoder.encode(user.getPassword()))
+                .roles(Set.of(userRole))
+                .user(savedUser)
+                .active(true)
+                .build();
+
+        credentialRepository.save(credential);
 
         return userMapper.toDTO(savedUser);
     }
 
-    public void update(Long id, UserUpdateDTO dto) {
+    public UserResponseDTO update(Long id, UserUpdateDTO dto) {
         UserEntity existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No se encontró el usuario con ID: " + id));
 
         userMapper.updateUserEntityFromDTO(dto, existingUser);
-        userRepository.save(existingUser);
+        UserEntity savedUser = userRepository.save(existingUser);
+
+        return userMapper.toDTO(savedUser);
     }
 
     public void delete(Long id) {
@@ -78,19 +90,12 @@ public class UserService {
     public void deleteAccount(String username) {
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username: " + username));
-
         user.setActive(false);
-        //credentialService.deleteCredential(user.getEmail());
     }
 
     public UserResponseDTO getProfileByUsername(String username){
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username: " + username));
-
         return userMapper.toDTO(user);
     }
-
-
 }
-
-

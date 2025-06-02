@@ -16,6 +16,10 @@ public class CredentialService {
         this.credentialRepository = credentialRepository;
     }
 
+    public void saveCredential(CredentialEntity credential) {
+        credentialRepository.save(credential);
+    }
+
     public void deleteCredential(String username){
         CredentialEntity credential = credentialRepository.findByEmail(username)
                 .orElseThrow(()-> new NoSuchElementException("No se encontro la credencial"));
