@@ -27,10 +27,9 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
+    @NotBlank
     @Column(unique = true)
-    @Email
-    private String email;
+    private String username;
 
     @NotBlank
     @Column(unique = true)
