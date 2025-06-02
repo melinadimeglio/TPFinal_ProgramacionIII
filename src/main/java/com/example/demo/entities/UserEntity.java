@@ -27,16 +27,10 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    @Column(unique = true)
-    private String username;
 
     @Column(unique = true)
     @Email
     private String email;
-
-    @NotBlank
-    private String password;
 
     @NotBlank
     @Column(unique = true)
@@ -44,9 +38,6 @@ public class UserEntity {
 
     @CreationTimestamp
     private LocalDateTime fechaRegistro;
-
-    @Enumerated(EnumType.STRING)
-    private UserCategory category;
 
     @ElementCollection
     @Enumerated(EnumType.STRING)
