@@ -29,12 +29,14 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final CredentialService credentialService;
 
     @Autowired
-    public UserService(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, CredentialService credentialService) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
+        this.credentialService = credentialService;
     }
 
 
@@ -52,7 +54,7 @@ public class UserService {
     public UserEntity save(UserEntity user) {
         CredentialEntity credential = new CredentialEntity();
         credential.setEmail(user.getEmail());
-        credential.setPassword(passwordEncoder.encode(user.getPassword()));
+        credential.setPassword(passwordEncoder.encode(user.getCredential().getPassword()));
 
         credential.setUser(user);
         user.setCredential(credential);
@@ -77,7 +79,8 @@ public class UserService {
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username: " + username));
 
-        userRepository.delete(user);
+        user.setActive(false);
+        credentialService.deleteCredential(user.getEmail());
     }
 
     public UserResponse getProfileByUsername(String username){
