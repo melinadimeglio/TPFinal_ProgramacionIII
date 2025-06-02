@@ -32,13 +32,6 @@ public class UserEntity {
     @Column(unique = true)
     private String username;
 
-    @Column(unique = true)
-    @Email
-    private String email;
-
-    @NotBlank
-    private String password;
-
     @NotBlank
     @Column(unique = true)
     private String dni;
@@ -46,8 +39,6 @@ public class UserEntity {
     @CreationTimestamp
     private LocalDateTime fechaRegistro;
 
-    @Enumerated(EnumType.STRING)
-    private Role role;
 
     @ElementCollection
     @Enumerated(EnumType.STRING)

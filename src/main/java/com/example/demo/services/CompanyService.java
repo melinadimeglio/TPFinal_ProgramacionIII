@@ -2,12 +2,16 @@ package com.example.demo.services;
 
 
 import com.example.demo.DTOs.Activity.ActivityResponseDTO;
+import com.example.demo.DTOs.CheckList.CheckListItemCreateDTO;
+import com.example.demo.DTOs.CheckList.CheckListItemResponseDTO;
+import com.example.demo.DTOs.CheckList.CheckListItemUpdateDTO;
+import com.example.demo.DTOs.Company.CompanyCreateDTO;
 import com.example.demo.DTOs.Company.CompanyResponseDTO;
-import com.example.demo.entities.ActivityEntity;
-import com.example.demo.entities.CompanyEntity;
-import com.example.demo.entities.UserEntity;
+import com.example.demo.DTOs.Company.CompanyUpdateDTO;
+import com.example.demo.entities.*;
 import com.example.demo.mappers.CompanyMapper;
 import com.example.demo.repositories.CompanyRepository;
+import com.example.demo.security.entities.CredentialEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +31,6 @@ public class CompanyService {
         this.companyMapper = companyMapper;
     }
 
-
     public CompanyResponseDTO findById(Long id) {
         CompanyEntity entity = companyRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Empresa no encontrada"));
@@ -41,19 +44,42 @@ public class CompanyService {
                 .collect(Collectors.toList());
     }
 
-    public CompanyResponseDTO createCompany(CompanyCreateDTO createDTO) {
-        if (companyRepository.existsByTaxId(createDTO.getTaxId())) {
-            throw new IllegalArgumentException("El Tax ID ya está registrado en el sistema.");
+
+    /*
+    public CompanyResponseDTO save(CompanyCreateDTO companyCreateDTO) {
+        CredentialEntity credential = new CredentialEntity();
+        credential.setEmail(companyCreateDTO.getEmail());
+        credential.setPassword(passwordEncoder.encode(companyCreateDTO.getPassword()));
+
+        //credential.se(user);
+        //user.setCredential(credential);
+        return companyMapper.save(user);
+    }*/
+
+
+    public CompanyResponseDTO update(Long id, CompanyUpdateDTO dto) {
+        CompanyEntity entity = companyRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Item no encontrado"));
+
+        companyMapper.updateCompanyEntityFromDTO(dto, entity);
+
+        CompanyEntity updated = companyRepository.save(entity);
+        return companyMapper.toDTO(updated);
+    }
+
+    public void delete(Long id) {
+        CompanyEntity entity = companyRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Item no encontrado"));
+        companyRepository.delete(entity);
+    }
+
+    public void save(CompanyEntity company){
+        if (companyRepository.existsByTaxId(company.getTaxId())){
+            throw new IllegalArgumentException("El Tax ID ya se encuentra registrado en el sistema.");
         }
         CompanyEntity company = companyMapper.toEntity(createDTO);
         CompanyEntity saved = companyRepository.save(company);
         return companyMapper.toResponseDTO(saved);
     }
 
-    public void deleteById(Long id) {
-        if (!companyRepository.existsById(id)) {
-            throw new NoSuchElementException("No se encontró la empresa con ID: " + id);
-        }
-        companyRepository.deleteById(id);
-    }
 }

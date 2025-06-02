@@ -29,6 +29,8 @@ public class CredentialEntity implements UserDetails {
     private String email;
     private String password;
 
+    private boolean active;
+
 
     @ManyToMany(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
     @JoinTable(

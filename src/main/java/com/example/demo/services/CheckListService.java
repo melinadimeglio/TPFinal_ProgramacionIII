@@ -54,6 +54,7 @@ public class CheckListService {
 
         return checkListMapper.toDTO(checkListRepository.save(entity));
     }
+
     public CheckListResponseDTO update(Long id, CheckListUpdateDTO dto) {
         CheckListEntity entity = checkListRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Checklist no encontrada"));
