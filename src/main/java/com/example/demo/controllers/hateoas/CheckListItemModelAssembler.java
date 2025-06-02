@@ -22,7 +22,8 @@ public class CheckListItemModelAssembler implements RepresentationModelAssembler
                 linkTo(methodOn(CheckListItemController.class).getById(checklistItem.getId())).withSelfRel(),
 
                 linkTo((methodOn(CheckListItemController.class).getAll())).withRel("all-checklist-items")
-        );    }
+        );
+    }
 
     @Override
     public CollectionModel<EntityModel<CheckListItemResponseDTO>> toCollectionModel(Iterable<? extends CheckListItemResponseDTO> checklistItems) {
