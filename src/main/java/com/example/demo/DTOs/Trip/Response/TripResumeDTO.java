@@ -11,6 +11,7 @@ import lombok.*;
 public class TripResumeDTO {
 
     private Long id;
+    private String name;
     private String destination;
     private boolean active;
 

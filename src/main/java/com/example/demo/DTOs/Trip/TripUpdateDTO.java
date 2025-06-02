@@ -14,6 +14,7 @@ import java.time.LocalDate;
 
 public class TripUpdateDTO {
 
+    private String name;
     private String destination;
     private LocalDate endDate;
 

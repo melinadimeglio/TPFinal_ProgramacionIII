@@ -14,6 +14,7 @@ import java.util.List;
 public class TripResponseDTO {
 
     private Long id;
+    private String name;
     private String destination;
     private LocalDate startDate;
     private LocalDate endDate;
