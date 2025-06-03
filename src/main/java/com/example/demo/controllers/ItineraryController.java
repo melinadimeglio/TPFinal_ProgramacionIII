@@ -35,10 +35,10 @@ public class ItineraryController {
 
     private final ItineraryService itineraryService;
     private final ItineraryModelAssembler assembler;
-    private final PagedResourcesAssembler pagedResourcesAssembler;
+    private final PagedResourcesAssembler<ItineraryResponseDTO> pagedResourcesAssembler;
 
     @Autowired
-    public ItineraryController(ItineraryService itineraryService, ItineraryModelAssembler assembler, PagedResourcesAssembler pagedResourcesAssembler) {
+    public ItineraryController(ItineraryService itineraryService, ItineraryModelAssembler assembler, PagedResourcesAssembler<ItineraryResponseDTO> pagedResourcesAssembler) {
         this.itineraryService = itineraryService;
         this.assembler = assembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;

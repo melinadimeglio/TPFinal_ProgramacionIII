@@ -31,10 +31,10 @@ public class CompanyController {
 
     private final CompanyService companyService;
     private final CompanyModelAssembler assembler;
-    private final PagedResourcesAssembler pagedResourcesAssembler;
+    private final PagedResourcesAssembler<CompanyResponseDTO> pagedResourcesAssembler;
 
     @Autowired
-    public CompanyController(CompanyService companyService, CompanyModelAssembler assembler, PagedResourcesAssembler pagedResourcesAssembler) {
+    public CompanyController(CompanyService companyService, CompanyModelAssembler assembler, PagedResourcesAssembler<CompanyResponseDTO> pagedResourcesAssembler) {
         this.companyService = companyService;
         this.assembler = assembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;

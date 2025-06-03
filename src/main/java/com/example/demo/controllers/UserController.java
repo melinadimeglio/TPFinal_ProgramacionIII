@@ -34,10 +34,10 @@ public class UserController {
 
     private final UserService userService;
     private final UserModelAssembler assembler;
-    private final PagedResourcesAssembler pagedResourcesAssembler;
+    private final PagedResourcesAssembler<UserResponseDTO> pagedResourcesAssembler;
 
     @Autowired
-    public UserController(UserService userService, UserModelAssembler assembler, PagedResourcesAssembler pagedResourcesAssembler) {
+    public UserController(UserService userService, UserModelAssembler assembler, PagedResourcesAssembler<UserResponseDTO> pagedResourcesAssembler) {
         this.userService = userService;
         this.assembler = assembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;

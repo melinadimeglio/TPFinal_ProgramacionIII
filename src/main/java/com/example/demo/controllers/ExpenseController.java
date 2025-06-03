@@ -38,10 +38,10 @@ public class ExpenseController {
 
     private final ExpenseService expenseService;
     private final ExpenseModelAssembler assembler;
-    private final PagedResourcesAssembler pagedResourcesAssembler;
+    private final PagedResourcesAssembler<ExpenseResponseDTO> pagedResourcesAssembler;
 
     @Autowired
-    public ExpenseController(ExpenseService expenseService, ExpenseModelAssembler assembler, PagedResourcesAssembler pagedResourcesAssembler) {
+    public ExpenseController(ExpenseService expenseService, ExpenseModelAssembler assembler, PagedResourcesAssembler<ExpenseResponseDTO> pagedResourcesAssembler) {
         this.expenseService = expenseService;
         this.assembler = assembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
