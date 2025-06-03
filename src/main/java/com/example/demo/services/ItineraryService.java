@@ -82,7 +82,7 @@ public class ItineraryService {
 
     public void delete(Long id) {
         ItineraryEntity entity = getEntityById(id);
-        itineraryRepository.delete(entity);
+        entity.setActive(false);
     }
 }
 

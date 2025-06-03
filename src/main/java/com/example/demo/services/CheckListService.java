@@ -5,6 +5,7 @@ import com.example.demo.DTOs.CheckList.Response.CheckListResponseDTO;
 import com.example.demo.DTOs.CheckList.CheckListUpdateDTO;
 import com.example.demo.entities.CheckListEntity;
 import com.example.demo.mappers.CheckListMapper;
+import com.example.demo.repositories.CheckListItemRepository;
 import com.example.demo.repositories.CheckListRepository;
 import com.example.demo.repositories.TripRepository;
 import com.example.demo.repositories.UserRepository;
@@ -20,16 +21,18 @@ public class CheckListService {
     private final CheckListMapper checkListMapper;
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
+    private final CheckListItemRepository checkListItemRepository;
 
     @Autowired
     public CheckListService(CheckListRepository checkListRepository,
                             CheckListMapper checkListMapper,
                             TripRepository tripRepository,
-                            UserRepository userRepository) {
+                            UserRepository userRepository, CheckListItemRepository checkListItemRepository) {
         this.checkListRepository = checkListRepository;
         this.checkListMapper = checkListMapper;
         this.tripRepository = tripRepository;
         this.userRepository = userRepository;
+        this.checkListItemRepository = checkListItemRepository;
     }
 
     public List<CheckListResponseDTO> findAll() {
@@ -67,7 +70,9 @@ public class CheckListService {
     }
 
     public void delete(Long id) {
-        checkListRepository.deleteById(id);
+        CheckListEntity checkListEntity = checkListRepository.findById(id)
+                .orElseThrow(()-> new NoSuchElementException("No se encontro la checklist con ID:" + id));
+        checkListEntity.setActive(false);
     }
 
     public List<CheckListResponseDTO> findByUserId(Long userId) {

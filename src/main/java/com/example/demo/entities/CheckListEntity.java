@@ -34,4 +34,7 @@ public class CheckListEntity {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
+
+    @Builder.Default
+    private boolean active = true;
 }

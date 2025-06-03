@@ -92,7 +92,7 @@ public class ExpenseService{
     public void delete(Long id) {
         ExpenseEntity entity = expenseRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No se encontró el gasto"));
-        expenseRepository.delete(entity);
+        entity.setActive(false);
     }
 
     public List<ExpenseResponseDTO> findByUserId(Long userId) {

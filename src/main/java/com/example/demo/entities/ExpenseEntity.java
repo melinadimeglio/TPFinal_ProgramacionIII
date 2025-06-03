@@ -42,4 +42,7 @@ public class ExpenseEntity {
     @ManyToOne
     @JoinColumn(name = "trip_id", nullable = false)
     private TripEntity trip;
+
+    @Builder.Default
+    private boolean active = true;
 }

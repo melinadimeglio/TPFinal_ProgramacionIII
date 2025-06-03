@@ -70,7 +70,7 @@ public class TripService {
     public void delete(Long id) {
         TripEntity trip = tripRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No se encontró el viaje con ID " + id));
-        tripRepository.delete(trip);
+        trip.setActive(false);
     }
 
     public List<TripResponseDTO> findByUserId(Long userId) {
