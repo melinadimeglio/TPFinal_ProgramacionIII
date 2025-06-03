@@ -16,6 +16,9 @@ import java.util.List;
 
 public class TripCreateDTO {
 
+    @NotBlank(message = "El nombre es obligatorio.")
+    private String name;
+
     @NotBlank(message = "El destino es obligatorio.")
     private String destination;
 

@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+
 import com.example.demo.DTOs.RecommendationDTO;
 import com.example.demo.DTOs.Trip.Request.TripCreateDTO;
 import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
@@ -80,7 +81,15 @@ public class TripController {
     }
 
 
-    @Operation(summary = "Create a new trip", description = "Creates a new trip and returns the created trip.")
+    @Operation(
+            summary = "Create a new trip",
+            description = "Creates a new trip and returns the created trip.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Trip data to create",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = TripCreateDTO.class))
+            )
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Trip created successfully",
                     content = @Content(mediaType = "application/json",
@@ -88,11 +97,13 @@ public class TripController {
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
     @PostMapping
-    public ResponseEntity<TripResponseDTO> createTrip(@RequestBody @Valid TripCreateDTO tripCreateDTO) {
+    public ResponseEntity<TripResponseDTO> createTrip(
+            @org.springframework.web.bind.annotation.RequestBody @Valid TripCreateDTO tripCreateDTO) {
 
         TripResponseDTO responseDTO = tripService.save(tripCreateDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
+
 
 
     @Operation(
