@@ -22,12 +22,6 @@ public class CompanyEntity {
 
     private String username;
 
-    @Column(unique = true)
-    @Email
-    private String email;
-
-
-    private String password;
     private String description;
 
     private String phone;

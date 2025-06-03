@@ -20,10 +20,8 @@ public class UserResponseDTO {
 
     private Long id;
     private String username;
-    private String email;
     private String dni;
     private LocalDateTime fechaRegistro;
-    private Role role;
     private Set<UserPreferences> preferencias;
     private boolean active;
     private List<TripResumeDTO> destinos; // ver si devolver en vez de id, una lista con los destinos

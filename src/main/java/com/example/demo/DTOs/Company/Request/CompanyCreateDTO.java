@@ -44,7 +44,4 @@ public class CompanyCreateDTO {
     @Schema(description = "Descripción general de la empresa", example = "Empresa dedicada al turismo receptivo internacional.")
     @NotBlank(message = "La descripcion no puede estar vacia")
     private String description;
-
-    @Schema(description = "Lista de actividades que ofrece la empresa (puede estar vacía al momento de creación)")
-    private List<ActivityResumeDTO> activities;
 }
