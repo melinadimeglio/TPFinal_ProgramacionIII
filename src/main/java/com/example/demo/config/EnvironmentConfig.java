@@ -15,5 +15,6 @@ public class EnvironmentConfig {
         System.setProperty("db_password", Objects.requireNonNull(dotenv.get("DB_PASSWORD")));
         System.setProperty("API_KEY", Objects.requireNonNull(dotenv.get("API_KEY")));
         System.setProperty("jwt_secret", Objects.requireNonNull(dotenv.get("JWT_SECRET")));
+        System.setProperty("access_token", Objects.requireNonNull(dotenv.get("PROD_ACCESS_TOKEN")));
     }
 }

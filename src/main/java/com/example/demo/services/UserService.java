@@ -54,11 +54,11 @@ public class UserService {
 
     public UserResponseDTO save(UserCreateDTO user) {
         UserEntity userEntity = userMapper.toUserEntity(user);
-        UserEntity savedUser = userRepository.save(userEntity);
 
         RoleEntity userRole = roleRepository.findByRole(Role.ROLE_USER)
                 .orElseThrow(() -> new RuntimeException("Role USER no encontrado"));
 
+        UserEntity savedUser = userRepository.save(userEntity);
         CredentialEntity credential = new CredentialEntity();
         credential.setEmail(user.getEmail());
         credential.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -69,9 +69,6 @@ public class UserService {
 
         return userMapper.toDTO(savedUser);
     }
-
-
-
 
     public UserResponseDTO update(Long id, UserUpdateDTO dto) {
         UserEntity existingUser = userRepository.findById(id)
