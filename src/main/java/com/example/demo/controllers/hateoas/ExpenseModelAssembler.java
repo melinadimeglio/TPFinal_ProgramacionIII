@@ -25,7 +25,7 @@ public class ExpenseModelAssembler implements RepresentationModelAssembler<Expen
 
                 linkTo(methodOn(ExpenseController.class).getExpenseById(expense.getId())).withSelfRel(),
 
-                linkTo((methodOn(ExpenseController.class).getAllExpenses())).withRel("all-checklist-items")
+                linkTo((methodOn(ExpenseController.class).getAllExpenses(null))).withRel("all-checklist-items")
         );
     }
 
@@ -35,7 +35,7 @@ public class ExpenseModelAssembler implements RepresentationModelAssembler<Expen
                 .map(this::toModel)
                 .toList();
         return CollectionModel.of(expenseModels,
-                linkTo(methodOn(ExpenseController.class).getAllExpenses()).withSelfRel()
+                linkTo(methodOn(ExpenseController.class).getAllExpenses(null)).withSelfRel()
         );
     }
 
@@ -46,7 +46,7 @@ public class ExpenseModelAssembler implements RepresentationModelAssembler<Expen
 
         return CollectionModel.of(expenseModels,
                 linkTo(methodOn(ExpenseController.class).findByUserId(userId)).withSelfRel(),
-                linkTo(methodOn(ExpenseController.class).getAllExpenses()).withRel("all-expenses")
+                linkTo(methodOn(ExpenseController.class).getAllExpenses(null)).withRel("all-expenses")
         );
     }
 
@@ -57,7 +57,7 @@ public class ExpenseModelAssembler implements RepresentationModelAssembler<Expen
 
         return CollectionModel.of(expenseModels,
                 linkTo(methodOn(ExpenseController.class).getExpensesByTripId(tripId)).withSelfRel(),
-                linkTo(methodOn(ExpenseController.class).getAllExpenses()).withRel("all-expenses")
+                linkTo(methodOn(ExpenseController.class).getAllExpenses(null)).withRel("all-expenses")
         );
     }
 }

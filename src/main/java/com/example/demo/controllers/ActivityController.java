@@ -5,6 +5,7 @@ import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.controllers.hateoas.ActivityModelAssembler;
+import com.example.demo.enums.ActivityCategory;
 import com.example.demo.services.ActivityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,12 +15,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -106,13 +109,13 @@ public class ActivityController {
     }
 
     @Operation(
-            summary = "Get all activities",
-            description = "Retrieves a list of all activities in the system, regardless of user or company."
+            summary = "Get all activities with optional filters",
+            description = "Returns all activities, optionally filtered by category and/or date."
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "List of activities retrieved successfully",
+                    description = "Activities retrieved successfully",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ActivityResponseDTO.class)
@@ -120,11 +123,17 @@ public class ActivityController {
             )
     })
     @GetMapping
-    public ResponseEntity<CollectionModel<EntityModel<ActivityResponseDTO>>> getAllActivities() {
-        List<ActivityResponseDTO> activities = activityService.findAll();
+    public ResponseEntity<CollectionModel<EntityModel<ActivityResponseDTO>>> getAllActivities(
+            @RequestParam(required = false) ActivityCategory category,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
 
+        List<ActivityResponseDTO> activities = activityService.findWithFilters(category, startDate, endDate);
         return ResponseEntity.ok(assembler.toCollectionModel(activities));
     }
+
+
+
 
     @Operation(
             summary = "Get an activity by ID",

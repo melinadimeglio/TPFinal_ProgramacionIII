@@ -5,6 +5,7 @@ import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
 import com.example.demo.DTOs.Expense.ExpenseUpdateDTO;
 import com.example.demo.entities.ExpenseEntity;
 import com.example.demo.entities.TripEntity;
+import com.example.demo.enums.ExpenseCategory;
 import com.example.demo.mappers.ExpenseMapper;
 import com.example.demo.repositories.ExpenseRepository;
 import com.example.demo.repositories.TripRepository;
@@ -156,5 +157,8 @@ public class ExpenseService{
                 .sum();
     }
 
-
+    public List<ExpenseResponseDTO> findByCategory(ExpenseCategory category) {
+        List<ExpenseEntity> expenses = expenseRepository.findByCategory(category);
+        return expenseMapper.toDTOList(expenses);
+    }
 }

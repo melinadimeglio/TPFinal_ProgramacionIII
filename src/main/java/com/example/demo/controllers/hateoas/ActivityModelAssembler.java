@@ -21,7 +21,7 @@ public class ActivityModelAssembler implements RepresentationModelAssembler<Acti
 
                 linkTo(methodOn(ActivityController.class).getActivityById(activity.getId())).withSelfRel(),
 
-                linkTo((methodOn(ActivityController.class).getAllActivities())).withRel("all-activities")
+                linkTo((methodOn(ActivityController.class).getAllActivities(null, null, null))).withRel("all-activities")
         );
     }
 
@@ -31,7 +31,7 @@ public class ActivityModelAssembler implements RepresentationModelAssembler<Acti
                 .map(this::toModel)
                 .toList();
         return CollectionModel.of(activityModels,
-                linkTo(methodOn(ActivityController.class).getAllActivities()).withSelfRel()
+                linkTo(methodOn(ActivityController.class).getAllActivities(null, null, null)).withSelfRel()
         );
     }
 
@@ -42,7 +42,7 @@ public class ActivityModelAssembler implements RepresentationModelAssembler<Acti
 
         return CollectionModel.of(activityModels,
                 linkTo(methodOn(ActivityController.class).getActivitiesByUserId(userId)).withSelfRel(),
-                linkTo(methodOn(ActivityController.class).getAllActivities()).withRel("all-activities")
+                linkTo(methodOn(ActivityController.class).getAllActivities(null, null, null)).withRel("all-activities")
         );
     }
 
@@ -53,8 +53,7 @@ public class ActivityModelAssembler implements RepresentationModelAssembler<Acti
 
         return CollectionModel.of(activityModels,
                 linkTo(methodOn(ActivityController.class).getActivitiesByUserId(companyId)).withSelfRel(),
-                linkTo(methodOn(ActivityController.class).getAllActivities()).withRel("all-activities")
+                linkTo(methodOn(ActivityController.class).getAllActivities(null, null, null)).withRel("all-activities")
         );
     }
-
 }

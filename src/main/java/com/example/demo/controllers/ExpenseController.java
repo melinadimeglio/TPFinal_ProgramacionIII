@@ -4,6 +4,7 @@ import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
 import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
 import com.example.demo.DTOs.Expense.ExpenseUpdateDTO;
 import com.example.demo.controllers.hateoas.ExpenseModelAssembler;
+import com.example.demo.enums.ExpenseCategory;
 import com.example.demo.services.ExpenseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -39,7 +40,7 @@ public class ExpenseController {
 
     @Operation(
             summary = "Get all expenses",
-            description = "Returns a list of all expenses registered in the system."
+            description = "Returns a list of all expenses registered in the system. You can optionally filter by category."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Expense list successfully retrieved",
@@ -47,11 +48,20 @@ public class ExpenseController {
                             schema = @Schema(implementation = ExpenseResponseDTO.class)))
     })
     @GetMapping
-    public ResponseEntity<CollectionModel<EntityModel<ExpenseResponseDTO>>> getAllExpenses() {
-        List<ExpenseResponseDTO> expenses = expenseService.findAll();
+    public ResponseEntity<CollectionModel<EntityModel<ExpenseResponseDTO>>> getAllExpenses(
+            @RequestParam(required = false) ExpenseCategory category) {
+
+        List<ExpenseResponseDTO> expenses;
+
+        if (category != null) {
+            expenses = expenseService.findByCategory(category);
+        } else {
+            expenses = expenseService.findAll();
+        }
 
         return ResponseEntity.ok(assembler.toCollectionModel(expenses));
     }
+
 
     @Operation(
             summary = "Get an expense by ID",

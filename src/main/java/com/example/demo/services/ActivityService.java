@@ -8,6 +8,7 @@ import com.example.demo.entities.ActivityEntity;
 import com.example.demo.entities.CompanyEntity;
 import com.example.demo.entities.ItineraryEntity;
 import com.example.demo.entities.UserEntity;
+import com.example.demo.enums.ActivityCategory;
 import com.example.demo.mappers.ActivityMapper;
 import com.example.demo.repositories.ActivityRepository;
 import com.example.demo.repositories.CompanyRepository;
@@ -16,6 +17,8 @@ import com.example.demo.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -87,7 +90,6 @@ public class ActivityService {
                 .collect(Collectors.toList());
     }
 
-
     public List<ActivityResponseDTO> findAll() {
         return activityRepository.findAll()
                 .stream()
@@ -148,6 +150,34 @@ public class ActivityService {
         }
 
         activityRepository.delete(activity);
+    }
+
+    public List<ActivityResponseDTO> findWithFilters(ActivityCategory category, LocalDate startDate, LocalDate endDate) {
+
+        if (startDate != null && endDate == null) {
+            endDate = startDate;
+        }
+
+        if (startDate != null && endDate != null) {
+            LocalDateTime startDateTime = startDate.atStartOfDay();
+            LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+
+            if (category != null) {
+                return activityRepository.findByCategoryAndStartTimeBetween(category, startDateTime, endDateTime)
+                        .stream().map(activityMapper::toDTO).collect(Collectors.toList());
+            } else {
+                return activityRepository.findByStartTimeBetween(startDateTime, endDateTime)
+                        .stream().map(activityMapper::toDTO).collect(Collectors.toList());
+            }
+        }
+
+        if (category != null) {
+            return activityRepository.findByCategory(category)
+                    .stream().map(activityMapper::toDTO).collect(Collectors.toList());
+        }
+
+        return activityRepository.findAll()
+                .stream().map(activityMapper::toDTO).collect(Collectors.toList());
     }
 
 }
