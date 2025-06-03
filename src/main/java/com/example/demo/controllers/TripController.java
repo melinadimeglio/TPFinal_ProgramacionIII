@@ -49,10 +49,10 @@ public class TripController {
     private final UserRepository userRepository;
     private final TripRepository tripRepository;
     private final TripModelAssembler assembler;
-    private final PagedResourcesAssembler pagedResourcesAssembler;
+    private final PagedResourcesAssembler<TripResponseDTO> pagedResourcesAssembler;
 
     @Autowired
-    public TripController(TripService tripService, RecommendationService recommendationService, UserRepository userRepository, TripRepository tripRepository, TripModelAssembler assembler, PagedResourcesAssembler pagedResourcesAssembler) {
+    public TripController(TripService tripService, RecommendationService recommendationService, UserRepository userRepository, TripRepository tripRepository, TripModelAssembler assembler, PagedResourcesAssembler<TripResponseDTO> pagedResourcesAssembler) {
         this.tripService = tripService;
         this.recommendationService = recommendationService;
         this.userRepository = userRepository;
