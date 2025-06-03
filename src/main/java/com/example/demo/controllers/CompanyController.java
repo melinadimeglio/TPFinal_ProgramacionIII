@@ -41,7 +41,6 @@ public class CompanyController {
         return ResponseEntity.ok(assembler.toModel(company));
     }
 
-    // Crear una nueva empresa (registro)
     @PostMapping
     public ResponseEntity<EntityModel<CompanyResponseDTO>> createCompany(@RequestBody @Valid CompanyCreateDTO dto) {
         CompanyResponseDTO company = companyService.save(dto);
@@ -55,7 +54,6 @@ public class CompanyController {
         return ResponseEntity.ok(assembler.toModel(updated));
     }
 
-    // Eliminar una empresa
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCompany(@PathVariable Long id) {
         companyService.delete(id);
