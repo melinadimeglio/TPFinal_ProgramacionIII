@@ -15,6 +15,5 @@ public class RoleInitializer {
     public void initRoles(RoleRepository roleRepository) {
 
         };
-    }
 }
 
