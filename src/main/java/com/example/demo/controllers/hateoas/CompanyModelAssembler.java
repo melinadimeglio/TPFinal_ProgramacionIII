@@ -2,6 +2,7 @@ package com.example.demo.controllers.hateoas;
 
 import com.example.demo.DTOs.Company.Response.CompanyResponseDTO;
 import com.example.demo.controllers.CompanyController;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -21,7 +22,7 @@ public class CompanyModelAssembler implements RepresentationModelAssembler<Compa
 
                 linkTo(methodOn(CompanyController.class).getCompanyById(company.getId())).withSelfRel(),
 
-                linkTo((methodOn(CompanyController.class).getAllCompanies())).withRel("all-companies")
+                linkTo((methodOn(CompanyController.class).getAllCompanies(PageRequest.of(0,10)))).withRel("all-companies")
         );    }
 
     @Override
@@ -31,7 +32,7 @@ public class CompanyModelAssembler implements RepresentationModelAssembler<Compa
                 .toList();
 
         return CollectionModel.of(companyModels,
-                linkTo(methodOn(CompanyController.class).getAllCompanies()).withSelfRel()
+                linkTo(methodOn(CompanyController.class).getAllCompanies(PageRequest.of(0,10))).withSelfRel()
         );
     }
 

@@ -6,6 +6,7 @@ import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
 import com.example.demo.controllers.ActivityController;
 import com.example.demo.controllers.CheckListItemController;
 import com.example.demo.controllers.ExpenseController;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -25,7 +26,7 @@ public class ExpenseModelAssembler implements RepresentationModelAssembler<Expen
 
                 linkTo(methodOn(ExpenseController.class).getExpenseById(expense.getId())).withSelfRel(),
 
-                linkTo((methodOn(ExpenseController.class).getAllExpenses(null))).withRel("all-checklist-items")
+                linkTo((methodOn(ExpenseController.class).getAllExpenses(PageRequest.of(0,10), null))).withRel("all-checklist-items")
         );
     }
 
@@ -35,7 +36,7 @@ public class ExpenseModelAssembler implements RepresentationModelAssembler<Expen
                 .map(this::toModel)
                 .toList();
         return CollectionModel.of(expenseModels,
-                linkTo(methodOn(ExpenseController.class).getAllExpenses(null)).withSelfRel()
+                linkTo(methodOn(ExpenseController.class).getAllExpenses(PageRequest.of(0,10),null)).withSelfRel()
         );
     }
 
@@ -46,7 +47,7 @@ public class ExpenseModelAssembler implements RepresentationModelAssembler<Expen
 
         return CollectionModel.of(expenseModels,
                 linkTo(methodOn(ExpenseController.class).findByUserId(userId, null)).withSelfRel(),
-                linkTo(methodOn(ExpenseController.class).getAllExpenses(null)).withRel("all-expenses")
+                linkTo(methodOn(ExpenseController.class).getAllExpenses(PageRequest.of(0,10),null)).withRel("all-expenses")
         );
     }
 
@@ -57,7 +58,7 @@ public class ExpenseModelAssembler implements RepresentationModelAssembler<Expen
 
         return CollectionModel.of(expenseModels,
                 linkTo(methodOn(ExpenseController.class).getExpensesByTripId(tripId)).withSelfRel(),
-                linkTo(methodOn(ExpenseController.class).getAllExpenses(null)).withRel("all-expenses")
+                linkTo(methodOn(ExpenseController.class).getAllExpenses(PageRequest.of(0,10),null)).withRel("all-expenses")
         );
     }
 }

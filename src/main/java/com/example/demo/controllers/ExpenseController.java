@@ -17,8 +17,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.ServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,11 +37,13 @@ public class ExpenseController {
 
     private final ExpenseService expenseService;
     private final ExpenseModelAssembler assembler;
+    private final PagedResourcesAssembler pagedResourcesAssembler;
 
     @Autowired
-    public ExpenseController(ExpenseService expenseService, ExpenseModelAssembler assembler) {
+    public ExpenseController(ExpenseService expenseService, ExpenseModelAssembler assembler, PagedResourcesAssembler pagedResourcesAssembler) {
         this.expenseService = expenseService;
         this.assembler = assembler;
+        this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
     @Operation(
@@ -50,18 +56,20 @@ public class ExpenseController {
                             schema = @Schema(implementation = ExpenseResponseDTO.class)))
     })
     @GetMapping
-    public ResponseEntity<CollectionModel<EntityModel<ExpenseResponseDTO>>> getAllExpenses(
+    public ResponseEntity<PagedModel<EntityModel<ExpenseResponseDTO>>> getAllExpenses(
+            Pageable pageable,
             @RequestParam(required = false) ExpenseCategory category) {
 
-        List<ExpenseResponseDTO> expenses;
+        Page<ExpenseResponseDTO> expenses;
 
         if (category != null) {
-            expenses = expenseService.findByCategory(category);
+            expenses = expenseService.findByCategory(category, pageable);
         } else {
-            expenses = expenseService.findAll();
+            expenses = expenseService.findAll(pageable);
         }
+        PagedModel<EntityModel<ExpenseResponseDTO>> model = pagedResourcesAssembler.toModel(expenses, assembler);
 
-        return ResponseEntity.ok(assembler.toCollectionModel(expenses));
+        return ResponseEntity.ok(model);
     }
 
 

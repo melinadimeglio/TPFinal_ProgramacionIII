@@ -15,8 +15,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,11 +31,18 @@ import java.util.List;
 @Tag(name = "Checklist Items", description = "Operations related to user travel checklist items")
 @RestController
 @RequestMapping("/checklist-items")
-@RequiredArgsConstructor
 public class CheckListItemController {
 
     private final CheckListItemService service;
     private final CheckListItemModelAssembler assembler;
+    private final PagedResourcesAssembler pagedResourcesAssembler;
+
+    @Autowired
+    public CheckListItemController(CheckListItemService service, CheckListItemModelAssembler assembler, PagedResourcesAssembler pagedResourcesAssembler) {
+        this.service = service;
+        this.assembler = assembler;
+        this.pagedResourcesAssembler = pagedResourcesAssembler;
+    }
 
     @Operation(
             summary = "Get all items",
@@ -44,18 +56,22 @@ public class CheckListItemController {
             )
     })
     @GetMapping
-    public ResponseEntity<CollectionModel<EntityModel<CheckListItemResponseDTO>>> getAll(
+    public ResponseEntity<PagedModel<EntityModel<CheckListItemResponseDTO>>> getAll(
+            Pageable pageable,
             @RequestParam(required = false) Boolean completed) {
 
-        List<CheckListItemResponseDTO> items;
+        Page<CheckListItemResponseDTO> items;
+        PagedModel<EntityModel<CheckListItemResponseDTO>> model;
 
         if (completed != null) {
-            items = service.findByStatus(completed);
+            items = service.findByStatus(completed, pageable);
         } else {
-            items = service.findAll();
+            items = service.findAll(pageable);
         }
 
-        return ResponseEntity.ok(assembler.toCollectionModel(items));
+        model = pagedResourcesAssembler.toModel(items, assembler);
+
+        return ResponseEntity.ok(model);
     }
 
 

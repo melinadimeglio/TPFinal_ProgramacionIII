@@ -13,8 +13,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,11 +31,13 @@ public class CompanyController {
 
     private final CompanyService companyService;
     private final CompanyModelAssembler assembler;
+    private final PagedResourcesAssembler pagedResourcesAssembler;
 
     @Autowired
-    public CompanyController(CompanyService companyService, CompanyModelAssembler assembler) {
+    public CompanyController(CompanyService companyService, CompanyModelAssembler assembler, PagedResourcesAssembler pagedResourcesAssembler) {
         this.companyService = companyService;
         this.assembler = assembler;
+        this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
     @Operation(summary = "Get all companies", description = "Returns a list of all companies.")
@@ -41,9 +47,10 @@ public class CompanyController {
                             schema = @Schema(implementation = CompanyResponseDTO.class)))
     })
     @GetMapping
-    public ResponseEntity<CollectionModel<EntityModel<CompanyResponseDTO>>> getAllCompanies() {
-        List<CompanyResponseDTO> companies = companyService.findAll();
-        return ResponseEntity.ok(assembler.toCollectionModel(companies));
+    public ResponseEntity<PagedModel<EntityModel<CompanyResponseDTO>>> getAllCompanies(Pageable pageable) {
+        Page<CompanyResponseDTO> companies = companyService.findAll(pageable);
+        PagedModel<EntityModel<CompanyResponseDTO>> model = pagedResourcesAssembler.toModel(companies, assembler);
+        return ResponseEntity.ok(model);
     }
 
     @Operation(summary = "Get company by ID", description = "Returns a specific company by its ID.")
