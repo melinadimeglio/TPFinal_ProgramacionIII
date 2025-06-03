@@ -10,6 +10,8 @@ import com.example.demo.repositories.CheckListRepository;
 import com.example.demo.repositories.TripRepository;
 import com.example.demo.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,8 +37,9 @@ public class CheckListService {
         this.checkListItemRepository = checkListItemRepository;
     }
 
-    public List<CheckListResponseDTO> findAll() {
-        return checkListMapper.toDTOList(checkListRepository.findAll());
+    public Page<CheckListResponseDTO> findAll(Pageable pageable) {
+        return checkListRepository.findAll(pageable)
+                .map(checkListMapper::toDTO);
     }
 
     public CheckListResponseDTO findById(Long id) {
