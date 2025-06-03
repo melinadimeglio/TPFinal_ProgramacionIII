@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "Credential")
@@ -55,21 +56,16 @@ public class CredentialEntity implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> authorities = new HashSet<>();
 
-        // Primero los roles
-        roles.forEach(rol -> {
-            authorities.add(new SimpleGrantedAuthority(rol.getRole().name()));
-        });
+        for (RoleEntity roleEntity : roles) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + roleEntity.getRole().name()));
 
-        // Después los permisos
-        roles.forEach(rol -> {
-            rol.getPermits().forEach(permit -> {
+            for (PermitEntity permit : roleEntity.getPermits()) {
                 authorities.add(new SimpleGrantedAuthority(permit.getPermit().name()));
-            });
-        });
+            }
+        }
 
         return authorities;
     }
-
 
     @Override
     public String getPassword() {
