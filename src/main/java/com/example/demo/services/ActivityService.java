@@ -154,30 +154,26 @@ public class ActivityService {
 
     public List<ActivityResponseDTO> findWithFilters(ActivityCategory category, LocalDate startDate, LocalDate endDate) {
 
-        if (startDate != null && endDate == null) {
-            endDate = startDate;
+        if (category == null && startDate == null && endDate == null) {
+            return activityRepository.findAll()
+                    .stream()
+                    .map(activityMapper::toDTO)
+                    .toList();
         }
 
-        if (startDate != null && endDate != null) {
-            LocalDateTime startDateTime = startDate.atStartOfDay();
-            LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+        LocalDate start = (startDate != null) ? startDate : LocalDate.MIN;
+        LocalDate end = (endDate != null) ? endDate : LocalDate.MAX;
 
-            if (category != null) {
-                return activityRepository.findByCategoryAndStartTimeBetween(category, startDateTime, endDateTime)
-                        .stream().map(activityMapper::toDTO).collect(Collectors.toList());
-            } else {
-                return activityRepository.findByStartTimeBetween(startDateTime, endDateTime)
-                        .stream().map(activityMapper::toDTO).collect(Collectors.toList());
-            }
-        }
+        List<ActivityEntity> entities;
 
         if (category != null) {
-            return activityRepository.findByCategory(category)
-                    .stream().map(activityMapper::toDTO).collect(Collectors.toList());
+            entities = activityRepository.findByCategoryAndDateBetween(category, start, end);
+        } else {
+            entities = activityRepository.findByDateBetween(start, end);
         }
 
-        return activityRepository.findAll()
-                .stream().map(activityMapper::toDTO).collect(Collectors.toList());
+        return entities.stream().map(activityMapper::toDTO).toList();
     }
+
 
 }
