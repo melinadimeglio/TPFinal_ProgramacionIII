@@ -35,10 +35,10 @@ public class CheckListItemController {
 
     private final CheckListItemService service;
     private final CheckListItemModelAssembler assembler;
-    private final PagedResourcesAssembler pagedResourcesAssembler;
+    private final PagedResourcesAssembler<CheckListItemResponseDTO> pagedResourcesAssembler;
 
     @Autowired
-    public CheckListItemController(CheckListItemService service, CheckListItemModelAssembler assembler, PagedResourcesAssembler pagedResourcesAssembler) {
+    public CheckListItemController(CheckListItemService service, CheckListItemModelAssembler assembler, PagedResourcesAssembler<CheckListItemResponseDTO> pagedResourcesAssembler) {
         this.service = service;
         this.assembler = assembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;

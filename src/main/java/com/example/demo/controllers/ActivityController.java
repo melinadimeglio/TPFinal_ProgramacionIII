@@ -42,10 +42,10 @@ public class ActivityController {
 
     private final ActivityService activityService;
     private final ActivityModelAssembler assembler;
-    private final PagedResourcesAssembler pagedResourcesAssembler;
+    private final PagedResourcesAssembler<ActivityResponseDTO> pagedResourcesAssembler;
 
     @Autowired
-    public ActivityController(ActivityService activityService, ActivityModelAssembler assembler, PagedResourcesAssembler pagedResourcesAssembler) {
+    public ActivityController(ActivityService activityService, ActivityModelAssembler assembler, PagedResourcesAssembler<ActivityResponseDTO> pagedResourcesAssembler) {
         this.activityService = activityService;
         this.assembler = assembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
