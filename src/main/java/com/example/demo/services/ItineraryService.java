@@ -11,6 +11,8 @@ import com.example.demo.repositories.ItineraryRepository;
 import com.example.demo.repositories.TripRepository;
 import com.example.demo.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,9 +33,10 @@ public class ItineraryService {
         this.userRepository = userRepository;
     }
 
-    public List<ItineraryResponseDTO> findAll(){
-        List<ItineraryEntity> entities = itineraryRepository.findAll();
-        return itineraryMapper.toDTOList(entities);    }
+    public Page<ItineraryResponseDTO> findAll(Pageable pageable){
+        return itineraryRepository.findAll(pageable)
+                .map(itineraryMapper::toDTO);
+    }
 
     public ItineraryResponseDTO findById(Long id){
         ItineraryEntity entity = itineraryRepository.findById(id)
@@ -46,9 +49,9 @@ public class ItineraryService {
                 .orElseThrow(() -> new NoSuchElementException("No se encontró el itinerario"));
     }
 
-    public List<ItineraryResponseDTO> findByUserId(Long userId) {
-        List<ItineraryEntity> itineraries = itineraryRepository.findByUserId(userId);
-        return itineraryMapper.toDTOList(itineraries);
+    public Page<ItineraryResponseDTO> findByUserId(Long userId, Pageable pageable) {
+        return itineraryRepository.findByUserId(userId, pageable)
+                .map(itineraryMapper::toDTO);
     }
 
     public ItineraryResponseDTO save(ItineraryCreateDTO dto) {
