@@ -3,6 +3,7 @@ package com.example.demo.services;
 import com.example.demo.DTOs.User.Request.UserCreateDTO;
 import com.example.demo.DTOs.User.Response.UserResponseDTO;
 import com.example.demo.DTOs.User.UserUpdateDTO;
+import com.example.demo.controllers.hateoas.UserModelAssembler;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.mappers.UserMapper;
 import com.example.demo.security.repositories.RoleRepository;
@@ -11,13 +12,17 @@ import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.security.entities.RoleEntity;
 import com.example.demo.security.enums.Role;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.example.demo.security.repositories.CredentialRepository;
 
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -41,9 +46,9 @@ public class UserService {
         this.roleRepository = roleRepository;
     }
 
-    public List<UserResponseDTO> findAll() {
-        List<UserEntity> users = userRepository.findAll();
-        return userMapper.toDTOList(users);
+    public Page<UserResponseDTO> findAll(Pageable pageable) {
+        return userRepository.findAll(pageable)
+                .map(userMapper::toDTO);
     }
 
     public UserResponseDTO findById(Long id) {

@@ -14,8 +14,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -30,11 +34,13 @@ public class UserController {
 
     private final UserService userService;
     private final UserModelAssembler assembler;
+    private final PagedResourcesAssembler pagedResourcesAssembler;
 
     @Autowired
-    public UserController(UserService userService, UserModelAssembler assembler) {
+    public UserController(UserService userService, UserModelAssembler assembler, PagedResourcesAssembler pagedResourcesAssembler) {
         this.userService = userService;
         this.assembler = assembler;
+        this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
     @Operation(summary = "Get all users", description = "Returns a list of all registered users.")
@@ -44,9 +50,10 @@ public class UserController {
                             schema = @Schema(implementation = UserResponseDTO.class)))
     })
     @GetMapping
-    public ResponseEntity<CollectionModel<EntityModel<UserResponseDTO>>> getAllUsers() {
-        List<UserResponseDTO> users = userService.findAll();
-        return ResponseEntity.ok(assembler.toCollectionModel(users));
+    public ResponseEntity<PagedModel<EntityModel<UserResponseDTO>>> getAllUsers(Pageable pageable) {
+        Page<UserResponseDTO> usersPage = userService.findAll(pageable);
+        PagedModel<EntityModel<UserResponseDTO>> model = pagedResourcesAssembler.toModel(usersPage, assembler);
+        return ResponseEntity.ok(model);
     }
 
     @Operation(summary = "Get user by ID", description = "Returns a specific user by ID if authorized.")
@@ -134,5 +141,11 @@ public class UserController {
         String username = authentication.getName();
         UserResponseDTO profile = userService.getProfileByUsername(username);
         return ResponseEntity.ok(assembler.toModel(profile));
+    }
+
+    //solo para hateoas
+    @GetMapping("/public/{id}")
+    public ResponseEntity<EntityModel<UserResponseDTO>> getUserByIdPublic(@PathVariable Long id) {
+        return ResponseEntity.notFound().build();
     }
 }

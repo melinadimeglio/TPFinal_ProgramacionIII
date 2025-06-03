@@ -4,6 +4,7 @@ import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
 import com.example.demo.controllers.ActivityController;
 import com.example.demo.controllers.TripController;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;

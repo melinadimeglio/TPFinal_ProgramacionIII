@@ -15,6 +15,8 @@ import com.example.demo.repositories.CompanyRepository;
 import com.example.demo.repositories.ItineraryRepository;
 import com.example.demo.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -152,7 +154,7 @@ public class ActivityService {
         activityRepository.delete(activity);
     }
 
-    public List<ActivityResponseDTO> findWithFilters(ActivityCategory category, LocalDate startDate, LocalDate endDate) {
+    public Page<ActivityResponseDTO> findWithFilters(ActivityCategory category, LocalDate startDate, LocalDate endDate, Pageable pageable) {
 
         if (startDate != null && endDate == null) {
             endDate = startDate;
@@ -163,21 +165,21 @@ public class ActivityService {
             LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
 
             if (category != null) {
-                return activityRepository.findByCategoryAndStartTimeBetween(category, startDateTime, endDateTime)
-                        .stream().map(activityMapper::toDTO).collect(Collectors.toList());
+                return activityRepository.findByCategoryAndStartTimeBetween(category, startDateTime, endDateTime, pageable)
+                        .map(activityMapper::toDTO);
             } else {
-                return activityRepository.findByStartTimeBetween(startDateTime, endDateTime)
-                        .stream().map(activityMapper::toDTO).collect(Collectors.toList());
+                return activityRepository.findByStartTimeBetween(startDateTime, endDateTime, pageable)
+                        .map(activityMapper::toDTO);
             }
         }
 
         if (category != null) {
-            return activityRepository.findByCategory(category)
-                    .stream().map(activityMapper::toDTO).collect(Collectors.toList());
+            return activityRepository.findByCategory(category, pageable)
+                    .map(activityMapper::toDTO);
         }
 
-        return activityRepository.findAll()
-                .stream().map(activityMapper::toDTO).collect(Collectors.toList());
+        return activityRepository.findAll(pageable)
+                .map(activityMapper::toDTO);
     }
 
 }
