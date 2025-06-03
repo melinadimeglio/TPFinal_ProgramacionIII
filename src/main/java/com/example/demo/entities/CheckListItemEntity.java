@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+@Builder
 @Entity
 @Table(name = "CheckListItem")
 @Getter
@@ -25,4 +26,7 @@ public class CheckListItemEntity {
     @ManyToOne
     @JoinColumn(name = "checklist_id", nullable = false)
     private CheckListEntity checklist;
+
+    @Builder.Default
+    private boolean active = true;
 }

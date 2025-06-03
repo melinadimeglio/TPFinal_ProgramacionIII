@@ -9,6 +9,8 @@ import com.example.demo.mappers.TripMapper;
 import com.example.demo.repositories.TripRepository;
 import com.example.demo.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -29,9 +31,10 @@ public class TripService {
         this.tripMapper = tripMapper;
     }
 
-    public List<TripResponseDTO> findAll() {
-        List<TripEntity> trips = tripRepository.findAll();
-        return tripMapper.toDTOList(trips);
+    public Page<TripResponseDTO> findAll(Pageable pageable) {
+        return tripRepository.findAll(pageable)
+                .map(tripMapper::toDTO);
+
     }
 
     public TripResponseDTO findById(Long id) {
@@ -70,7 +73,7 @@ public class TripService {
     public void delete(Long id) {
         TripEntity trip = tripRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No se encontró el viaje con ID " + id));
-        tripRepository.delete(trip);
+        trip.setActive(false);
     }
 
     public List<TripResponseDTO> findByUserId(Long userId) {

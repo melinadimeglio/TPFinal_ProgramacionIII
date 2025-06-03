@@ -15,7 +15,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springdoc.ui.SpringDocUIException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -37,11 +42,13 @@ public class ActivityController {
 
     private final ActivityService activityService;
     private final ActivityModelAssembler assembler;
+    private final PagedResourcesAssembler pagedResourcesAssembler;
 
     @Autowired
-    public ActivityController(ActivityService activityService, ActivityModelAssembler assembler) {
+    public ActivityController(ActivityService activityService, ActivityModelAssembler assembler, PagedResourcesAssembler pagedResourcesAssembler) {
         this.activityService = activityService;
         this.assembler = assembler;
+        this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
     @Operation(
@@ -130,13 +137,15 @@ public class ActivityController {
     })
     @PreAuthorize("hasAuthority('VER_TODAS_ACTIVIDADES')")
     @GetMapping
-    public ResponseEntity<CollectionModel<EntityModel<ActivityResponseDTO>>> getAllActivities(
+    public ResponseEntity<PagedModel<EntityModel<ActivityResponseDTO>>> getAllActivities(
+            Pageable pageable,
             @RequestParam(required = false) ActivityCategory category,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
 
-        List<ActivityResponseDTO> activities = activityService.findWithFilters(category, startDate, endDate);
-        return ResponseEntity.ok(assembler.toCollectionModel(activities));
+        Page<ActivityResponseDTO> activities = activityService.findWithFilters(category, startDate, endDate, pageable);
+        PagedModel model = pagedResourcesAssembler.toModel(activities, assembler);
+        return ResponseEntity.ok(model);
     }
 
 

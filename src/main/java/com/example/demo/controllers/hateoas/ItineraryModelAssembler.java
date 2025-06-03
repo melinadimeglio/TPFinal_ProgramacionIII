@@ -4,6 +4,7 @@ import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.controllers.ActivityController;
 import com.example.demo.controllers.ItineraryController;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -23,7 +24,7 @@ public class ItineraryModelAssembler implements RepresentationModelAssembler <It
 
                 linkTo(methodOn(ItineraryController.class).getItineraryById(itinerary.getId())).withSelfRel(),
 
-                linkTo((methodOn(ItineraryController.class).getAllItineraries())).withRel("all-itineraries")
+                linkTo((methodOn(ItineraryController.class).getAllItineraries(PageRequest.of(0,10)))).withRel("all-itineraries")
         );
     }
 
@@ -33,7 +34,7 @@ public class ItineraryModelAssembler implements RepresentationModelAssembler <It
                 .map(this::toModel)
                 .toList();
         return CollectionModel.of(itineraryModels,
-                linkTo(methodOn(ItineraryController.class).getAllItineraries()).withSelfRel()
+                linkTo(methodOn(ItineraryController.class).getAllItineraries(PageRequest.of(0,10))).withSelfRel()
         );
     }
 
@@ -43,8 +44,8 @@ public class ItineraryModelAssembler implements RepresentationModelAssembler <It
                 .toList();
 
         return CollectionModel.of(itineraryModels,
-                linkTo(methodOn(ItineraryController.class).getItinerariesByUserId(userId, null)).withSelfRel(),
-                linkTo(methodOn(ItineraryController.class).getAllItineraries()).withRel("all-itineraries")
+                linkTo(methodOn(ItineraryController.class).getItinerariesByUserId(PageRequest.of(0,10), userId, null)).withSelfRel(),
+                linkTo(methodOn(ItineraryController.class).getAllItineraries(PageRequest.of(0,10))).withRel("all-itineraries")
         );
     }
 

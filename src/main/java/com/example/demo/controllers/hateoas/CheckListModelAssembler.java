@@ -1,6 +1,7 @@
 package com.example.demo.controllers.hateoas;
 import com.example.demo.DTOs.CheckList.Response.CheckListResponseDTO;
 import com.example.demo.controllers.CheckListController;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -20,7 +21,7 @@ public class CheckListModelAssembler implements RepresentationModelAssembler<Che
 
                 linkTo(methodOn(CheckListController.class).getById(checklist.getId())).withSelfRel(),
 
-                linkTo((methodOn(CheckListController.class).getAll())).withRel("all-checklists")
+                linkTo((methodOn(CheckListController.class).getAll(PageRequest.of(0, 10)))).withRel("all-checklists")
         );    }
 
     @Override
@@ -29,7 +30,7 @@ public class CheckListModelAssembler implements RepresentationModelAssembler<Che
                 .map(this::toModel)
                 .toList();
         return CollectionModel.of(checklistModels,
-                linkTo(methodOn(CheckListController.class).getAll()).withSelfRel()
+                linkTo(methodOn(CheckListController.class).getAll(PageRequest.of(0, 10))).withSelfRel()
         );
     }
 
@@ -40,7 +41,7 @@ public class CheckListModelAssembler implements RepresentationModelAssembler<Che
 
         return CollectionModel.of(checklistModels,
                 linkTo(methodOn(CheckListController.class).getByUser(userId, null)).withSelfRel(),
-                linkTo(methodOn(CheckListController.class).getAll()).withRel("all-checklists")
+                linkTo(methodOn(CheckListController.class).getAll(PageRequest.of(0, 10))).withRel("all-checklists")
         );
     }
 }

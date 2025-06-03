@@ -11,6 +11,8 @@ import com.example.demo.repositories.ExpenseRepository;
 import com.example.demo.repositories.TripRepository;
 import com.example.demo.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,9 +36,9 @@ public class ExpenseService{
 
     }
 
-    public List<ExpenseResponseDTO> findAll(){
-        List<ExpenseEntity> entities = expenseRepository.findAll();
-        return expenseMapper.toDTOList(entities);
+    public Page<ExpenseResponseDTO> findAll(Pageable pageable){
+        return expenseRepository.findAll(pageable)
+                .map(expenseMapper::toDTO);
     }
 
     public ExpenseResponseDTO findById(Long id) {
@@ -93,7 +95,7 @@ public class ExpenseService{
     public void delete(Long id) {
         ExpenseEntity entity = expenseRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No se encontró el gasto"));
-        expenseRepository.delete(entity);
+        entity.setActive(false);
     }
 
     public List<ExpenseResponseDTO> findByUserId(Long userId) {
@@ -158,9 +160,9 @@ public class ExpenseService{
                 .sum();
     }
 
-    public List<ExpenseResponseDTO> findByCategory(ExpenseCategory category) {
-        List<ExpenseEntity> expenses = expenseRepository.findByCategory(category);
-        return expenseMapper.toDTOList(expenses);
+    public Page<ExpenseResponseDTO> findByCategory(ExpenseCategory category, Pageable pageable) {
+        return expenseRepository.findByCategory(category, pageable)
+                .map(expenseMapper::toDTO);
     }
 
 }

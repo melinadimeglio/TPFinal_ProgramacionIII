@@ -15,8 +15,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,11 +35,13 @@ public class ItineraryController {
 
     private final ItineraryService itineraryService;
     private final ItineraryModelAssembler assembler;
+    private final PagedResourcesAssembler pagedResourcesAssembler;
 
     @Autowired
-    public ItineraryController(ItineraryService itineraryService, ItineraryModelAssembler assembler) {
+    public ItineraryController(ItineraryService itineraryService, ItineraryModelAssembler assembler, PagedResourcesAssembler pagedResourcesAssembler) {
         this.itineraryService = itineraryService;
         this.assembler = assembler;
+        this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
     @Operation(
@@ -84,10 +90,10 @@ public class ItineraryController {
             )
     })
     @GetMapping
-    public ResponseEntity<CollectionModel<EntityModel<ItineraryResponseDTO>>> getAllItineraries() {
-        List<ItineraryResponseDTO> itineraries = itineraryService.findAll();
-
-        return ResponseEntity.ok(assembler.toCollectionModel(itineraries));
+    public ResponseEntity<PagedModel<EntityModel<ItineraryResponseDTO>>> getAllItineraries(Pageable pageable) {
+        Page<ItineraryResponseDTO> itineraries = itineraryService.findAll(pageable);
+        PagedModel<EntityModel<ItineraryResponseDTO>> model = pagedResourcesAssembler.toModel(itineraries, assembler);
+        return ResponseEntity.ok(model);
     }
 
     @Operation(
@@ -154,7 +160,8 @@ public class ItineraryController {
             )
     })
     @GetMapping("/user/{userId}")
-    public ResponseEntity<CollectionModel<EntityModel<ItineraryResponseDTO>>> getItinerariesByUserId(
+    public ResponseEntity<PagedModel<EntityModel<ItineraryResponseDTO>>> getItinerariesByUserId(
+            Pageable pageable,
             @PathVariable Long userId,
             @AuthenticationPrincipal CredentialEntity credential) {
 
@@ -162,8 +169,9 @@ public class ItineraryController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        List<ItineraryResponseDTO> itineraries = itineraryService.findByUserId(userId);
-        return ResponseEntity.ok(assembler.toCollectionModelByUser(itineraries, userId));
+        Page<ItineraryResponseDTO> itineraries = itineraryService.findByUserId(userId, pageable);
+        PagedModel<EntityModel<ItineraryResponseDTO>> model = pagedResourcesAssembler.toModel(itineraries, assembler);
+        return ResponseEntity.ok(model);
     }
 
 

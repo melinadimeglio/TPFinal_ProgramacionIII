@@ -24,8 +24,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -45,14 +49,16 @@ public class TripController {
     private final UserRepository userRepository;
     private final TripRepository tripRepository;
     private final TripModelAssembler assembler;
+    private final PagedResourcesAssembler pagedResourcesAssembler;
 
     @Autowired
-    public TripController(TripService tripService, RecommendationService recommendationService, UserRepository userRepository, TripRepository tripRepository, TripModelAssembler assembler) {
+    public TripController(TripService tripService, RecommendationService recommendationService, UserRepository userRepository, TripRepository tripRepository, TripModelAssembler assembler, PagedResourcesAssembler pagedResourcesAssembler) {
         this.tripService = tripService;
         this.recommendationService = recommendationService;
         this.userRepository = userRepository;
         this.tripRepository = tripRepository;
         this.assembler = assembler;
+        this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
     @Operation(summary = "Get all trips", description = "Returns a list of all trips.")
@@ -62,10 +68,10 @@ public class TripController {
                             schema = @Schema(implementation = TripResponseDTO.class)))
     })
     @GetMapping
-    public ResponseEntity<CollectionModel<EntityModel<TripResponseDTO>>> getAllTrips() {
-        List<TripResponseDTO> trips = tripService.findAll();
-
-        return ResponseEntity.ok(assembler.toCollectionModel(trips));
+    public ResponseEntity<PagedModel<EntityModel<TripResponseDTO>>> getAllTrips(Pageable pageable) {
+        Page<TripResponseDTO> trips = tripService.findAll(pageable);
+        PagedModel<EntityModel<TripResponseDTO>> model = pagedResourcesAssembler.toModel(trips, assembler);
+        return ResponseEntity.ok(model);
     }
 
     @Operation(summary = "Get a trip by ID", description = "Returns a specific trip by its ID.")
@@ -105,7 +111,6 @@ public class TripController {
         TripResponseDTO responseDTO = tripService.save(tripCreateDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
-
 
 
     @Operation(
@@ -228,6 +233,12 @@ public class TripController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(filteredRecommendations);
+    }
+
+    //solo para hateoas
+    @GetMapping("/paged")
+    public ResponseEntity<PagedModel<EntityModel<TripResponseDTO>>> getAllTrips() {
+        return ResponseEntity.notFound().build();
     }
 
 }

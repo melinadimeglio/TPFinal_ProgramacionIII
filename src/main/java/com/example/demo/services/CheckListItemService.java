@@ -9,6 +9,8 @@ import com.example.demo.mappers.CheckListItemMapper;
 import com.example.demo.repositories.CheckListItemRepository;
 import com.example.demo.repositories.CheckListRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,8 +26,9 @@ public class CheckListItemService {
     private final CheckListRepository checkListRepository;
 
 
-    public List<CheckListItemResponseDTO> findAll() {
-        return itemMapper.toDTOList(itemRepository.findAll());
+    public Page<CheckListItemResponseDTO> findAll(Pageable pageable) {
+        return itemRepository.findAll(pageable)
+                .map(itemMapper::toDTO);
     }
 
     public CheckListItemResponseDTO findById(Long id) {
@@ -71,21 +74,18 @@ public class CheckListItemService {
     public void delete(Long id) {
         CheckListItemEntity entity = itemRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Item no encontrado"));
-        itemRepository.delete(entity);
+
+        entity.setActive(false);
     }
 
-    public List<CheckListItemResponseDTO> findByChecklistAndStatus(Long checklistId, boolean completed) {
-        List<CheckListItemEntity> items = itemRepository.findByChecklistIdAndStatus(checklistId, completed);
-        return items.stream()
-                .map(itemMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<CheckListItemResponseDTO> findByChecklistAndStatus(Long checklistId, boolean completed, Pageable pageable) {
+        return itemRepository.findByChecklistIdAndStatus(checklistId, completed, pageable)
+                .map(itemMapper::toDTO);
     }
 
-    public List<CheckListItemResponseDTO> findByStatus(boolean completed) {
-        List<CheckListItemEntity> items = itemRepository.findByStatus(completed);
-        return items.stream()
-                .map(itemMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<CheckListItemResponseDTO> findByStatus(boolean completed, Pageable pageable) {
+        return itemRepository.findByStatus(completed, pageable)
+                .map(itemMapper::toDTO);
     }
 
 

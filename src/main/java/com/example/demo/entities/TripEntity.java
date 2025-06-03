@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
+@Builder
 @Entity
 @Table(name = "Trip")
 @Getter
@@ -36,6 +37,8 @@ public class TripEntity {
     private Double estimatedBudget;
 
     private int companions;
+
+    @Builder.Default
     private boolean active = true;
 
     @ManyToMany(mappedBy = "trips", fetch = FetchType.EAGER)

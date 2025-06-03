@@ -2,6 +2,7 @@ package com.example.demo.controllers.hateoas;
 
 import com.example.demo.DTOs.CheckList.Response.CheckListItemResponseDTO;
 import com.example.demo.controllers.CheckListItemController;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -21,7 +22,7 @@ public class CheckListItemModelAssembler implements RepresentationModelAssembler
 
                 linkTo(methodOn(CheckListItemController.class).getById(checklistItem.getId())).withSelfRel(),
 
-                linkTo((methodOn(CheckListItemController.class).getAll(null))).withRel("all-checklist-items")
+                linkTo((methodOn(CheckListItemController.class).getAll(PageRequest.of(0,10), null))).withRel("all-checklist-items")
         );
     }
 
@@ -32,7 +33,7 @@ public class CheckListItemModelAssembler implements RepresentationModelAssembler
                 .toList();
 
         return CollectionModel.of(checklistItemModels,
-                linkTo(methodOn(CheckListItemController.class).getAll(null)).withSelfRel()
+                linkTo(methodOn(CheckListItemController.class).getAll(PageRequest.of(0, 10), null)).withSelfRel()
         );
     }
 

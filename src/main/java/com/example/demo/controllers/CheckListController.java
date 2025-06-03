@@ -14,8 +14,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,11 +36,13 @@ public class CheckListController {
 
     private final CheckListService checkListService;
     private final CheckListModelAssembler assembler;
+    private final PagedResourcesAssembler pagedResourcesAssembler;
 
     @Autowired
-    public CheckListController(CheckListService checkListService, CheckListModelAssembler assembler) {
+    public CheckListController(CheckListService checkListService, CheckListModelAssembler assembler, PagedResourcesAssembler pagedResourcesAssembler) {
         this.checkListService = checkListService;
         this.assembler = assembler;
+        this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
     @Operation(
@@ -108,10 +114,10 @@ public class CheckListController {
                     content = @Content(schema = @Schema(implementation = CheckListResponseDTO.class)))
     })
     @GetMapping
-    public ResponseEntity<CollectionModel<EntityModel<CheckListResponseDTO>>> getAll() {
-        List<CheckListResponseDTO> checklists = checkListService.findAll();
-
-        return ResponseEntity.ok(assembler.toCollectionModel(checklists));
+    public ResponseEntity<PagedModel<EntityModel<CheckListResponseDTO>>> getAll(Pageable pageable) {
+        Page<CheckListResponseDTO> checklists = checkListService.findAll(pageable);
+        PagedModel<EntityModel<CheckListResponseDTO>> model = pagedResourcesAssembler.toModel(checklists, assembler);
+        return ResponseEntity.ok(model);
     }
 
     @Operation(summary = "Get all checklists by user ID", description = "Retrieves all checklists created by the specified user.")
