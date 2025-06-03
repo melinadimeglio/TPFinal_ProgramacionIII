@@ -21,6 +21,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,6 +56,7 @@ public class ActivityController {
                     )
             )
     )
+    @PreAuthorize("hasAuthority('CREAR_ACTIVIDAD_USUARIO')")
     @PostMapping("/user")
     public ResponseEntity<ActivityResponseDTO> createFromUser(@RequestBody @Valid UserActivityCreateDTO dto) {
         ActivityResponseDTO createdActivity = activityService.createFromUser(dto);
@@ -84,6 +86,7 @@ public class ActivityController {
             ),
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
+    @PreAuthorize("hasAuthority('CREAR_ACTIVIDAD_EMPRESA')")
     @PostMapping("/company")
     public ResponseEntity<ActivityResponseDTO> createFromCompany(@RequestBody @Valid CompanyActivityCreateDTO dto) {
         ActivityResponseDTO response = activityService.createFromCompany(dto);
@@ -103,6 +106,7 @@ public class ActivityController {
             ),
             @ApiResponse(responseCode = "404", description = "Company not found or has no activities")
     })
+    @PreAuthorize("hasAuthority('VER_ACTIVIDAD_EMPRESA')")
     @GetMapping("/company/{companyId}")
     public ResponseEntity<CollectionModel<EntityModel<ActivityResponseDTO>>> getByCompanyId(@PathVariable Long companyId) {
         List<ActivityResponseDTO> activities = activityService.findByCompanyId(companyId);
@@ -124,6 +128,7 @@ public class ActivityController {
                     )
             )
     })
+    @PreAuthorize("hasAuthority('VER_TODAS_ACTIVIDADES')")
     @GetMapping
     public ResponseEntity<CollectionModel<EntityModel<ActivityResponseDTO>>> getAllActivities(
             @RequestParam(required = false) ActivityCategory category,
@@ -133,8 +138,6 @@ public class ActivityController {
         List<ActivityResponseDTO> activities = activityService.findWithFilters(category, startDate, endDate);
         return ResponseEntity.ok(assembler.toCollectionModel(activities));
     }
-
-
 
 
     @Operation(
@@ -155,6 +158,7 @@ public class ActivityController {
                     description = "Activity not found"
             )
     })
+    @PreAuthorize("hasAuthority('VER_ACTIVIDAD')")
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<ActivityResponseDTO>> getActivityById(@PathVariable Long id) {
         ActivityResponseDTO activity = activityService.findById(id);
@@ -180,6 +184,7 @@ public class ActivityController {
                     description = "No activities found for the given user ID"
             )
     })
+    @PreAuthorize("hasAuthority('VER_ACTIVIDAD_USUARIO')")
     @GetMapping("/user/{userId}")
     public ResponseEntity<CollectionModel<EntityModel<ActivityResponseDTO>>> getActivitiesByUserId(
             @PathVariable Long userId,
@@ -216,6 +221,7 @@ public class ActivityController {
                     description = "Activity not found"
             )
     })
+    @PreAuthorize("hasAuthority('MODIFICAR_ACTIVIDADES_USUARIO')")
     @PutMapping("/{id}")
     public ResponseEntity<ActivityResponseDTO> updateActivity(
             @PathVariable Long id,
@@ -224,8 +230,6 @@ public class ActivityController {
         ActivityResponseDTO updated = activityService.updateAndReturn(id, dto);
         return ResponseEntity.ok(updated);
     }
-
-
 
     @Operation(
             summary = "Delete an activity by ID",
@@ -241,6 +245,7 @@ public class ActivityController {
                     description = "Activity not found"
             )
     })
+    @PreAuthorize("hasAuthority('ELIMINAR_ACTIVIDAD_USUARIO')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteActivity(@PathVariable Long id) {
         activityService.delete(id);
@@ -271,6 +276,7 @@ public class ActivityController {
             @ApiResponse(responseCode = "400", description = "Invalid input data"),
             @ApiResponse(responseCode = "404", description = "Activity not found or company mismatch")
     })
+    @PreAuthorize("hasAuthority('MODIFICAR_ACTIVIDADES_EMPRESA')")
     @PutMapping("/company/{companyId}/activities/{activityId}")
     public ResponseEntity<ActivityResponseDTO> updateActivityByCompany(
             @PathVariable Long companyId,
@@ -292,6 +298,7 @@ public class ActivityController {
             ),
             @ApiResponse(responseCode = "404", description = "Activity not found or company mismatch")
     })
+    @PreAuthorize("hasAuthority('ELIMINAR_ACTIVIDAD_EMPRESA')")
     @DeleteMapping("/company/{companyId}/activities/{activityId}")
     public ResponseEntity<Void> deleteActivityByCompany(
             @PathVariable Long companyId,
