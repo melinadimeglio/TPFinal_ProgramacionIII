@@ -8,4 +8,6 @@ import java.util.List;
 
 @Repository
 public interface CheckListItemRepository extends JpaRepository <CheckListItemEntity, Long> {
+    List<CheckListItemEntity> findByChecklistIdAndStatus(Long checklistId, boolean status);
+    List<CheckListItemEntity> findByStatus(boolean status);
 }

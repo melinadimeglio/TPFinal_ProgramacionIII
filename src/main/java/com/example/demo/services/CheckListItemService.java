@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -72,4 +73,20 @@ public class CheckListItemService {
                 .orElseThrow(() -> new NoSuchElementException("Item no encontrado"));
         itemRepository.delete(entity);
     }
+
+    public List<CheckListItemResponseDTO> findByChecklistAndStatus(Long checklistId, boolean completed) {
+        List<CheckListItemEntity> items = itemRepository.findByChecklistIdAndStatus(checklistId, completed);
+        return items.stream()
+                .map(itemMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<CheckListItemResponseDTO> findByStatus(boolean completed) {
+        List<CheckListItemEntity> items = itemRepository.findByStatus(completed);
+        return items.stream()
+                .map(itemMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+
 }

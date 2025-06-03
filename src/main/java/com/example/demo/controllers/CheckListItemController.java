@@ -32,12 +32,28 @@ public class CheckListItemController {
     private final CheckListItemService service;
     private final CheckListItemModelAssembler assembler;
 
-    @Operation(summary = "Get all items", description = "Returns a list of all items from all checklists.")
-    @ApiResponse(responseCode = "200", description = "Items successfully retrieved",
-            content = @Content(schema = @Schema(implementation = CheckListItemResponseDTO.class)))
+    @Operation(
+            summary = "Get all items",
+            description = "Returns a list of all items from all checklists. You can optionally filter by completion status."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Items successfully retrieved",
+                    content = @Content(schema = @Schema(implementation = CheckListItemResponseDTO.class))
+            )
+    })
     @GetMapping
-    public ResponseEntity<CollectionModel<EntityModel<CheckListItemResponseDTO>>> getAll() {
-        List<CheckListItemResponseDTO> items = service.findAll();
+    public ResponseEntity<CollectionModel<EntityModel<CheckListItemResponseDTO>>> getAll(
+            @RequestParam(required = false) Boolean completed) {
+
+        List<CheckListItemResponseDTO> items;
+
+        if (completed != null) {
+            items = service.findByStatus(completed);
+        } else {
+            items = service.findAll();
+        }
 
         return ResponseEntity.ok(assembler.toCollectionModel(items));
     }

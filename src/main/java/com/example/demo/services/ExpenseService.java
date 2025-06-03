@@ -161,4 +161,5 @@ public class ExpenseService{
         List<ExpenseEntity> expenses = expenseRepository.findByCategory(category);
         return expenseMapper.toDTOList(expenses);
     }
+
 }

@@ -21,7 +21,7 @@ public class CheckListItemModelAssembler implements RepresentationModelAssembler
 
                 linkTo(methodOn(CheckListItemController.class).getById(checklistItem.getId())).withSelfRel(),
 
-                linkTo((methodOn(CheckListItemController.class).getAll())).withRel("all-checklist-items")
+                linkTo((methodOn(CheckListItemController.class).getAll(null))).withRel("all-checklist-items")
         );
     }
 
@@ -32,7 +32,7 @@ public class CheckListItemModelAssembler implements RepresentationModelAssembler
                 .toList();
 
         return CollectionModel.of(checklistItemModels,
-                linkTo(methodOn(CheckListItemController.class).getAll()).withSelfRel()
+                linkTo(methodOn(CheckListItemController.class).getAll(null)).withSelfRel()
         );
     }
 
