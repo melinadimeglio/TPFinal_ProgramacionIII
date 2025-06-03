@@ -39,7 +39,7 @@ public class CheckListModelAssembler implements RepresentationModelAssembler<Che
                 .toList();
 
         return CollectionModel.of(checklistModels,
-                linkTo(methodOn(CheckListController.class).getByUser(userId)).withSelfRel(),
+                linkTo(methodOn(CheckListController.class).getByUser(userId, null)).withSelfRel(),
                 linkTo(methodOn(CheckListController.class).getAll()).withRel("all-checklists")
         );
     }

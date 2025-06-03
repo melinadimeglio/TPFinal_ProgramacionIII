@@ -5,7 +5,6 @@ import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.controllers.hateoas.ActivityModelAssembler;
-import com.example.demo.enums.ActivityCategory;
 import com.example.demo.services.ActivityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -20,6 +19,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -179,7 +179,14 @@ public class ActivityController {
             )
     })
     @GetMapping("/user/{userId}")
-    public ResponseEntity<CollectionModel<EntityModel<ActivityResponseDTO>>> getActivitiesByUserId(@PathVariable Long userId) {
+    public ResponseEntity<CollectionModel<EntityModel<ActivityResponseDTO>>> getActivitiesByUserId(
+            @PathVariable Long userId,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         List<ActivityResponseDTO> activities = activityService.findByUserId(userId);
 
         return ResponseEntity.ok(assembler.toCollectionModelByUser(activities, userId));

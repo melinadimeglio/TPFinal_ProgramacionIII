@@ -73,8 +73,9 @@ public class ExpenseService{
             budgetStatus = "🔶 Se ha superado el 50% del presupuesto estimado.";
         } else if (total == estimated){
             budgetStatus = "❗ Has gastado todo el presupuesto disponible.";
+        } else {
+            budgetStatus = "✅ Presupuesto bajo control.";
         }
-
         ExpenseResponseDTO response = expenseMapper.toDTO(saved);
         response.setDividedAmount(divided);
         response.setBudgetWarning(budgetStatus);
@@ -157,9 +158,5 @@ public class ExpenseService{
                 .sum();
     }
 
-    public List<ExpenseResponseDTO> findByCategory(ExpenseCategory category) {
-        List<ExpenseEntity> expenses = expenseRepository.findByCategory(category);
-        return expenseMapper.toDTOList(expenses);
-    }
 
 }
