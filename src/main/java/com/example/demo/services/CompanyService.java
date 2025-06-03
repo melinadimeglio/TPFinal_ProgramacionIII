@@ -12,6 +12,8 @@ import com.example.demo.security.enums.Role;
 import com.example.demo.security.repositories.CredentialRepository;
 import com.example.demo.security.repositories.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -72,11 +74,9 @@ public class CompanyService {
         return companyMapper.toDTO(entity);
     }
 
-    public List<CompanyResponseDTO> findAll() {
-        return companyRepository.findAll()
-                .stream()
-                .map(companyMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<CompanyResponseDTO> findAll(Pageable pageable) {
+        return companyRepository.findAll(pageable)
+                .map(companyMapper::toDTO);
     }
 
     public CompanyResponseDTO update(Long id, CompanyUpdateDTO dto) {
