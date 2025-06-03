@@ -156,30 +156,18 @@ public class ActivityService {
 
     public Page<ActivityResponseDTO> findWithFilters(ActivityCategory category, LocalDate startDate, LocalDate endDate, Pageable pageable) {
 
-        if (startDate != null && endDate == null) {
-            endDate = startDate;
+        if (category == null && startDate == null && endDate == null) {
+            return activityRepository.findAll()
+                    .stream()
+                    .map(activityMapper::toDTO)
+                    .toList();
         }
 
-        if (startDate != null && endDate != null) {
-            LocalDateTime startDateTime = startDate.atStartOfDay();
-            LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+        LocalDate start = (startDate != null) ? startDate : LocalDate.MIN;
+        LocalDate end = (endDate != null) ? endDate : LocalDate.MAX;
 
-            if (category != null) {
-                return activityRepository.findByCategoryAndStartTimeBetween(category, startDateTime, endDateTime, pageable)
-                        .map(activityMapper::toDTO);
-            } else {
-                return activityRepository.findByStartTimeBetween(startDateTime, endDateTime, pageable)
-                        .map(activityMapper::toDTO);
-            }
-        }
 
-        if (category != null) {
-            return activityRepository.findByCategory(category, pageable)
-                    .map(activityMapper::toDTO);
-        }
-
-        return activityRepository.findAll(pageable)
-                .map(activityMapper::toDTO);
     }
+
 
 }
