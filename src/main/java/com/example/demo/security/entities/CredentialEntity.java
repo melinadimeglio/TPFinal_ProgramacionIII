@@ -1,5 +1,6 @@
 package com.example.demo.security.entities;
 
+import com.example.demo.entities.CompanyEntity;
 import com.example.demo.entities.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -42,8 +43,13 @@ public class CredentialEntity implements UserDetails {
 
 
     @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "user_id")
     private UserEntity user;
+
+    @OneToOne
+    @JoinColumn(name = "company_id")
+    private CompanyEntity company;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
