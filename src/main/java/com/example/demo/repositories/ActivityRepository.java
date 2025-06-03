@@ -7,15 +7,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface ActivityRepository extends JpaRepository <ActivityEntity, Long> {
+public interface ActivityRepository extends JpaRepository<ActivityEntity, Long> {
     List<ActivityEntity> findByUsers_Id(Long userId);
     List<ActivityEntity> findByCompanyId(Long companyId);
     Page<ActivityEntity> findByCategory(ActivityCategory category, Pageable pageable);
-    Page<ActivityEntity> findByStartTimeBetween(LocalDateTime start, LocalDateTime end, Pageable pageable);
-    Page<ActivityEntity> findByCategoryAndStartTimeBetween(ActivityCategory category, LocalDateTime start, LocalDateTime end, Pageable pageable);
-    }
+    Page<ActivityEntity> findByDateBetween(LocalDate start, LocalDate end, Pageable pageable);
+    Page<ActivityEntity> findByCategoryAndDateBetween(ActivityCategory category, LocalDate start, LocalDate end, Pageable pageable);
+}
 

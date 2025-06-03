@@ -27,10 +27,9 @@ public class JWTService {
         return extractClaim(token, Claims::getSubject);
     }
     public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("roles", userDetails.getAuthorities());
-        return buildToken(claims, userDetails, jwtExpiration);
+        return buildToken(new HashMap<>(), userDetails, jwtExpiration);
     }
+
     private <T> T extractClaim(String token, Function<Claims, T>
             claimsResolver) {
         final Claims claims = extractAllClaims(token);
