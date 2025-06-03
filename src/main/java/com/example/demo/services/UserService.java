@@ -54,22 +54,16 @@ public class UserService {
         UserEntity userEntity = userMapper.toUserEntity(user);
         UserEntity savedUser = userRepository.save(userEntity);
 
-        RoleEntity userRole = RoleEntity.builder()
-                .role(Role.ROLE_USER)
-                .build();
-
-        CredentialEntity credential = CredentialEntity.builder()
-                .email(user.getEmail())
-                .password(passwordEncoder.encode(user.getPassword()))
-                .roles(Set.of(userRole))
-                .user(savedUser)
-                .active(true)
-                .build();
+        CredentialEntity credential = new CredentialEntity();
+        credential.setEmail(user.getEmail());
+        credential.setPassword(passwordEncoder.encode(user.getPassword()));
+        credential.setUser(savedUser); // Acá se asocia el user
 
         credentialRepository.save(credential);
 
         return userMapper.toDTO(savedUser);
     }
+
 
     public UserResponseDTO update(Long id, UserUpdateDTO dto) {
         UserEntity existingUser = userRepository.findById(id)
