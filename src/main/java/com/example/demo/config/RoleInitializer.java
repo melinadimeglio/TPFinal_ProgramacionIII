@@ -9,7 +9,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+/*@Configuration
 public class RoleInitializer {
     @PostConstruct
     public void initRoles(RoleRepository roleRepository) {
@@ -17,3 +17,4 @@ public class RoleInitializer {
         };
 }
 
+*/

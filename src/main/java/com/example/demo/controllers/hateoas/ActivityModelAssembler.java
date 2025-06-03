@@ -41,7 +41,7 @@ public class ActivityModelAssembler implements RepresentationModelAssembler<Acti
                 .toList();
 
         return CollectionModel.of(activityModels,
-                linkTo(methodOn(ActivityController.class).getActivitiesByUserId(userId)).withSelfRel(),
+                linkTo(methodOn(ActivityController.class).getActivitiesByUserId(userId, null)).withSelfRel(),
                 linkTo(methodOn(ActivityController.class).getAllActivities()).withRel("all-activities")
         );
     }
@@ -52,7 +52,7 @@ public class ActivityModelAssembler implements RepresentationModelAssembler<Acti
                 .toList();
 
         return CollectionModel.of(activityModels,
-                linkTo(methodOn(ActivityController.class).getActivitiesByUserId(companyId)).withSelfRel(),
+                linkTo(methodOn(ActivityController.class).getActivitiesByUserId(companyId, null)).withSelfRel(),
                 linkTo(methodOn(ActivityController.class).getAllActivities()).withRel("all-activities")
         );
     }
