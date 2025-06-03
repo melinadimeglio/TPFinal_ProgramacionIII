@@ -5,6 +5,7 @@ import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
 import com.example.demo.DTOs.Expense.ExpenseUpdateDTO;
 import com.example.demo.controllers.hateoas.ExpenseModelAssembler;
 import com.example.demo.enums.ExpenseCategory;
+import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.ExpenseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,6 +21,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -91,13 +93,20 @@ public class ExpenseController {
             @ApiResponse(responseCode = "200", description = "Expenses retrieved successfully",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ExpenseResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - User not authorized to access this resource"),
             @ApiResponse(responseCode = "404", description = "User not found or no expenses for user"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/user/{userId}")
-    public ResponseEntity<CollectionModel<EntityModel<ExpenseResponseDTO>>> findByUserId(@PathVariable Long userId) {
-        List<ExpenseResponseDTO> expenses = expenseService.findByUserId(userId);
+    public ResponseEntity<CollectionModel<EntityModel<ExpenseResponseDTO>>> findByUserId(
+            @PathVariable Long userId,
+            @AuthenticationPrincipal CredentialEntity credential) {
 
+        if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<ExpenseResponseDTO> expenses = expenseService.findByUserId(userId);
         return ResponseEntity.ok(assembler.toCollectionModelByUser(expenses, userId));
     }
 

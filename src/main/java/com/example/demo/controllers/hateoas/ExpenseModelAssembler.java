@@ -45,7 +45,7 @@ public class ExpenseModelAssembler implements RepresentationModelAssembler<Expen
                 .toList();
 
         return CollectionModel.of(expenseModels,
-                linkTo(methodOn(ExpenseController.class).findByUserId(userId)).withSelfRel(),
+                linkTo(methodOn(ExpenseController.class).findByUserId(userId, null)).withSelfRel(),
                 linkTo(methodOn(ExpenseController.class).getAllExpenses(null)).withRel("all-expenses")
         );
     }

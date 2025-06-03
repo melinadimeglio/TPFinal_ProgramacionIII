@@ -10,6 +10,7 @@ import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.repositories.TripRepository;
 import com.example.demo.repositories.UserRepository;
+import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.RecommendationService;
 import com.example.demo.services.TripService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,6 +28,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -120,17 +122,26 @@ public class TripController {
                     )
             ),
             @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - User not authorized to access this resource"
+            ),
+            @ApiResponse(
                     responseCode = "404",
                     description = "User not found"
             )
     })
     @GetMapping("/user/{userId}")
-    public ResponseEntity<CollectionModel<EntityModel<TripResponseDTO>>> getTripsByUserId(@PathVariable Long userId) {
-        List<TripResponseDTO> trips = tripService.findByUserId(userId);
+    public ResponseEntity<CollectionModel<EntityModel<TripResponseDTO>>> getTripsByUserId(
+            @PathVariable Long userId,
+            @AuthenticationPrincipal CredentialEntity credential) {
 
+        if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<TripResponseDTO> trips = tripService.findByUserId(userId);
         return ResponseEntity.ok(assembler.toCollectionModelByUser(trips, userId));
     }
-
 
     @Operation(summary = "Update a trip by ID", description = "Updates a trip by its ID.")
     @ApiResponses(value = {

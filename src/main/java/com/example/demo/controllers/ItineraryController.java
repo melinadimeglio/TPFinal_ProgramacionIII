@@ -5,6 +5,7 @@ import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
 import com.example.demo.controllers.hateoas.ItineraryModelAssembler;
 import com.example.demo.mappers.ItineraryMapper;
+import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.ItineraryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,6 +19,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -143,16 +145,27 @@ public class ItineraryController {
                     )
             ),
             @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - User not authorized to access this resource"
+            ),
+            @ApiResponse(
                     responseCode = "404",
                     description = "User not found"
             )
     })
     @GetMapping("/user/{userId}")
-    public ResponseEntity<CollectionModel<EntityModel<ItineraryResponseDTO>>> getItinerariesByUserId(@PathVariable Long userId) {
-        List<ItineraryResponseDTO> itineraries = itineraryService.findByUserId(userId);
+    public ResponseEntity<CollectionModel<EntityModel<ItineraryResponseDTO>>> getItinerariesByUserId(
+            @PathVariable Long userId,
+            @AuthenticationPrincipal CredentialEntity credential) {
 
+        if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<ItineraryResponseDTO> itineraries = itineraryService.findByUserId(userId);
         return ResponseEntity.ok(assembler.toCollectionModelByUser(itineraries, userId));
     }
+
 
     @Operation(
             summary = "Update an existing itinerary",
