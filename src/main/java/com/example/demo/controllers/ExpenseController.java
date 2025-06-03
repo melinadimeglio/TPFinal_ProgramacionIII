@@ -56,7 +56,7 @@ public class ExpenseController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ExpenseResponseDTO.class)))
     })
-    @PreAuthorize("hasAuthority('VER_TODOS_ GASTOS')")
+    @PreAuthorize("hasAuthority('VER_TODOS_GASTOS')")
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<ExpenseResponseDTO>>> getAllExpenses(
             Pageable pageable,
@@ -284,6 +284,4 @@ public class ExpenseController {
     public ResponseEntity<Double> getTotalRealExpensesByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(expenseService.getTotalRealExpenseByUser(userId));
     }
-
-
 }
