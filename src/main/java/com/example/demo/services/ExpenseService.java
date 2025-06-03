@@ -158,5 +158,9 @@ public class ExpenseService{
                 .sum();
     }
 
+    public List<ExpenseResponseDTO> findByCategory(ExpenseCategory category) {
+        List<ExpenseEntity> expenses = expenseRepository.findByCategory(category);
+        return expenseMapper.toDTOList(expenses);
+    }
 
 }

@@ -17,7 +17,11 @@ import java.util.List;
 
 public class TripCreateDTO {
 
+    @Schema(description = "Nombre del viaje", example = "Vacaciones en Europa")
+    @NotBlank(message = "El nombre del viaje es obligatorio.")
+    private String name;
 
+    @Schema(description = "Destino del viaje", example = "París")
     @NotBlank(message = "El destino es obligatorio.")
     private String destination;
 
