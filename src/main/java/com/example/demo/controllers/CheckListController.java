@@ -4,6 +4,7 @@ import com.example.demo.DTOs.CheckList.Request.CheckListCreateDTO;
 import com.example.demo.DTOs.CheckList.Response.CheckListResponseDTO;
 import com.example.demo.DTOs.CheckList.CheckListUpdateDTO;
 import com.example.demo.controllers.hateoas.CheckListModelAssembler;
+import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.CheckListService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,6 +18,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -119,9 +121,15 @@ public class CheckListController {
             @ApiResponse(responseCode = "404", description = "User not found or has no checklists")
     })
     @GetMapping("/user/{userId}")
-    public ResponseEntity<CollectionModel<EntityModel<CheckListResponseDTO>>> getByUser(@PathVariable Long userId) {
-        List<CheckListResponseDTO> checklists = checkListService.findByUserId(userId);
+    public ResponseEntity<CollectionModel<EntityModel<CheckListResponseDTO>>> getByUser(
+            @PathVariable Long userId,
+            @AuthenticationPrincipal CredentialEntity credential) {
 
+        if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<CheckListResponseDTO> checklists = checkListService.findByUserId(userId);
         return ResponseEntity.ok(assembler.toCollectionModelByUser(checklists, userId));
     }
 

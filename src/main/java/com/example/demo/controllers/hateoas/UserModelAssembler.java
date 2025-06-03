@@ -22,7 +22,7 @@ public class UserModelAssembler implements RepresentationModelAssembler <UserRes
     public EntityModel<UserResponseDTO> toModel(UserResponseDTO user) {
         return EntityModel.of(user,
 
-                linkTo(methodOn(UserController.class).getUserById(user.getId())).withSelfRel(),
+                linkTo(methodOn(UserController.class).getUserById(user.getId(), null)).withSelfRel(),
 
                 linkTo((methodOn(UserController.class).getAllUsers())).withRel("all-users")
         );
