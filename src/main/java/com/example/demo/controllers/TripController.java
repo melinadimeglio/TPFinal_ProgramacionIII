@@ -113,7 +113,6 @@ public class TripController {
     }
 
 
-
     @Operation(
             summary = "Get trips by user ID",
             description = "Returns all trips associated with a specific user ID."

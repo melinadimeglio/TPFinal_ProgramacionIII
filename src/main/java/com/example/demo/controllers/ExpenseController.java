@@ -25,6 +25,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,6 +56,7 @@ public class ExpenseController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ExpenseResponseDTO.class)))
     })
+    @PreAuthorize("hasAuthority('VER_TODOS_ GASTOS')")
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<ExpenseResponseDTO>>> getAllExpenses(
             Pageable pageable,
@@ -86,6 +88,7 @@ public class ExpenseController {
                             schema = @Schema(implementation = ExpenseResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Expense not found")
     })
+    @PreAuthorize("hasAuthority('VER_GASTO')")
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<ExpenseResponseDTO>> getExpenseById(@PathVariable Long id) {
         ExpenseResponseDTO expense = expenseService.findById(id);
@@ -105,6 +108,7 @@ public class ExpenseController {
             @ApiResponse(responseCode = "404", description = "User not found or no expenses for user"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
+    @PreAuthorize("hasAuthority('VER_GASTO_USUARIO')")
     @GetMapping("/user/{userId}")
     public ResponseEntity<CollectionModel<EntityModel<ExpenseResponseDTO>>> findByUserId(
             @PathVariable Long userId,
@@ -135,6 +139,7 @@ public class ExpenseController {
                     content = @Content(schema = @Schema(implementation = ExpenseResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid data")
     })
+    @PreAuthorize("hasAuthority('CREAR_GASTO')")
     @PostMapping
     public ResponseEntity<ExpenseResponseDTO> createExpense(@RequestBody @Valid ExpenseCreateDTO dto) {
         ExpenseResponseDTO createdExpense = expenseService.save(dto);
@@ -164,6 +169,7 @@ public class ExpenseController {
             @ApiResponse(responseCode = "404", description = "Expense not found"),
             @ApiResponse(responseCode = "400", description = "Invalid data")
     })
+    @PreAuthorize("hasAuthority('MODIFICAR_GASTO')")
     @PutMapping("/{id}")
     public ResponseEntity<ExpenseResponseDTO> updateExpense(@PathVariable Long id,
                                                        @RequestBody @Valid ExpenseUpdateDTO dto) {
@@ -183,6 +189,7 @@ public class ExpenseController {
             @ApiResponse(responseCode = "204", description = "Expense successfully deleted"),
             @ApiResponse(responseCode = "404", description = "Expense not found")
     })
+    @PreAuthorize("hasAuthority('ELIMINAR_GASTO')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteExpense(@PathVariable Long id) {
         expenseService.delete(id);
