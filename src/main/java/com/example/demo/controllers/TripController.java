@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+
 import com.example.demo.DTOs.RecommendationDTO;
 import com.example.demo.DTOs.Trip.Request.TripCreateDTO;
 import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
@@ -9,6 +10,7 @@ import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.repositories.TripRepository;
 import com.example.demo.repositories.UserRepository;
+import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.RecommendationService;
 import com.example.demo.services.TripService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,6 +28,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -80,7 +83,15 @@ public class TripController {
     }
 
 
-    @Operation(summary = "Create a new trip", description = "Creates a new trip and returns the created trip.")
+    @Operation(
+            summary = "Create a new trip",
+            description = "Creates a new trip and returns the created trip.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Trip data to create",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = TripCreateDTO.class))
+            )
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Trip created successfully",
                     content = @Content(mediaType = "application/json",
@@ -88,11 +99,13 @@ public class TripController {
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
     @PostMapping
-    public ResponseEntity<TripResponseDTO> createTrip(@RequestBody @Valid TripCreateDTO tripCreateDTO) {
+    public ResponseEntity<TripResponseDTO> createTrip(
+            @org.springframework.web.bind.annotation.RequestBody @Valid TripCreateDTO tripCreateDTO) {
 
         TripResponseDTO responseDTO = tripService.save(tripCreateDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
+
 
 
     @Operation(
@@ -109,17 +122,26 @@ public class TripController {
                     )
             ),
             @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - User not authorized to access this resource"
+            ),
+            @ApiResponse(
                     responseCode = "404",
                     description = "User not found"
             )
     })
     @GetMapping("/user/{userId}")
-    public ResponseEntity<CollectionModel<EntityModel<TripResponseDTO>>> getTripsByUserId(@PathVariable Long userId) {
-        List<TripResponseDTO> trips = tripService.findByUserId(userId);
+    public ResponseEntity<CollectionModel<EntityModel<TripResponseDTO>>> getTripsByUserId(
+            @PathVariable Long userId,
+            @AuthenticationPrincipal CredentialEntity credential) {
 
+        if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<TripResponseDTO> trips = tripService.findByUserId(userId);
         return ResponseEntity.ok(assembler.toCollectionModelByUser(trips, userId));
     }
-
 
     @Operation(summary = "Update a trip by ID", description = "Updates a trip by its ID.")
     @ApiResponses(value = {

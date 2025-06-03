@@ -43,7 +43,7 @@ public class TripModelAssembler implements RepresentationModelAssembler <TripRes
                 .toList();
 
         return CollectionModel.of(tripModels,
-                linkTo(methodOn(TripController.class).getTripsByUserId(userId)).withSelfRel(),
+                linkTo(methodOn(TripController.class).getTripsByUserId(userId, null)).withSelfRel(),
                 linkTo(methodOn(TripController.class).getAllTrips()).withRel("all-trips")
         );
     }

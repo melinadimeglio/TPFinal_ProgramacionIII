@@ -43,7 +43,7 @@ public class ItineraryModelAssembler implements RepresentationModelAssembler <It
                 .toList();
 
         return CollectionModel.of(itineraryModels,
-                linkTo(methodOn(ItineraryController.class).getItinerariesByUserId(userId)).withSelfRel(),
+                linkTo(methodOn(ItineraryController.class).getItinerariesByUserId(userId, null)).withSelfRel(),
                 linkTo(methodOn(ItineraryController.class).getAllItineraries()).withRel("all-itineraries")
         );
     }
