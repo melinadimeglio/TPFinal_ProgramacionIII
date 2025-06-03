@@ -1,12 +1,11 @@
 package com.example.demo.services;
 
-import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
 import com.example.demo.DTOs.User.Request.UserCreateDTO;
 import com.example.demo.DTOs.User.Response.UserResponseDTO;
 import com.example.demo.DTOs.User.UserUpdateDTO;
-import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.mappers.UserMapper;
+import com.example.demo.security.repositories.RoleRepository;
 import com.example.demo.repositories.UserRepository;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.security.entities.RoleEntity;
@@ -29,14 +28,17 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final CredentialRepository credentialRepository;
+    private final RoleRepository roleRepository;
 
     @Autowired
     public UserService(UserRepository userRepository, UserMapper userMapper,
-                       PasswordEncoder passwordEncoder, CredentialRepository credentialRepository) {
+                       PasswordEncoder passwordEncoder, CredentialRepository credentialRepository,
+                       RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
         this.credentialRepository = credentialRepository;
+        this.roleRepository = roleRepository;
     }
 
     public List<UserResponseDTO> findAll() {
@@ -54,15 +56,21 @@ public class UserService {
         UserEntity userEntity = userMapper.toUserEntity(user);
         UserEntity savedUser = userRepository.save(userEntity);
 
+        RoleEntity userRole = roleRepository.findByRole(Role.ROLE_USER)
+                .orElseThrow(() -> new RuntimeException("Role USER no encontrado"));
+
         CredentialEntity credential = new CredentialEntity();
         credential.setEmail(user.getEmail());
         credential.setPassword(passwordEncoder.encode(user.getPassword()));
-        credential.setUser(savedUser); // Acá se asocia el user
+        credential.setUser(savedUser);
+        credential.setRoles(Set.of(userRole));
 
         credentialRepository.save(credential);
 
         return userMapper.toDTO(savedUser);
     }
+
+
 
 
     public UserResponseDTO update(Long id, UserUpdateDTO dto) {

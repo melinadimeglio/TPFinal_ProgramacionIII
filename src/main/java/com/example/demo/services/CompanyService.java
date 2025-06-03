@@ -10,6 +10,7 @@ import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.security.entities.RoleEntity;
 import com.example.demo.security.enums.Role;
 import com.example.demo.security.repositories.CredentialRepository;
+import com.example.demo.security.repositories.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,16 +28,18 @@ public class CompanyService {
     private final CompanyMapper companyMapper;
     private final CredentialRepository credentialRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
 
     @Autowired
     public CompanyService(CompanyRepository companyRepository,
                           CompanyMapper companyMapper,
                           CredentialRepository credentialRepository,
-                          PasswordEncoder passwordEncoder) {
+                          PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
         this.companyRepository = companyRepository;
         this.companyMapper = companyMapper;
         this.credentialRepository = credentialRepository;
         this.passwordEncoder = passwordEncoder;
+        this.roleRepository = roleRepository;
     }
 
     public CompanyResponseDTO save(CompanyCreateDTO dto) {
@@ -47,14 +50,13 @@ public class CompanyService {
         CompanyEntity company = companyMapper.toEntity(dto);
         CompanyEntity savedCompany = companyRepository.save(company);
 
-        RoleEntity companyRole = RoleEntity.builder()
-                .role(Role.ROLE_COMPANY)
-                .build();
+        RoleEntity companyRole = roleRepository.findByRole(Role.ROLE_COMPANY)
+                .orElseThrow(() -> new RuntimeException("El rol COMPANY no existe"));
 
         CredentialEntity credential = CredentialEntity.builder()
                 .email(dto.getEmail())
                 .password(passwordEncoder.encode(dto.getPassword()))
-                .roles(Set.of(companyRole))
+                .roles(Set.of(companyRole))  // <-- ahora seteamos el rol de base
                 .company(savedCompany)
                 .active(true)
                 .build();
