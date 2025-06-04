@@ -57,6 +57,12 @@ public class UserService {
         return userMapper.toDTO(user);
     }
 
+    public UserEntity findByIdAdmin(Long id) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("No se encontró el usuario con ID: " + id));
+        return user;
+    }
+
     public UserResponseDTO save(UserCreateDTO user) {
         UserEntity userEntity = userMapper.toUserEntity(user);
 
@@ -85,6 +91,10 @@ public class UserService {
         return userMapper.toDTO(savedUser);
     }
 
+    public void update(UserEntity user) {
+        userRepository.save(user);
+    }
+
     public void delete(Long id) {
         UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No se encontró el usuario con ID: " + id));
@@ -101,5 +111,20 @@ public class UserService {
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username: " + username));
         return userMapper.toDTO(user);
+    }
+
+    public UserEntity assingRole(Long id, String role){
+        UserEntity user = findByIdAdmin(id);
+
+        if(role.equals(Role.ROLE_ADMIN.toString())){
+            user.getCredential().getRoles().forEach(roleEntity -> roleEntity.setRole(Role.ROLE_ADMIN));
+        }
+        else if(role.equals(Role.ROLE_COMPANY.toString())){
+            user.getCredential().getRoles().forEach(roleEntity -> roleEntity.setRole(Role.ROLE_COMPANY));
+        }
+        else {
+            //logica para advertir que no hubo modificacion
+        }
+        return user;
     }
 }

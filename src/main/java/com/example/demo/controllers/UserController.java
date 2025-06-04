@@ -4,6 +4,7 @@ import com.example.demo.DTOs.User.Request.UserCreateDTO;
 import com.example.demo.DTOs.User.Response.UserResponseDTO;
 import com.example.demo.DTOs.User.UserUpdateDTO;
 import com.example.demo.controllers.hateoas.UserModelAssembler;
+import com.example.demo.entities.UserEntity;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -154,5 +155,26 @@ public class UserController {
     @GetMapping("/public/{id}")
     public ResponseEntity<EntityModel<UserResponseDTO>> getUserByIdPublic(@PathVariable Long id) {
         return ResponseEntity.notFound().build();
+    }
+
+    /*
+    @PreAuthorize("hasAuthority'ADMIN'")
+    @GetMapping("/{id}")
+    public UserEntity getUserByIdAdmin(
+            @PathVariable Long id) {
+
+        UserEntity user = userService.findByIdAdmin(id);
+        return user;
+    }
+
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/roles")
+    public ResponseEntity<UserEntity> assignRole(@PathVariable Long id,
+                                                 @PathVariable String role){
+        UserEntity user = userService.assingRole(id, role);
+        userService.update(user);
+
+        return ResponseEntity.ok(user);
     }
 }
