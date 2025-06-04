@@ -23,16 +23,6 @@ public class RolePermitMapping {
         rolePermissions.put(Role.ROLE_ADMIN, EnumSet.allOf(Permit.class));
 
         // USER
-        rolePermissions.put(Role.ROLE_USER, EnumSet.of(
-                // TRIP
-                Permit.CREAR_VIAJE,
-                Permit.VER_VIAJE,
-                Permit.MODIFICAR_VIAJE,
-                Permit.ELIMINAR_VIAJE,
-                Permit.VER_VIAJE_USUARIO,
-                Permit.OBTENER_RECOMENDACIONES_VIAJES,
-                Permit.OBTENER_RECOMENDACIONES_FILTRADAS,
-            // USER
             rolePermissions.put(Role.ROLE_USER, EnumSet.of(
                     // TRIP
                     Permit.CREAR_VIAJE,
