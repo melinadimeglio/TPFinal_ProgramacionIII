@@ -60,7 +60,7 @@ import java.util.Set;
                     Permit.VER_PROMEDIO_VIAJE,
 
                     // ITINERARIO
-                    Permit.CREAR_ITINEARIO,
+                    Permit.CREAR_ITINERARIO,
                     Permit.VER_ITINERARIO,
                     Permit.MODIFICAR_ITINERARIO,
                     Permit.ELIMINAR_ITINERARIO,
