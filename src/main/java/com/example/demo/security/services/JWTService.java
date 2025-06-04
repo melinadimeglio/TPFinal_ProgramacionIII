@@ -34,13 +34,11 @@ public class JWTService {
     }*/
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        System.out.println("Authorities: " + userDetails.getAuthorities());
 
         claims.put("roles", userDetails.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList()));
-        System.out.println("Authorities: " + userDetails.getAuthorities());
 
         return buildToken(claims, userDetails, jwtExpiration);
     }

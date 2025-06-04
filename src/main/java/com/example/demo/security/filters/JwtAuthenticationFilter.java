@@ -27,40 +27,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.userDetailsService = userDetailsService;
     }
 
-    /*
-    @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws
-            ServletException, IOException {
-        final String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer "))
-        {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        final String jwt = authHeader.substring(7);
-        final String username = jwtService.extractUsername(jwt);
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
-        if (username != null && authentication == null){
-            UserDetails userDetails =
-                    this.userDetailsService.loadUserByUsername(username);
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new
-                        UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-                authToken.setDetails(new
-                        WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
-        }
-        filterChain.doFilter(request, response);
-    }*/
-
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -78,7 +44,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (jwtService.isTokenValid(jwt)) {
                 var roles = jwtService.extractRoles(jwt);
                 var authorities = roles.stream()
-                        //.map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
                         .map(org.springframework.security.core.authority.SimpleGrantedAuthority::new)
                         .toList();
 
@@ -90,7 +55,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
-                System.out.println("Usuario autenticado: " + username);
             }
         }
 
