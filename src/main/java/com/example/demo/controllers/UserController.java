@@ -88,7 +88,6 @@ public class UserController {
                             schema = @Schema(implementation = UserResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
-    @PreAuthorize("hasAuthority('REGISTRARSE')")
     @PostMapping
     public ResponseEntity<EntityModel<UserResponseDTO>> createUser(@RequestBody @Valid UserCreateDTO user) {
         UserResponseDTO responseDTO = userService.save(user);
