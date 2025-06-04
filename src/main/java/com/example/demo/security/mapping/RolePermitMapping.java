@@ -32,6 +32,16 @@ public class RolePermitMapping {
                 Permit.VER_VIAJE_USUARIO,
                 Permit.OBTENER_RECOMENDACIONES_VIAJES,
                 Permit.OBTENER_RECOMENDACIONES_FILTRADAS,
+            // USER
+            rolePermissions.put(Role.ROLE_USER, EnumSet.of(
+                    // TRIP
+                    Permit.CREAR_VIAJE,
+                    Permit.VER_VIAJE,
+                    Permit.MODIFICAR_VIAJE,
+                    Permit.ELIMINAR_VIAJE,
+                    Permit.OBTENER_RECOMENDACIONES_VIAJES,
+                    Permit.OBTENER_RECOMENDACIONES_FILTRADAS,
+                    Permit.VER_VIAJE_USUARIO,
 
                 // ACTIVITY (usuario)
                 Permit.CREAR_ACTIVIDAD_USUARIO,
