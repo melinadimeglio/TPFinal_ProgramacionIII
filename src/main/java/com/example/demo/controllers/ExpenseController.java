@@ -146,7 +146,6 @@ public class ExpenseController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdExpense);
     }
 
-
     @Operation(
             summary = "Update an existing expense",
             description = "Updates an existing expense using its ID and the provided new data.",
@@ -203,6 +202,8 @@ public class ExpenseController {
                     content = @Content(schema = @Schema(implementation = Double.class))),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
+
+    @PreAuthorize("hasAuthority('VER_PROMEDIO_USUARIO')")
     @GetMapping("/averageByUserId/{userId}")
     public ResponseEntity<Double> getAverageExpensesByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(expenseService.getAverageExpenseByUserId(userId));

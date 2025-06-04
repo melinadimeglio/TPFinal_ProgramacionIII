@@ -21,6 +21,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,6 +47,7 @@ public class CompanyController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = CompanyResponseDTO.class)))
     })
+    @PreAuthorize("hasAuthority('VER_EMPRESAS')")
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<CompanyResponseDTO>>> getAllCompanies(Pageable pageable) {
         Page<CompanyResponseDTO> companies = companyService.findAll(pageable);
@@ -60,6 +62,7 @@ public class CompanyController {
                             schema = @Schema(implementation = CompanyResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Company not found")
     })
+    @PreAuthorize("hasAuthority('VER_EMPRESA')")
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<CompanyResponseDTO>> getCompanyById(@PathVariable Long id) {
         CompanyResponseDTO company = companyService.findById(id);
@@ -73,6 +76,7 @@ public class CompanyController {
                             schema = @Schema(implementation = CompanyResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
+    @PreAuthorize("hasAuthority('CREAR_COMPANY')")
     @PostMapping
     public ResponseEntity<EntityModel<CompanyResponseDTO>> createCompany(@RequestBody @Valid CompanyCreateDTO dto) {
         CompanyResponseDTO company = companyService.save(dto);
@@ -87,6 +91,7 @@ public class CompanyController {
             @ApiResponse(responseCode = "404", description = "Company not found"),
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
+    @PreAuthorize("hasAuthority('MODIFICAR_EMPRESA')")
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<CompanyResponseDTO>> updateCompany(
             @PathVariable Long id,
@@ -100,6 +105,7 @@ public class CompanyController {
             @ApiResponse(responseCode = "204", description = "Company deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Company not found")
     })
+    @PreAuthorize("hasAuthority('ELIMINAR_EMPRESA')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCompany(@PathVariable Long id) {
         companyService.delete(id);

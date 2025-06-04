@@ -23,6 +23,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -70,6 +71,7 @@ public class ItineraryController {
                     description = "Invalid input data"
             )
     })
+    @PreAuthorize("hasAuthority('CREAR_ITINERARIO')")
     @PostMapping
     public ResponseEntity<ItineraryResponseDTO> createItinerary(@RequestBody @Valid ItineraryCreateDTO dto) {
         ItineraryResponseDTO response = itineraryService.save(dto);
@@ -89,6 +91,7 @@ public class ItineraryController {
                     )
             )
     })
+    @PreAuthorize("hasAuthority('VER_ITINERARIOS')")
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<ItineraryResponseDTO>>> getAllItineraries(Pageable pageable) {
         Page<ItineraryResponseDTO> itineraries = itineraryService.findAll(pageable);
@@ -122,6 +125,7 @@ public class ItineraryController {
                     description = "Itinerary not found"
             )
     })
+    @PreAuthorize("hasAuthority('VER_ITINERARIO')")
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<ItineraryResponseDTO>> getItineraryById(@PathVariable Long id) {
         ItineraryResponseDTO response = itineraryService.findById(id);
@@ -159,6 +163,7 @@ public class ItineraryController {
                     description = "User not found"
             )
     })
+    @PreAuthorize("hasAuthority('VER_ITINERARIO_USUARIO')")
     @GetMapping("/user/{userId}")
     public ResponseEntity<PagedModel<EntityModel<ItineraryResponseDTO>>> getItinerariesByUserId(
             Pageable pageable,
@@ -197,6 +202,7 @@ public class ItineraryController {
                     description = "Itinerary not found"
             )
     })
+    @PreAuthorize("hasAuthority('MODIFICAR_ITINERARIO')")
     @PutMapping("/{id}")
     public ResponseEntity<ItineraryResponseDTO> updateItinerary(
             @PathVariable Long id,
@@ -220,6 +226,7 @@ public class ItineraryController {
                     description = "Itinerary not found"
             )
     })
+    @PreAuthorize("hasAuthority('ELIMINAR_ITINERARIO')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteItinerary(@PathVariable Long id) {
         itineraryService.delete(id);

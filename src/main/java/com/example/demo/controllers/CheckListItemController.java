@@ -24,6 +24,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -55,6 +56,7 @@ public class CheckListItemController {
                     content = @Content(schema = @Schema(implementation = CheckListItemResponseDTO.class))
             )
     })
+    @PreAuthorize("hasAuthority('VER_TODOS_CHECKLISTITEM')")
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<CheckListItemResponseDTO>>> getAll(
             Pageable pageable,
@@ -81,6 +83,7 @@ public class CheckListItemController {
                     content = @Content(schema = @Schema(implementation = CheckListItemResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Item not found")
     })
+    @PreAuthorize("hasAuthority('VER_CHECKLISTITEM')")
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<CheckListItemResponseDTO>> getById(@PathVariable Long id) {
         CheckListItemResponseDTO checkListItem = service.findById(id);
@@ -102,6 +105,7 @@ public class CheckListItemController {
                     content = @Content(schema = @Schema(implementation = CheckListItemResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid data provided")
     })
+    @PreAuthorize("hasAuthority('CREAR_CHECKLISTITEM')")
     @PostMapping
     public ResponseEntity<CheckListItemResponseDTO> createItem(
             @org.springframework.web.bind.annotation.RequestBody @Valid CheckListItemCreateDTO dto) {
@@ -132,6 +136,7 @@ public class CheckListItemController {
             @ApiResponse(responseCode = "400", description = "Invalid data provided"),
             @ApiResponse(responseCode = "404", description = "Item or checklist not found")
     })
+    @PreAuthorize("hasAuthority('MODIFICAR_CHECKLISTITEM')")
     @PutMapping("/{id}")
     public ResponseEntity<CheckListItemResponseDTO> update(
             @PathVariable Long id,
@@ -146,6 +151,7 @@ public class CheckListItemController {
             @ApiResponse(responseCode = "204", description = "Item successfully deleted"),
             @ApiResponse(responseCode = "404", description = "Item not found")
     })
+    @PreAuthorize("hasAuthority('ELIMINAR_CHECKLISTITEM')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);

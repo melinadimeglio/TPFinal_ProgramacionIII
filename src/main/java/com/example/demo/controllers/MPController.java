@@ -18,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-public class PostControllers {
+public class MPController {
 
     @Value("${access_token}")
     private String mercadoPagoAccessToken;

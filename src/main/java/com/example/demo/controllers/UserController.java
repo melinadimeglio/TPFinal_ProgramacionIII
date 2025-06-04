@@ -67,6 +67,7 @@ public class UserController {
             @ApiResponse(responseCode = "403", description = "Forbidden - User not authorized to access this resource"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
+    //@PreAuthorize("hasAuthority('VER_TODOS_USUARIOS')") ¿cual va aca?
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<UserResponseDTO>> getUserById(
             @PathVariable Long id,
@@ -87,6 +88,7 @@ public class UserController {
                             schema = @Schema(implementation = UserResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
+    @PreAuthorize("hasAuthority('REGISTRARSE')")
     @PostMapping
     public ResponseEntity<EntityModel<UserResponseDTO>> createUser(@RequestBody @Valid UserCreateDTO user) {
         UserResponseDTO responseDTO = userService.save(user);
@@ -101,6 +103,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
+    @PreAuthorize("hasAuthority('MODIFICAR_USUARIO')")
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<UserResponseDTO>> updateUser(
             @PathVariable Long id,
@@ -114,6 +117,7 @@ public class UserController {
             @ApiResponse(responseCode = "204", description = "User deleted successfully"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
+    @PreAuthorize("hasAuthority('ELIMINAR_USUARIO')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.delete(id);

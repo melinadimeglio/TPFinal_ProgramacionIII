@@ -22,6 +22,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -62,6 +63,7 @@ public class CheckListController {
             ),
             @ApiResponse(responseCode = "400", description = "Invalid data")
     })
+    @PreAuthorize("hasAuthority('CREAR_CHECKLIST')")
     @PostMapping
     public ResponseEntity<CheckListResponseDTO> create(
             @org.springframework.web.bind.annotation.RequestBody @Valid CheckListCreateDTO dto) {
@@ -87,6 +89,7 @@ public class CheckListController {
             @ApiResponse(responseCode = "404", description = "Checklist not found"),
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
+    @PreAuthorize("hasAuthority('MODIFICAR_CHECKLIST')")
     @PutMapping("/{id}")
     public ResponseEntity<CheckListResponseDTO> update(
             @PathVariable Long id,
@@ -101,6 +104,7 @@ public class CheckListController {
                     content = @Content(schema = @Schema(implementation = CheckListResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Checklist not found")
     })
+    @PreAuthorize("hasAuthority('VER_CHECKLIST')")
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<CheckListResponseDTO>> getById(@PathVariable Long id) {
         CheckListResponseDTO checkList = checkListService.findById(id);
@@ -113,6 +117,7 @@ public class CheckListController {
             @ApiResponse(responseCode = "200", description = "List of checklists",
                     content = @Content(schema = @Schema(implementation = CheckListResponseDTO.class)))
     })
+    @PreAuthorize("hasAuthority('VER_TODOS_CHECKLIST')")
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<CheckListResponseDTO>>> getAll(Pageable pageable) {
         Page<CheckListResponseDTO> checklists = checkListService.findAll(pageable);
@@ -126,6 +131,7 @@ public class CheckListController {
                     content = @Content(schema = @Schema(implementation = CheckListResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "User not found or has no checklists")
     })
+    @PreAuthorize("hasAuthority('VER_CHECKLIST_USER')")
     @GetMapping("/user/{userId}")
     public ResponseEntity<CollectionModel<EntityModel<CheckListResponseDTO>>> getByUser(
             @PathVariable Long userId,
@@ -144,6 +150,7 @@ public class CheckListController {
             @ApiResponse(responseCode = "204", description = "Checklist deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Checklist not found")
     })
+    @PreAuthorize("hasAuthority('ELIMINAR_CHECKLIST')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         checkListService.delete(id);

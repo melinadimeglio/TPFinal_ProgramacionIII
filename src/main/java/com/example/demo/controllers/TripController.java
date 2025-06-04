@@ -32,6 +32,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -67,6 +68,7 @@ public class TripController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = TripResponseDTO.class)))
     })
+    @PreAuthorize("hasAuthority('VER_VIAJES')")
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<TripResponseDTO>>> getAllTrips(Pageable pageable) {
         Page<TripResponseDTO> trips = tripService.findAll(pageable);
@@ -81,6 +83,7 @@ public class TripController {
                             schema = @Schema(implementation = TripResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Trip not found")
     })
+    @PreAuthorize("hasAuthority('VER_VIAJE')")
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<TripResponseDTO>> getTripById(@PathVariable Long id) {
         TripResponseDTO trip = tripService.findById(id);
@@ -104,6 +107,7 @@ public class TripController {
                             schema = @Schema(implementation = TripResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
+    @PreAuthorize("hasAuthority('CREAR_VIAJE')")
     @PostMapping
     public ResponseEntity<TripResponseDTO> createTrip(
             @org.springframework.web.bind.annotation.RequestBody @Valid TripCreateDTO tripCreateDTO) {
@@ -135,6 +139,7 @@ public class TripController {
                     description = "User not found"
             )
     })
+    @PreAuthorize("hasAuthority('VER_VIAJE_USUARIO')")
     @GetMapping("/user/{userId}")
     public ResponseEntity<CollectionModel<EntityModel<TripResponseDTO>>> getTripsByUserId(
             @PathVariable Long userId,
@@ -156,6 +161,7 @@ public class TripController {
             @ApiResponse(responseCode = "404", description = "Trip not found"),
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
+    @PreAuthorize("hasAuthority('MODIFICAR_VIAJE')")
     @PutMapping("/{id}")
     public ResponseEntity<TripResponseDTO> updateTrip(
             @Parameter(description = "ID of the trip to update", required = true)
@@ -174,6 +180,7 @@ public class TripController {
             @ApiResponse(responseCode = "204", description = "Trip deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Trip not found")
     })
+    @PreAuthorize("hasAuthority('ELIMINAR_VIAJE')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTrip(
             @Parameter(description = "ID of the trip to delete", required = true)
@@ -201,12 +208,14 @@ public class TripController {
                     description = "Viaje no encontrado"
             )
     })
+    @PreAuthorize("hasAuthority('OBTENER_RECOMENDACIONES_VIAJE')")
     @GetMapping("/{tripId}/recommendations")
     public ResponseEntity<List<RecommendationDTO>> getRecommendations(@PathVariable Long tripId){
         List<RecommendationDTO> recomemendations = recommendationService.getRecommendationsForTrip(tripId);
         return ResponseEntity.ok(recomemendations);
     }
 
+    @PreAuthorize("hasAuthority('OBTENER_RECOMENDACIONES_FILTRADAS')")
     @GetMapping("/{tripId}/recommendations/filtered")
     public ResponseEntity<List<RecommendationDTO>> getFilteredRecommendations(@PathVariable Long tripId){
         List<RecommendationDTO> recomendations = recommendationService.getRecommendationsForTrip(tripId);
