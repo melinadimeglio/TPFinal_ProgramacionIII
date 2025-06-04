@@ -22,5 +22,4 @@ public class TripResponseDTO {
     private int companions;
     private boolean active;
     private List<Long> userIds;
-
 }

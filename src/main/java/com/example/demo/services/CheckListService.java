@@ -48,18 +48,22 @@ public class CheckListService {
                 .orElseThrow(() -> new NoSuchElementException("Checklist no encontrada"));
     }
 
-    public CheckListResponseDTO create(CheckListCreateDTO dto) {
-        if (dto.getTripId() == null || dto.getUserId() == null) {
-            throw new IllegalArgumentException("TripId y UserId no pueden ser null.");
+    public CheckListResponseDTO create(CheckListCreateDTO dto, Long myUserId) {
+        if (dto.getTripId() == null) {
+            throw new IllegalArgumentException("TripId no puede ser null.");
         }
 
         CheckListEntity entity = checkListMapper.toEntity(dto);
-        entity.setTrip(tripRepository.findById(dto.getTripId()).orElseThrow(() -> new NoSuchElementException("Viaje no encontrado")));
-        entity.setUser(userRepository.findById(dto.getUserId()).orElseThrow(() -> new NoSuchElementException("Usuario no encontrado")));
-        entity.setCompleted(false);
+        entity.setTrip(tripRepository.findById(dto.getTripId())
+                .orElseThrow(() -> new NoSuchElementException("Viaje no encontrado")));
 
+        entity.setUser(userRepository.findById(myUserId)
+                .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado")));
+
+        entity.setCompleted(false);
         return checkListMapper.toDTO(checkListRepository.save(entity));
     }
+
 
     public CheckListResponseDTO update(Long id, CheckListUpdateDTO dto) {
         CheckListEntity entity = checkListRepository.findById(id)

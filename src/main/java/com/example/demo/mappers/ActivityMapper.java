@@ -11,12 +11,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+
 @Mapper(componentModel = "spring")
 public interface ActivityMapper {
 
-        @Mapping(target = "company", ignore = true)
         @Mapping(target = "itinerary.id", source = "itineraryId")
-        @Mapping(target = "users", ignore = true) // se setea manualmente en el service
+        @Mapping(target = "users", ignore = true)
+        @Mapping(target = "company", ignore = true)
         ActivityEntity toEntity(UserActivityCreateDTO dto);
 
         @Mapping(target = "company.id", source = "companyId")
@@ -35,7 +36,8 @@ public interface ActivityMapper {
         void updateEntityFromDTO(ActivityUpdateDTO dto, @MappingTarget ActivityEntity entity);
 
         default Set<Long> mapUsersToIds(Set<com.example.demo.entities.UserEntity> users) {
-            return users == null ? null :
-                    users.stream().map(com.example.demo.entities.UserEntity::getId).collect(Collectors.toSet());
+                return users == null ? null :
+                        users.stream().map(com.example.demo.entities.UserEntity::getId).collect(Collectors.toSet());
+                }
         }
-    }
+

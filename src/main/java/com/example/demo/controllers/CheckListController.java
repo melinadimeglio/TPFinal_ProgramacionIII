@@ -66,10 +66,14 @@ public class CheckListController {
     @PreAuthorize("hasAuthority('CREAR_CHECKLIST')")
     @PostMapping
     public ResponseEntity<CheckListResponseDTO> create(
-            @org.springframework.web.bind.annotation.RequestBody @Valid CheckListCreateDTO dto) {
-        CheckListResponseDTO created = checkListService.create(dto);
+            @org.springframework.web.bind.annotation.RequestBody @Valid CheckListCreateDTO dto,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long myUserId = credential.getUser().getId();
+        CheckListResponseDTO created = checkListService.create(dto, myUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
+
 
     @Operation(
             summary = "Update a checklist by ID",

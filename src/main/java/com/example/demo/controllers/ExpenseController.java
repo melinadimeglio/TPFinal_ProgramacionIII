@@ -139,12 +139,17 @@ public class ExpenseController {
                     content = @Content(schema = @Schema(implementation = ExpenseResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid data")
     })
-    @PreAuthorize("hasAuthority('CREAR_GASTO')")
     @PostMapping
-    public ResponseEntity<ExpenseResponseDTO> createExpense(@RequestBody @Valid ExpenseCreateDTO dto) {
-        ExpenseResponseDTO createdExpense = expenseService.save(dto);
+    @PreAuthorize("hasAuthority('CREAR_GASTO')")
+    public ResponseEntity<ExpenseResponseDTO> createExpense(
+            @RequestBody @Valid ExpenseCreateDTO dto,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long myUserId = credential.getUser().getId();
+        ExpenseResponseDTO createdExpense = expenseService.save(dto, myUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdExpense);
     }
+
 
     @Operation(
             summary = "Update an existing expense",

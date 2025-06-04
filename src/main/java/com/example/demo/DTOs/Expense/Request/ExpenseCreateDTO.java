@@ -34,10 +34,9 @@ public class ExpenseCreateDTO {
     @NotNull(message = "La fecha es obligatoria.")
     private LocalDate date;
 
-    @Schema(description = "Lista de IDs de usuarios que participan del gasto", example = "[1, 3, 5]")
-    @NotNull(message = "Debe ingresar al menos un usuario.")
-    @Size(min = 1, message = "Debe haber al menos un usuario para dividir el gasto.")
-    private Set<Long> userIds;
+    @Schema(description = "Lista de IDs de usuarios que tambien participan del gasto", example = "[3, 5]")
+    private Set<Long> sharedUserIds;
+
 
     @Schema(description = "ID del viaje al que pertenece el gasto", example = "7")
     @NotNull(message = "El ID del viaje es obligatorio.")

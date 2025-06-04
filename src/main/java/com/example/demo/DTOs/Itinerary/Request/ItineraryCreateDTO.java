@@ -23,10 +23,6 @@ public class ItineraryCreateDTO {
     @Schema(description = "Notas adicionales para el itinerario", example = "Día libre para recorrer la ciudad")
     private String notes;
 
-    @Schema(description = "ID del usuario que crea el itinerario", example = "4")
-    @NotNull(message = "El usuario es obligatorio.")
-    private Long userId;
-
     @Schema(description = "ID del viaje al que pertenece el itinerario", example = "10")
     @NotNull(message = "El viaje es obligatorio.")
     private Long tripId;
