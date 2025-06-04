@@ -57,7 +57,9 @@ public class CredentialEntity implements UserDetails {
         Set<GrantedAuthority> authorities = new HashSet<>();
 
         for (RoleEntity roleEntity : roles) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + roleEntity.getRole().name()));
+            //authorities.add(new SimpleGrantedAuthority("ROLE_" + roleEntity.getRole().name()));
+
+            authorities.add(new SimpleGrantedAuthority(roleEntity.getRole().name()));
 
             for (PermitEntity permit : roleEntity.getPermits()) {
                 authorities.add(new SimpleGrantedAuthority(permit.getPermit().name()));

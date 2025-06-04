@@ -22,6 +22,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -49,6 +50,8 @@ public class UserController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = UserResponseDTO.class)))
     })
+
+    @PreAuthorize("hasAuthority('VER_TODOS_USUARIOS')")
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<UserResponseDTO>>> getAllUsers(Pageable pageable) {
         Page<UserResponseDTO> usersPage = userService.findAll(pageable);

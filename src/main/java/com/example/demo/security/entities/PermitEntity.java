@@ -6,6 +6,7 @@ import lombok.*;
 
 @Getter
 @Setter
+@Table(name = "Permit")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
