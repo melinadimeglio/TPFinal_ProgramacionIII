@@ -31,6 +31,7 @@ import java.util.Set;
                     Permit.ELIMINAR_VIAJE,
                     Permit.OBTENER_RECOMENDACIONES_VIAJES,
                     Permit.OBTENER_RECOMENDACIONES_FILTRADAS,
+                    Permit.VER_VIAJE_USUARIO,
 
                     // ACTIVITY (usuario)
                     Permit.CREAR_ACTIVIDAD_USUARIO,
