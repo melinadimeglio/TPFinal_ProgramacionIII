@@ -23,6 +23,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Where(clause = "active = true")
+@ToString(exclude = {"credential"})
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

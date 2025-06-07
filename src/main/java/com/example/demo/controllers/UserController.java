@@ -156,7 +156,6 @@ public class UserController {
         return ResponseEntity.notFound().build();
     }
 
-    /*
     @PreAuthorize("hasAuthority'ADMIN'")
     @GetMapping("/{id}")
     public UserEntity getUserByIdAdmin(
@@ -165,8 +164,7 @@ public class UserController {
         UserEntity user = userService.findByIdAdmin(id);
         return user;
     }
-
-     */
+    
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/roles")
     public ResponseEntity<UserEntity> assignRole(@PathVariable Long id,
