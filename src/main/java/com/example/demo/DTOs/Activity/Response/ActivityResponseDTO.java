@@ -24,7 +24,6 @@ public class ActivityResponseDTO {
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
-
     private Long itineraryId;
 
     private Set<Long> userIds;

@@ -43,11 +43,24 @@ public class TripService {
         return tripMapper.toDTO(trip);
     }
 
-    public TripResponseDTO save(TripCreateDTO dto) {
+    public TripResponseDTO save(TripCreateDTO dto, Long myUserId) {
+
+        // Creamos el set de usuarios participantes
+        Set<UserEntity> users = new HashSet<>();
+
+        UserEntity owner = userRepository.findById(myUserId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        users.add(owner);
+
+        if (dto.getSharedUserIds() != null) {
+            for (Long sharedId : dto.getSharedUserIds()) {
+                UserEntity sharedUser = userRepository.findById(sharedId)
+                        .orElseThrow(() -> new RuntimeException("Usuario compartido no encontrado"));
+                users.add(sharedUser);
+            }
+        }
 
         TripEntity trip = tripMapper.toEntity(dto);
-
-        Set<UserEntity> users = new HashSet<>(userRepository.findAllById(dto.getUserIds()));
         trip.setUsers(users);
 
         for (UserEntity user : users) {
@@ -57,6 +70,7 @@ public class TripService {
         TripEntity savedTrip = tripRepository.save(trip);
         return tripMapper.toDTO(savedTrip);
     }
+
 
 
     public TripResponseDTO update(Long id, TripUpdateDTO dto) {

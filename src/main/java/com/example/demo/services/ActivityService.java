@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -47,14 +48,23 @@ public class ActivityService {
         this.itineraryRepository = itineraryRepository;
     }
 
-    public ActivityResponseDTO createFromUser(UserActivityCreateDTO dto) {
+    public ActivityResponseDTO createFromUser(UserActivityCreateDTO dto, Long myUserId) {
         ActivityEntity entity = activityMapper.toEntity(dto);
         entity.setAvailable(true);
 
-        Set<UserEntity> users = dto.getUserIds().stream()
-                .map(id -> userRepository.findById(id)
-                        .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado con ID: " + id)))
-                .collect(Collectors.toSet());
+        Set<UserEntity> users = new HashSet<>();
+        UserEntity currentUser = userRepository.findById(myUserId)
+                .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado"));
+        users.add(currentUser);
+
+        if (dto.getSharedUserIds() != null) {
+            dto.getSharedUserIds().forEach(id -> {
+                UserEntity sharedUser = userRepository.findById(id)
+                        .orElseThrow(() -> new NoSuchElementException("Usuario compartido no encontrado"));
+                users.add(sharedUser);
+            });
+        }
+
         entity.setUsers(users);
 
         if (dto.getItineraryId() != null) {
@@ -66,6 +76,7 @@ public class ActivityService {
         ActivityEntity saved = activityRepository.save(entity);
         return activityMapper.toDTO(saved);
     }
+
 
 
     public ActivityResponseDTO createFromCompany(CompanyActivityCreateDTO dto) {

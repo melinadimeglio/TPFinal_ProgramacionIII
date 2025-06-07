@@ -65,8 +65,12 @@ public class ActivityController {
     )
     @PreAuthorize("hasAuthority('CREAR_ACTIVIDAD_USUARIO')")
     @PostMapping("/user")
-    public ResponseEntity<ActivityResponseDTO> createFromUser(@RequestBody @Valid UserActivityCreateDTO dto) {
-        ActivityResponseDTO createdActivity = activityService.createFromUser(dto);
+    public ResponseEntity<ActivityResponseDTO> createFromUser(
+            @RequestBody @Valid UserActivityCreateDTO dto,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long myUserId = credential.getUser().getId();
+        ActivityResponseDTO createdActivity = activityService.createFromUser(dto, myUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdActivity);
     }
 

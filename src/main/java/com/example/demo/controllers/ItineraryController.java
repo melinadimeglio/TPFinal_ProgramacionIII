@@ -71,10 +71,14 @@ public class ItineraryController {
                     description = "Invalid input data"
             )
     })
-    @PreAuthorize("hasAuthority('CREAR_ITINERARIO')")
     @PostMapping
-    public ResponseEntity<ItineraryResponseDTO> createItinerary(@RequestBody @Valid ItineraryCreateDTO dto) {
-        ItineraryResponseDTO response = itineraryService.save(dto);
+    @PreAuthorize("hasAuthority('CREAR_ITINERARIO')")
+    public ResponseEntity<ItineraryResponseDTO> createItinerary(
+            @RequestBody @Valid ItineraryCreateDTO dto,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long myUserId = credential.getUser().getId();
+        ItineraryResponseDTO response = itineraryService.save(dto, myUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

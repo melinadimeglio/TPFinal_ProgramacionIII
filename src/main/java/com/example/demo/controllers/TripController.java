@@ -110,9 +110,12 @@ public class TripController {
     @PreAuthorize("hasAuthority('CREAR_VIAJE')")
     @PostMapping
     public ResponseEntity<TripResponseDTO> createTrip(
-            @org.springframework.web.bind.annotation.RequestBody @Valid TripCreateDTO tripCreateDTO) {
+            @org.springframework.web.bind.annotation.RequestBody @Valid TripCreateDTO tripCreateDTO,
+            @AuthenticationPrincipal CredentialEntity credential) {
 
-        TripResponseDTO responseDTO = tripService.save(tripCreateDTO);
+        Long myUserId = credential.getUser().getId();
+
+        TripResponseDTO responseDTO = tripService.save(tripCreateDTO, myUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 

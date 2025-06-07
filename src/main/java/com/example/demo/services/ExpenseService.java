@@ -5,6 +5,7 @@ import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
 import com.example.demo.DTOs.Expense.ExpenseUpdateDTO;
 import com.example.demo.entities.ExpenseEntity;
 import com.example.demo.entities.TripEntity;
+import com.example.demo.entities.UserEntity;
 import com.example.demo.enums.ExpenseCategory;
 import com.example.demo.mappers.ExpenseMapper;
 import com.example.demo.repositories.ExpenseRepository;
@@ -15,8 +16,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ExpenseService{
@@ -48,15 +52,21 @@ public class ExpenseService{
     }
 
 
-    public ExpenseResponseDTO save(ExpenseCreateDTO dto) {
+    public ExpenseResponseDTO save(ExpenseCreateDTO dto, Long myUserId) {
+
         ExpenseEntity expense = expenseMapper.toEntity(dto);
 
         TripEntity trip = tripRepository.findById(dto.getTripId())
                 .orElseThrow(() -> new NoSuchElementException("Viaje no encontrado con ID: " + dto.getTripId()));
-
         expense.setTrip(trip);
 
-        if (expense.getUsers() == null || expense.getUsers().isEmpty()) {
+        Set<Long> userIds = dto.getSharedUserIds() != null ? dto.getSharedUserIds() : new HashSet<>();
+        userIds.add(myUserId);
+
+        Set<UserEntity> users = userRepository.findAllById(userIds).stream().collect(Collectors.toSet());
+        expense.setUsers(users);
+
+        if (users.isEmpty()) {
             throw new IllegalStateException("No se puede dividir el gasto: no hay usuarios asignados.");
         }
 
@@ -68,7 +78,7 @@ public class ExpenseService{
         double total = expenses.stream().mapToDouble(ExpenseEntity::getAmount).sum();
         double estimated = trip.getEstimatedBudget();
 
-        String budgetStatus = null;
+        String budgetStatus;
         if (total > estimated) {
             budgetStatus = "⚠️ Se ha superado el presupuesto estimado.";
         } else if (total >= estimated * 0.5) {
@@ -78,12 +88,14 @@ public class ExpenseService{
         } else {
             budgetStatus = "✅ Presupuesto bajo control.";
         }
+
         ExpenseResponseDTO response = expenseMapper.toDTO(saved);
         response.setDividedAmount(divided);
         response.setBudgetWarning(budgetStatus);
 
         return response;
     }
+
 
     public void update(Long id, ExpenseUpdateDTO dto) {
         ExpenseEntity entity = expenseRepository.findById(id)

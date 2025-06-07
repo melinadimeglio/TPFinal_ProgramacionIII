@@ -22,7 +22,7 @@ public abstract class ExpenseMapper {
 
         @Autowired
         public void setUserRepository(UserRepository userRepository) {
-            this.userRepository = userRepository;
+                this.userRepository = userRepository;
         }
 
         @Mapping(source = "trip.id", target = "tripId")
@@ -32,22 +32,24 @@ public abstract class ExpenseMapper {
 
         public abstract List<ExpenseResponseDTO> toDTOList(List<ExpenseEntity> entities);
 
-        @Mapping(target = "users", expression = "java(mapUserIdsToUsers(dto.getUserIds()))")
         @Mapping(target = "id", ignore = true)
+        @Mapping(target = "trip", ignore = true)
+        @Mapping(target = "users", ignore = true)
         public abstract ExpenseEntity toEntity(ExpenseCreateDTO dto);
 
         public abstract void updateEntityFromDTO(ExpenseUpdateDTO dto, @MappingTarget ExpenseEntity entity);
 
         protected Set<Long> mapUsersToIds(Set<UserEntity> users) {
-            return users.stream()
-                    .map(UserEntity::getId)
-                    .collect(Collectors.toSet());
+                return users.stream()
+                        .map(UserEntity::getId)
+                        .collect(Collectors.toSet());
         }
 
-        protected Set<UserEntity> mapUserIdsToUsers(Set<Long> ids) {
-            return ids.stream()
-                    .map(id -> userRepository.findById(id)
-                            .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + id)))
-                    .collect(Collectors.toSet());
+        public Set<UserEntity> mapSharedUserIdsToUsers(Set<Long> sharedIds) {
+                if (sharedIds == null) return Set.of();
+                return sharedIds.stream()
+                        .map(id -> userRepository.findById(id)
+                                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + id)))
+                        .collect(Collectors.toSet());
         }
 }

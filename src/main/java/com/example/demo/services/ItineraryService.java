@@ -54,18 +54,15 @@ public class ItineraryService {
                 .map(itineraryMapper::toDTO);
     }
 
-    public ItineraryResponseDTO save(ItineraryCreateDTO dto) {
-        if (dto.getUserId() == null || dto.getTripId() == null) {
-            throw new IllegalArgumentException("El usuario y el viaje no pueden ser nulos.");
-        }
+    public ItineraryResponseDTO save(ItineraryCreateDTO dto, Long myUserId) {
 
-        ItineraryEntity entity = itineraryMapper.toEntity(dto);
-
-        UserEntity user = userRepository.findById(dto.getUserId())
+        UserEntity user = userRepository.findById(myUserId)
                 .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado"));
 
         TripEntity trip = tripRepository.findById(dto.getTripId())
                 .orElseThrow(() -> new NoSuchElementException("Viaje no encontrado"));
+
+        ItineraryEntity entity = itineraryMapper.toEntity(dto);
 
         entity.setUser(user);
         entity.setTrip(trip);
@@ -75,7 +72,7 @@ public class ItineraryService {
     }
 
 
-        public ItineraryResponseDTO updateAndReturn(Long id, ItineraryUpdateDTO dto) {
+    public ItineraryResponseDTO updateAndReturn(Long id, ItineraryUpdateDTO dto) {
         ItineraryEntity entity = getEntityById(id);
         itineraryMapper.updateEntityFromDTO(dto, entity);
         ItineraryEntity saved = itineraryRepository.save(entity);

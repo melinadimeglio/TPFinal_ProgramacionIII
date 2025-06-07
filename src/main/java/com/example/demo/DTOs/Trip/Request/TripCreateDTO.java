@@ -8,6 +8,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -40,7 +41,6 @@ public class TripCreateDTO {
     @Schema(description = "Cantidad de acompañantes", example = "2")
     private int companions;
 
-    @Schema(description = "Lista de IDs de los usuarios que participan del viaje", example = "[1, 2, 5]")
-    @NotNull(message = "Debe incluir al menos un usuario asociado.")
-    private List<Long> userIds;
+    @Schema(description = "Lista de IDs de los usuarios acompañantes", example = "[2, 5]")
+    private Set<Long> sharedUserIds;
 }
