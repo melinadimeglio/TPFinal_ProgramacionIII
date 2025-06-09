@@ -99,11 +99,15 @@ public class ActivityController {
     })
     @PreAuthorize("hasAuthority('CREAR_ACTIVIDAD_EMPRESA')")
     @PostMapping("/company")
-    public ResponseEntity<ActivityResponseDTO> createFromCompany(@RequestBody @Valid CompanyActivityCreateDTO dto) {
-        ActivityResponseDTO response = activityService.createFromCompany(dto);
+    public ResponseEntity<ActivityResponseDTO> createFromCompany(
+            @RequestBody @Valid CompanyActivityCreateDTO dto,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long companyId = credential.getCompany().getId();
+
+        ActivityResponseDTO response = activityService.createFromCompany(dto, companyId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
 
     @Operation(
             summary = "Get all activities by company ID",

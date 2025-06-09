@@ -47,8 +47,5 @@ public class CompanyActivityCreateDTO {
     @NotNull(message = "La hora de fin es obligatoria.")
     private LocalTime endTime;
 
-    @Schema(description = "ID de la empresa que organiza la actividad", example = "3")
-    @NotNull(message = "El ID de la empresa es obligatorio.")
-    private Long companyId;
 }
 

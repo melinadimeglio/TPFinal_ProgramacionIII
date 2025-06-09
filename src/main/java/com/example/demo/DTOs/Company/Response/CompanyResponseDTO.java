@@ -15,7 +15,6 @@ public class CompanyResponseDTO {
 
     private Long id;
     private String username;
-    private String email;
     private String taxId;
     private String location;
     private String description;

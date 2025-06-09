@@ -79,12 +79,14 @@ public class ActivityService {
 
 
 
-    public ActivityResponseDTO createFromCompany(CompanyActivityCreateDTO dto) {
-        ActivityEntity entity = activityMapper.toEntity(dto);
+    public ActivityResponseDTO createFromCompany(CompanyActivityCreateDTO dto, Long companyId) {
 
-        CompanyEntity company = companyRepository.findById(dto.getCompanyId())
+        CompanyEntity company = companyRepository.findById(companyId)
                 .orElseThrow(() -> new NoSuchElementException("Empresa no encontrada"));
-        entity.setCompany(company);
+
+        ActivityEntity entity = activityMapper.toEntity(dto, company);
+
+        entity.setAvailable(true);
 
         ActivityEntity saved = activityRepository.save(entity);
         return activityMapper.toDTO(saved);
