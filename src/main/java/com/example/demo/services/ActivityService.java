@@ -106,7 +106,7 @@ public class ActivityService {
 
 
     public Page<ActivityResponseDTO> findAll(Pageable pageable) {
-        return activityRepository.findAllByActiveTrue(pageable)
+        return activityRepository.findAllByAvailableTrue(pageable)
                 .map(activityMapper::toDTO);
     }
 

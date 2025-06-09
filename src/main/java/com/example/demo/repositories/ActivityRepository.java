@@ -19,7 +19,7 @@ public interface ActivityRepository extends JpaRepository<ActivityEntity, Long> 
     Page<ActivityEntity> findByCategory(ActivityCategory category, Pageable pageable);
     Page<ActivityEntity> findByDateBetween(LocalDate start, LocalDate end, Pageable pageable);
     Page<ActivityEntity> findByCategoryAndDateBetween(ActivityCategory category, LocalDate start, LocalDate end, Pageable pageable);
-    Page<ActivityEntity> findAllByActiveTrue(Pageable pageable);
-    Page<ActivityEntity> findAllByActiveFalse(Pageable pageable);
+    Page<ActivityEntity> findAllByAvailableTrue(Pageable pageable);
+    Page<ActivityEntity> findAllByAvailableFalse(Pageable pageable);
 }
 
