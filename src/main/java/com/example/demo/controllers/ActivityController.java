@@ -179,17 +179,37 @@ public class ActivityController {
                     )
             ),
             @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden: You are not allowed to view this activity"
+            ),
+            @ApiResponse(
                     responseCode = "404",
                     description = "Activity not found"
             )
     })
     @PreAuthorize("hasAuthority('VER_ACTIVIDAD')")
     @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<ActivityResponseDTO>> getActivityById(@PathVariable Long id) {
+    public ResponseEntity<EntityModel<ActivityResponseDTO>> getActivityById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
         ActivityResponseDTO activity = activityService.findById(id);
+
+        boolean isUserAuthorized = credential.getUser() != null &&
+                activity.getUserIds() != null &&
+                activity.getUserIds().contains(credential.getUser().getId());
+
+        boolean isCompanyAuthorized = credential.getCompany() != null &&
+                activity.getCompanyId() != null &&
+                activity.getCompanyId().equals(credential.getCompany().getId());
+
+        if (!isUserAuthorized && !isCompanyAuthorized) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
         return ResponseEntity.ok(assembler.toModel(activity));
     }
+
 
     @Operation(
             summary = "Get activities by user ID",
