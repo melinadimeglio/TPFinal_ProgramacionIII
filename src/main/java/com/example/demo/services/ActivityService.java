@@ -4,6 +4,7 @@ import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
+import com.example.demo.DTOs.Activity.Response.CompanyResponseDTO;
 import com.example.demo.entities.ActivityEntity;
 import com.example.demo.entities.CompanyEntity;
 import com.example.demo.entities.ItineraryEntity;
@@ -98,12 +99,13 @@ public class ActivityService {
         return activityMapper.toDTO(entity);
     }
 
-    public List<ActivityResponseDTO> findByCompanyId(Long companyId) {
+    public List<CompanyResponseDTO> findByCompanyId(Long companyId) {
         return activityRepository.findByCompanyId(companyId)
                 .stream()
-                .map(activityMapper::toDTO)
+                .map(activityMapper::toCompanyResponseDTO)  // <-- este es el correcto
                 .collect(Collectors.toList());
     }
+
 
     public List<ActivityResponseDTO> findAll() {
         return activityRepository.findAll()

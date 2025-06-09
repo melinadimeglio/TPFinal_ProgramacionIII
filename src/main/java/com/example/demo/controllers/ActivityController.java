@@ -4,6 +4,7 @@ import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
 import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
+import com.example.demo.DTOs.Activity.Response.CompanyResponseDTO;
 import com.example.demo.controllers.hateoas.ActivityModelAssembler;
 import com.example.demo.enums.ActivityCategory;
 import com.example.demo.security.entities.CredentialEntity;
@@ -123,10 +124,9 @@ public class ActivityController {
     })
     @PreAuthorize("hasAuthority('VER_ACTIVIDAD_EMPRESA')")
     @GetMapping("/company/{companyId}")
-    public ResponseEntity<CollectionModel<EntityModel<ActivityResponseDTO>>> getByCompanyId(@PathVariable Long companyId) {
-        List<ActivityResponseDTO> activities = activityService.findByCompanyId(companyId);
-
-        return ResponseEntity.ok(assembler.toCollectionModelByCompany(activities, companyId));
+    public ResponseEntity<List<CompanyResponseDTO>> getByCompanyId(@PathVariable Long companyId) {
+        List<CompanyResponseDTO> activities = activityService.findByCompanyId(companyId);
+        return ResponseEntity.ok(activities);
     }
 
     @Operation(

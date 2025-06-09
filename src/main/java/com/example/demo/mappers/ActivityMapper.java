@@ -4,6 +4,7 @@ import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
 import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
+import com.example.demo.DTOs.Activity.Response.CompanyResponseDTO;
 import com.example.demo.entities.ActivityEntity;
 import com.example.demo.entities.CompanyEntity;
 import com.example.demo.entities.UserEntity;
@@ -16,13 +17,13 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public interface ActivityMapper {
 
-        @Mapping(target = "id", ignore = true)  // IGNORAMOS EL ID AL CREAR
+        @Mapping(target = "id", ignore = true)
         @Mapping(target = "itinerary.id", source = "itineraryId")
         @Mapping(target = "users", ignore = true)
         @Mapping(target = "company", ignore = true)
         ActivityEntity toEntity(UserActivityCreateDTO dto);
 
-        @Mapping(target = "id", ignore = true)  // IGNORAMOS EL ID AL CREAR
+        @Mapping(target = "id", ignore = true)
         @Mapping(target = "company", source = "company")
         @Mapping(target = "price", source = "dto.price")
         @Mapping(target = "name", source = "dto.name")
@@ -41,6 +42,9 @@ public interface ActivityMapper {
         ActivityResponseDTO toDTO(ActivityEntity entity);
 
         List<ActivityResponseDTO> toDTOList(List<ActivityEntity> entities);
+
+        // Este es el nuevo que agregamos:
+        CompanyResponseDTO toCompanyResponseDTO(ActivityEntity entity);
 
         @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
         void updateEntityFromDTO(ActivityUpdateDTO dto, @MappingTarget ActivityEntity entity);
