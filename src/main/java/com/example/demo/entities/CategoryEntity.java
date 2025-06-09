@@ -21,4 +21,7 @@ public class CategoryEntity {
     @Column(unique = true)
     private String name;
 
+    @Builder.Default
+    private boolean active = true;
+
 }

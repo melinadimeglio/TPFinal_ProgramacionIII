@@ -35,4 +35,6 @@ public class RecommendationEntity {
     @JoinColumn(name = "trip_id")
     private TripEntity trip;
 
+    @Builder.Default
+    private boolean active = true;
 }
