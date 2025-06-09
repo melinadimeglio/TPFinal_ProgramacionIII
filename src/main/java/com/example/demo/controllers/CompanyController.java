@@ -5,6 +5,7 @@ import com.example.demo.DTOs.Company.Request.CompanyCreateDTO;
 import com.example.demo.DTOs.Company.Response.CompanyResponseDTO;
 import com.example.demo.controllers.hateoas.CompanyModelAssembler;
 import com.example.demo.entities.CompanyEntity;
+import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.CompanyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,6 +23,7 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,11 +51,24 @@ public class CompanyController {
     })
     @PreAuthorize("hasAuthority('VER_EMPRESAS')")
     @GetMapping
-    public ResponseEntity<PagedModel<EntityModel<CompanyResponseDTO>>> getAllCompanies(Pageable pageable) {
+    public ResponseEntity<PagedModel<EntityModel<CompanyResponseDTO>>> getAllCompanies(
+            Pageable pageable,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        if (credential.getCompany() != null) {
+            CompanyResponseDTO company = companyService.findById(credential.getCompany().getId());
+            PagedModel<EntityModel<CompanyResponseDTO>> model = PagedModel.of(
+                    List.of(assembler.toModel(company)),
+                    new PagedModel.PageMetadata(1, 0, 1)
+            );
+            return ResponseEntity.ok(model);
+        }
+
         Page<CompanyResponseDTO> companies = companyService.findAll(pageable);
         PagedModel<EntityModel<CompanyResponseDTO>> model = pagedResourcesAssembler.toModel(companies, assembler);
         return ResponseEntity.ok(model);
     }
+
 
     @Operation(summary = "Get company by ID", description = "Returns a specific company by its ID.")
     @ApiResponses(value = {
@@ -64,10 +79,18 @@ public class CompanyController {
     })
     @PreAuthorize("hasAuthority('VER_EMPRESA')")
     @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<CompanyResponseDTO>> getCompanyById(@PathVariable Long id) {
+    public ResponseEntity<EntityModel<CompanyResponseDTO>> getCompanyById(@PathVariable Long id,
+                                                                          @AuthenticationPrincipal CredentialEntity credential) {
+        Long myCompanyId = credential.getCompany().getId();
+
+        if (!myCompanyId.equals(id)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         CompanyResponseDTO company = companyService.findById(id);
         return ResponseEntity.ok(assembler.toModel(company));
     }
+
 
     @Operation(summary = "Create a new company", description = "Creates a new company.")
     @ApiResponses(value = {
@@ -111,4 +134,5 @@ public class CompanyController {
         companyService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
 }

@@ -124,10 +124,18 @@ public class ActivityController {
     })
     @PreAuthorize("hasAuthority('VER_ACTIVIDAD_EMPRESA')")
     @GetMapping("/company/{companyId}")
-    public ResponseEntity<List<CompanyResponseDTO>> getByCompanyId(@PathVariable Long companyId) {
+    public ResponseEntity<List<CompanyResponseDTO>> getByCompanyId(@PathVariable Long companyId,
+                                                                   @AuthenticationPrincipal CredentialEntity credential) {
+        Long myCompanyId = credential.getCompany().getId();
+
+        if (!myCompanyId.equals(companyId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         List<CompanyResponseDTO> activities = activityService.findByCompanyId(companyId);
         return ResponseEntity.ok(activities);
     }
+
 
     @Operation(
             summary = "Get all activities with optional filters",
