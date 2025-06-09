@@ -1,6 +1,7 @@
 package com.example.demo.security.services;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -25,13 +26,13 @@ public class JWTService {
     private String jwtSecretKey;
     @Value("${jwt.expiration}")
     private Long jwtExpiration;
+    @Value("${jwt.refresh-expiration}")
+    private Long refreshTokenExpiration;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
-    /*public String generateToken(UserDetails userDetails) {
-        return buildToken(new HashMap<>(), userDetails, jwtExpiration);
-    }*/
+
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
 
@@ -41,6 +42,27 @@ public class JWTService {
                 .collect(Collectors.toList()));
 
         return buildToken(claims, userDetails, jwtExpiration);
+    }
+
+    public String generateRefreshToken (UserDetails userDetails){
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("type", "refresh");
+        return buildToken(claims, userDetails, refreshTokenExpiration);
+    }
+
+    public boolean validateRefreshToken (String refreshToken, UserDetails userDetails){
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(getSignInKey())
+                    .build()
+                    .parseClaimsJws(refreshToken);
+
+            final String username = extractUsername(refreshToken);
+            return (username.equals(userDetails.getUsername())) &&
+                    !isTokenExpired(refreshToken);
+        }catch (JwtException e){
+            return false;
+        }
     }
 
     private <T> T extractClaim(String token, Function<Claims, T>

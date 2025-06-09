@@ -11,12 +11,14 @@ import com.example.demo.repositories.UserRepository;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.security.entities.RoleEntity;
 import com.example.demo.security.enums.Role;
+import com.example.demo.security.services.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,16 +36,18 @@ public class UserService {
     private final UserMapper userMapper;
     private final CredentialRepository credentialRepository;
     private final RoleRepository roleRepository;
+    private final JWTService jwtService;
 
     @Autowired
     public UserService(UserRepository userRepository, UserMapper userMapper,
                        PasswordEncoder passwordEncoder, CredentialRepository credentialRepository,
-                       RoleRepository roleRepository) {
+                       RoleRepository roleRepository, JWTService jWTService) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
         this.credentialRepository = credentialRepository;
         this.roleRepository = roleRepository;
+        this.jwtService = jWTService;
     }
 
     public Page<UserResponseDTO> findAll(Pageable pageable) {
@@ -75,6 +79,15 @@ public class UserService {
         credential.setPassword(passwordEncoder.encode(user.getPassword()));
         credential.setUser(savedUser);
         credential.setRoles(Set.of(userRole));
+
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                credential.getEmail(),
+                credential.getPassword(),
+                credential.getAuthorities()
+        );
+
+        String refreshToken = jwtService.generateRefreshToken(userDetails);
+        credential.setRefreshToken(refreshToken);
 
         credentialRepository.save(credential);
 

@@ -4,6 +4,7 @@ import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
 import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
+import com.example.demo.DTOs.Activity.Response.CompanyResponseDTO;
 import com.example.demo.controllers.hateoas.ActivityModelAssembler;
 import com.example.demo.enums.ActivityCategory;
 import com.example.demo.security.entities.CredentialEntity;
@@ -99,11 +100,15 @@ public class ActivityController {
     })
     @PreAuthorize("hasAuthority('CREAR_ACTIVIDAD_EMPRESA')")
     @PostMapping("/company")
-    public ResponseEntity<ActivityResponseDTO> createFromCompany(@RequestBody @Valid CompanyActivityCreateDTO dto) {
-        ActivityResponseDTO response = activityService.createFromCompany(dto);
+    public ResponseEntity<ActivityResponseDTO> createFromCompany(
+            @RequestBody @Valid CompanyActivityCreateDTO dto,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long companyId = credential.getCompany().getId();
+
+        ActivityResponseDTO response = activityService.createFromCompany(dto, companyId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
 
     @Operation(
             summary = "Get all activities by company ID",
@@ -119,11 +124,18 @@ public class ActivityController {
     })
     @PreAuthorize("hasAuthority('VER_ACTIVIDAD_EMPRESA')")
     @GetMapping("/company/{companyId}")
-    public ResponseEntity<CollectionModel<EntityModel<ActivityResponseDTO>>> getByCompanyId(@PathVariable Long companyId) {
-        List<ActivityResponseDTO> activities = activityService.findByCompanyId(companyId);
+    public ResponseEntity<List<CompanyResponseDTO>> getByCompanyId(@PathVariable Long companyId,
+                                                                   @AuthenticationPrincipal CredentialEntity credential) {
+        Long myCompanyId = credential.getCompany().getId();
 
-        return ResponseEntity.ok(assembler.toCollectionModelByCompany(activities, companyId));
+        if (!myCompanyId.equals(companyId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<CompanyResponseDTO> activities = activityService.findByCompanyId(companyId);
+        return ResponseEntity.ok(activities);
     }
+
 
     @Operation(
             summary = "Get all activities with optional filters",

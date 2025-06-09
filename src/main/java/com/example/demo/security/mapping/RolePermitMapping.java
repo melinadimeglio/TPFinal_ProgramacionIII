@@ -76,7 +76,12 @@ public class RolePermitMapping {
                 Permit.CERRAR_SESION,
                 Permit.MODIFICAR_USUARIO,
                 Permit.VER_PERFIL,
-                Permit.ELIMINAR_USUARIO
+                Permit.ELIMINAR_USUARIO,
+
+                // RESERVATION
+                Permit.CREAR_RESERVA,
+                Permit.CANCELAR_RESERVA,
+                Permit.VER_RESERVAS_USUARIO
         ));
 
         // COMPANY
@@ -94,7 +99,8 @@ public class RolePermitMapping {
                 // EMPRESA
                 Permit.VER_EMPRESA,
                 Permit.MODIFICAR_EMPRESA,
-                Permit.ELIMINAR_EMPRESA
+                Permit.ELIMINAR_EMPRESA,
+                Permit.VER_RESERVAS_EMPRESA
         ));
     }
 
