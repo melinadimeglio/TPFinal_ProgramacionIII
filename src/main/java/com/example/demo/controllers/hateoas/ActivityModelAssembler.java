@@ -20,7 +20,7 @@ public class ActivityModelAssembler implements RepresentationModelAssembler<Acti
     public EntityModel<ActivityResponseDTO> toModel(ActivityResponseDTO activity) {
         return EntityModel.of(activity,
 
-                linkTo(methodOn(ActivityController.class).getActivityById(activity.getId())).withSelfRel(),
+                linkTo(methodOn(ActivityController.class).getActivityById(activity.getId(), null)).withSelfRel(),
 
                 linkTo((methodOn(ActivityController.class).getAllActivities(PageRequest.of(0, 10), null, null, null))).withRel("all-activities")
         );
