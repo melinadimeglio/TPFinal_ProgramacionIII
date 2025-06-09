@@ -132,18 +132,19 @@ public class UserService {
         return userMapper.toDTO(user);
     }
 
-    public UserEntity assingRole(Long id, String role){
+    public UserEntity assignRole(Long id, String role){
         UserEntity user = findByIdAdmin(id);
+        CredentialEntity credential = user.getCredential();
 
-        if(role.equals(Role.ROLE_ADMIN.toString())){
-            user.getCredential().getRoles().forEach(roleEntity -> roleEntity.setRole(Role.ROLE_ADMIN));
+        Role role1 = Role.valueOf(role);
+
+        RoleEntity roleEntity = roleRepository.findByRole(role1)
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + role1));
+
+        if (!credential.getRoles().contains(roleEntity)) {
+            credential.getRoles().add(roleEntity);
         }
-        else if(role.equals(Role.ROLE_COMPANY.toString())){
-            user.getCredential().getRoles().forEach(roleEntity -> roleEntity.setRole(Role.ROLE_COMPANY));
-        }
-        else {
-            //logica para advertir que no hubo modificacion
-        }
-        return user;
+
+        return userRepository.save(user);
     }
 }
