@@ -155,8 +155,8 @@ public class UserController {
     public ResponseEntity<EntityModel<UserResponseDTO>> getUserByIdPublic(@PathVariable Long id) {
         return ResponseEntity.notFound().build();
     }
-    
-    @PreAuthorize("hasRole('ADMIN')")
+
+    @PreAuthorize("hasAuthority('ASIGNAR_ROLES')")
     @GetMapping("/roles")
     public ResponseEntity<UserEntity> assignRole(@PathVariable Long id,
                                                  @PathVariable String role){
