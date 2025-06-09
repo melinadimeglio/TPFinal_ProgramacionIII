@@ -51,6 +51,9 @@ public class CredentialEntity implements UserDetails {
     @JoinColumn(name = "company_id")
     private CompanyEntity company;
 
+    @Column(name = "refresh_token", length = 2048, unique = true, nullable = false)
+    private String refreshToken;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -76,4 +79,13 @@ public class CredentialEntity implements UserDetails {
     public String getUsername() {
         return email;
     }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
 }
