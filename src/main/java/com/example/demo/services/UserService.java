@@ -51,7 +51,12 @@ public class UserService {
     }
 
     public Page<UserResponseDTO> findAll(Pageable pageable) {
-        return userRepository.findAll(pageable)
+        return userRepository.findAllByActiveTrue(pageable)
+                .map(userMapper::toDTO);
+    }
+
+    public Page<UserResponseDTO> findAllInactive(Pageable pageable) {
+        return userRepository.findAllByActiveFalse(pageable)
                 .map(userMapper::toDTO);
     }
 
@@ -118,6 +123,7 @@ public class UserService {
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username: " + username));
         user.setActive(false);
+        user.getCredential().setActive(false);
     }
 
     public UserResponseDTO getProfileByUsername(String username){

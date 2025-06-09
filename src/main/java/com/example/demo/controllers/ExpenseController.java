@@ -110,16 +110,18 @@ public class ExpenseController {
     })
     @PreAuthorize("hasAuthority('VER_GASTO_USUARIO')")
     @GetMapping("/user/{userId}")
-    public ResponseEntity<CollectionModel<EntityModel<ExpenseResponseDTO>>> findByUserId(
+    public ResponseEntity<PagedModel<EntityModel<ExpenseResponseDTO>>> findByUserId(
             @PathVariable Long userId,
-            @AuthenticationPrincipal CredentialEntity credential) {
+            @AuthenticationPrincipal CredentialEntity credential,
+            Pageable pageable) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        List<ExpenseResponseDTO> expenses = expenseService.findByUserId(userId);
-        return ResponseEntity.ok(assembler.toCollectionModelByUser(expenses, userId));
+        Page<ExpenseResponseDTO> expenses = expenseService.findByUserId(userId, pageable);
+        PagedModel<EntityModel<ExpenseResponseDTO>> model = pagedResourcesAssembler.toModel(expenses, assembler);
+        return ResponseEntity.ok(model);
     }
 
     @Operation(
@@ -229,10 +231,10 @@ public class ExpenseController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/trip/{tripId}")
-    public ResponseEntity<CollectionModel<EntityModel<ExpenseResponseDTO>>> getExpensesByTripId(@PathVariable Long tripId) {
-        List<ExpenseResponseDTO> expenses = expenseService.findByTripId(tripId);
-
-        return ResponseEntity.ok(assembler.toCollectionModelByTrip(expenses, tripId));
+    public ResponseEntity<PagedModel<EntityModel<ExpenseResponseDTO>>> getExpensesByTripId(@PathVariable Long tripId, Pageable pageable) {
+        Page<ExpenseResponseDTO> expenses = expenseService.findByTripId(tripId, pageable);
+        PagedModel<EntityModel<ExpenseResponseDTO>> model = pagedResourcesAssembler.toModel(expenses, assembler);
+        return ResponseEntity.ok(model);
     }
 
     @Operation(

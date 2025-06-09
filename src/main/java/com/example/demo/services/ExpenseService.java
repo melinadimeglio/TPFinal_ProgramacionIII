@@ -41,7 +41,12 @@ public class ExpenseService{
     }
 
     public Page<ExpenseResponseDTO> findAll(Pageable pageable){
-        return expenseRepository.findAll(pageable)
+        return expenseRepository.findAllByActiveTrue(pageable)
+                .map(expenseMapper::toDTO);
+    }
+
+    public Page<ExpenseResponseDTO> findAllInactive(Pageable pageable){
+        return expenseRepository.findAllByActiveFalse(pageable)
                 .map(expenseMapper::toDTO);
     }
 
@@ -110,9 +115,9 @@ public class ExpenseService{
         entity.setActive(false);
     }
 
-    public List<ExpenseResponseDTO> findByUserId(Long userId) {
-        List<ExpenseEntity> expenses = expenseRepository.findByUserId(userId);
-        return expenseMapper.toDTOList(expenses);
+    public Page<ExpenseResponseDTO> findByUserId(Long userId, Pageable pageable) {
+        return expenseRepository.findByUserId(userId, pageable)
+                .map(expenseMapper::toDTO);
     }
 
     public Double getAverageExpenseByUserId(Long id) {
@@ -141,9 +146,9 @@ public class ExpenseService{
         return count == 0 ? 0.0 : total / count;
     }
 
-    public List<ExpenseResponseDTO> findByTripId(Long tripId) {
-        List<ExpenseEntity> expenses = expenseRepository.findByTripId(tripId);
-        return expenseMapper.toDTOList(expenses);
+    public Page<ExpenseResponseDTO> findByTripId(Long tripId, Pageable pageable) {
+        return expenseRepository.findByTripId(tripId, pageable)
+                .map(expenseMapper::toDTO);
     }
 
     public Double getAverageExpenseByTripId(Long tripId) {

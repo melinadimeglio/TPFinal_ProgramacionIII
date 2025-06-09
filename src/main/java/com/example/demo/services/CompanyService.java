@@ -75,7 +75,12 @@ public class CompanyService {
     }
 
     public Page<CompanyResponseDTO> findAll(Pageable pageable) {
-        return companyRepository.findAll(pageable)
+        return companyRepository.findAllByActiveTrue(pageable)
+                .map(companyMapper::toDTO);
+    }
+
+    public Page<CompanyResponseDTO> findAllInactive(Pageable pageable) {
+        return companyRepository.findAllByActiveFalse(pageable)
                 .map(companyMapper::toDTO);
     }
 
@@ -92,6 +97,7 @@ public class CompanyService {
     public void delete(Long id) {
         CompanyEntity entity = companyRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Item no encontrado"));
-        companyRepository.delete(entity);
+        entity.setActive(false);
+        entity.getActivities().forEach(activityEntity -> activityEntity.setAvailable(false));
     }
 }

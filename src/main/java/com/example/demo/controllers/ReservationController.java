@@ -11,6 +11,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,10 +29,12 @@ import java.util.List;
 public class ReservationController {
 
     private final ReservationService reservationService;
+    private final PagedResourcesAssembler<ReservationResponseDTO> pagedResourcesAssembler;
 
     @Autowired
-    public ReservationController(ReservationService reservationService) {
+    public ReservationController(ReservationService reservationService, PagedResourcesAssembler<ReservationResponseDTO> pagedResourcesAssembler) {
         this.reservationService = reservationService;
+        this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
     @Operation(
@@ -77,9 +84,10 @@ public class ReservationController {
     })
     @PreAuthorize("hasAuthority('VER_TODAS_RESERVAS')")
     @GetMapping
-    public ResponseEntity<List<ReservationResponseDTO>> getAllReservations() {
-        List<ReservationResponseDTO> reservations = reservationService.findAll();
-        return ResponseEntity.ok(reservations);
+    public ResponseEntity<PagedModel<EntityModel<ReservationResponseDTO>>> getAllReservations(Pageable pageable) {
+        Page<ReservationResponseDTO> reservations = reservationService.findAll(pageable);
+        PagedModel<EntityModel<ReservationResponseDTO>> model = pagedResourcesAssembler.toModel(reservations);
+        return ResponseEntity.ok(model);
     }
 
     @Operation(summary = "Get my reservations", description = "Retrieve reservations for the logged-in user.")
@@ -88,10 +96,11 @@ public class ReservationController {
     })
     @PreAuthorize("hasAuthority('VER_RESERVAS_USUARIO')")
     @GetMapping("/my")
-    public ResponseEntity<List<ReservationResponseDTO>> getMyReservations(@AuthenticationPrincipal CredentialEntity credential) {
+    public ResponseEntity<PagedModel<EntityModel<ReservationResponseDTO>>> getMyReservations(@AuthenticationPrincipal CredentialEntity credential, Pageable pageable) {
         Long myUserId = credential.getUser().getId();
-        List<ReservationResponseDTO> reservations = reservationService.findByUserId(myUserId);
-        return ResponseEntity.ok(reservations);
+        Page<ReservationResponseDTO> reservations = reservationService.findByUserId(myUserId, pageable);
+        PagedModel<EntityModel<ReservationResponseDTO>> model = pagedResourcesAssembler.toModel(reservations);
+        return ResponseEntity.ok(model);
     }
 
     @Operation(summary = "Get reservations by company", description = "Retrieve reservations for a specific company.")
@@ -100,9 +109,10 @@ public class ReservationController {
     })
     @PreAuthorize("hasAuthority('VER_RESERVAS_EMPRESA')")
     @GetMapping("/company/{companyId}")
-    public ResponseEntity<List<ReservationResponseDTO>> getReservationsByCompany(@PathVariable Long companyId) {
-        List<ReservationResponseDTO> reservations = reservationService.findByCompanyId(companyId);
-        return ResponseEntity.ok(reservations);
+    public ResponseEntity<PagedModel<EntityModel<ReservationResponseDTO>>> getReservationsByCompany(@PathVariable Long companyId, Pageable pageable) {
+        Page<ReservationResponseDTO> reservations = reservationService.findByCompanyId(companyId, pageable);
+        PagedModel<EntityModel<ReservationResponseDTO>> model = pagedResourcesAssembler.toModel(reservations);
+        return ResponseEntity.ok(model);
     }
 
 

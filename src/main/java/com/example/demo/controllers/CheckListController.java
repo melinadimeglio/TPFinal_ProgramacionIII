@@ -137,16 +137,18 @@ public class CheckListController {
     })
     @PreAuthorize("hasAuthority('VER_CHECKLIST_USER')")
     @GetMapping("/user/{userId}")
-    public ResponseEntity<CollectionModel<EntityModel<CheckListResponseDTO>>> getByUser(
+    public ResponseEntity<PagedModel<EntityModel<CheckListResponseDTO>>> getByUser(
             @PathVariable Long userId,
-            @AuthenticationPrincipal CredentialEntity credential) {
+            @AuthenticationPrincipal CredentialEntity credential,
+            Pageable pageable) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        List<CheckListResponseDTO> checklists = checkListService.findByUserId(userId);
-        return ResponseEntity.ok(assembler.toCollectionModelByUser(checklists, userId));
+        Page<CheckListResponseDTO> checklists = checkListService.findByUserId(userId, pageable);
+        PagedModel<EntityModel<CheckListResponseDTO>> model = pagedResourcesAssembler.toModel(checklists, assembler);
+        return ResponseEntity.ok(model);
     }
 
     @Operation(summary = "Delete a checklist by ID", description = "Deletes the specified checklist and all its items.")

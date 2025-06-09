@@ -155,15 +155,6 @@ public class UserController {
     public ResponseEntity<EntityModel<UserResponseDTO>> getUserByIdPublic(@PathVariable Long id) {
         return ResponseEntity.notFound().build();
     }
-
-    @PreAuthorize("hasAuthority'ADMIN'")
-    @GetMapping("/{id}")
-    public UserEntity getUserByIdAdmin(
-            @PathVariable Long id) {
-
-        UserEntity user = userService.findByIdAdmin(id);
-        return user;
-    }
     
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/roles")

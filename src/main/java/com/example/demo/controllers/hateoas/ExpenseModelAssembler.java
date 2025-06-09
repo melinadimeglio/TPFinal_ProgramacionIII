@@ -46,7 +46,7 @@ public class ExpenseModelAssembler implements RepresentationModelAssembler<Expen
                 .toList();
 
         return CollectionModel.of(expenseModels,
-                linkTo(methodOn(ExpenseController.class).findByUserId(userId, null)).withSelfRel(),
+                linkTo(methodOn(ExpenseController.class).findByUserId(userId, null, PageRequest.of(0, 10))).withSelfRel(),
                 linkTo(methodOn(ExpenseController.class).getAllExpenses(PageRequest.of(0,10),null)).withRel("all-expenses")
         );
     }
@@ -57,7 +57,7 @@ public class ExpenseModelAssembler implements RepresentationModelAssembler<Expen
                 .toList();
 
         return CollectionModel.of(expenseModels,
-                linkTo(methodOn(ExpenseController.class).getExpensesByTripId(tripId)).withSelfRel(),
+                linkTo(methodOn(ExpenseController.class).getExpensesByTripId(tripId, PageRequest.of(0, 10))).withSelfRel(),
                 linkTo(methodOn(ExpenseController.class).getAllExpenses(PageRequest.of(0,10),null)).withRel("all-expenses")
         );
     }

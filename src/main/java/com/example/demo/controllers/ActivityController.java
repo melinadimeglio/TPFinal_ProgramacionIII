@@ -44,12 +44,14 @@ public class ActivityController {
     private final ActivityService activityService;
     private final ActivityModelAssembler assembler;
     private final PagedResourcesAssembler<ActivityResponseDTO> pagedResourcesAssembler;
+    private final PagedResourcesAssembler<CompanyResponseDTO> pagedResourcesAssemblerCompany;
 
     @Autowired
-    public ActivityController(ActivityService activityService, ActivityModelAssembler assembler, PagedResourcesAssembler<ActivityResponseDTO> pagedResourcesAssembler) {
+    public ActivityController(ActivityService activityService, ActivityModelAssembler assembler, PagedResourcesAssembler<ActivityResponseDTO> pagedResourcesAssembler, PagedResourcesAssembler<CompanyResponseDTO> pagedResourcesAssemblerCompany) {
         this.activityService = activityService;
         this.assembler = assembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
+        this.pagedResourcesAssemblerCompany = pagedResourcesAssemblerCompany;
     }
 
     @Operation(
@@ -124,16 +126,18 @@ public class ActivityController {
     })
     @PreAuthorize("hasAuthority('VER_ACTIVIDAD_EMPRESA')")
     @GetMapping("/company/{companyId}")
-    public ResponseEntity<List<CompanyResponseDTO>> getByCompanyId(@PathVariable Long companyId,
-                                                                   @AuthenticationPrincipal CredentialEntity credential) {
+    public ResponseEntity<PagedModel<EntityModel<CompanyResponseDTO>>> getByCompanyId(@PathVariable Long companyId,
+                                                                   @AuthenticationPrincipal CredentialEntity credential,
+                                                                                      Pageable pageable) {
         Long myCompanyId = credential.getCompany().getId();
 
         if (!myCompanyId.equals(companyId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        List<CompanyResponseDTO> activities = activityService.findByCompanyId(companyId);
-        return ResponseEntity.ok(activities);
+        Page<CompanyResponseDTO> activities = activityService.findByCompanyId(companyId, pageable);
+        PagedModel<EntityModel<CompanyResponseDTO>> model = pagedResourcesAssemblerCompany.toModel(activities);
+        return ResponseEntity.ok(model);
     }
 
 
@@ -231,17 +235,18 @@ public class ActivityController {
     })
     @PreAuthorize("hasAuthority('VER_ACTIVIDAD_USUARIO')")
     @GetMapping("/user/{userId}")
-    public ResponseEntity<CollectionModel<EntityModel<ActivityResponseDTO>>> getActivitiesByUserId(
+    public ResponseEntity<PagedModel<EntityModel<ActivityResponseDTO>>> getActivitiesByUserId(
             @PathVariable Long userId,
-            @AuthenticationPrincipal CredentialEntity credential) {
+            @AuthenticationPrincipal CredentialEntity credential,
+            Pageable pageable) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        List<ActivityResponseDTO> activities = activityService.findByUserId(userId);
-
-        return ResponseEntity.ok(assembler.toCollectionModelByUser(activities, userId));
+        Page<ActivityResponseDTO> activities = activityService.findByUserId(userId, pageable);
+        PagedModel<EntityModel<ActivityResponseDTO>> model = pagedResourcesAssembler.toModel(activities, assembler);
+        return ResponseEntity.ok(model);
     }
 
     @Operation(

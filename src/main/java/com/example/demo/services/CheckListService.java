@@ -38,7 +38,12 @@ public class CheckListService {
     }
 
     public Page<CheckListResponseDTO> findAll(Pageable pageable) {
-        return checkListRepository.findAll(pageable)
+        return checkListRepository.findAllByActiveTrue(pageable)
+                .map(checkListMapper::toDTO);
+    }
+
+    public Page<CheckListResponseDTO> findAllInactive(Pageable pageable) {
+        return checkListRepository.findAllByActiveFalse(pageable)
                 .map(checkListMapper::toDTO);
     }
 
@@ -82,7 +87,8 @@ public class CheckListService {
         checkListEntity.setActive(false);
     }
 
-    public List<CheckListResponseDTO> findByUserId(Long userId) {
-        return checkListMapper.toDTOList(checkListRepository.findByUserId(userId));
+    public Page<CheckListResponseDTO> findByUserId(Long userId, Pageable pageable) {
+        return checkListRepository.findByUserId(userId, pageable)
+                .map(checkListMapper::toDTO);
     }
 }

@@ -34,7 +34,12 @@ public class ItineraryService {
     }
 
     public Page<ItineraryResponseDTO> findAll(Pageable pageable){
-        return itineraryRepository.findAll(pageable)
+        return itineraryRepository.findAllByActiveTrue(pageable)
+                .map(itineraryMapper::toDTO);
+    }
+
+    public Page<ItineraryResponseDTO> findAllInactive(Pageable pageable){
+        return itineraryRepository.findAllByActiveFalse(pageable)
                 .map(itineraryMapper::toDTO);
     }
 

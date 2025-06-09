@@ -12,6 +12,8 @@ import com.example.demo.repositories.ReservationRepository;
 import com.example.demo.repositories.UserRepository;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -57,22 +59,19 @@ public class ReservationService {
         reservationRepository.save(reservation);
     }
 
-    public List<ReservationResponseDTO> findAll() {
-        return reservationRepository.findAll().stream()
-                .map(reservationMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<ReservationResponseDTO> findAll(Pageable pageable) {
+        return reservationRepository.findAll(pageable)
+                .map(reservationMapper::toDTO);
     }
 
-    public List<ReservationResponseDTO> findByUserId(Long userId) {
-        return reservationRepository.findByUserId(userId).stream()
-                .map(reservationMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<ReservationResponseDTO> findByUserId(Long userId, Pageable pageable) {
+        return reservationRepository.findByUserId(userId, pageable)
+                .map(reservationMapper::toDTO);
     }
 
-    public List<ReservationResponseDTO> findByCompanyId(Long companyId) {
-        return reservationRepository.findByCompanyId(companyId).stream()
-                .map(reservationMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<ReservationResponseDTO> findByCompanyId(Long companyId, Pageable pageable) {
+        return reservationRepository.findByCompanyId(companyId, pageable)
+                .map(reservationMapper::toDTO);
     }
 
 

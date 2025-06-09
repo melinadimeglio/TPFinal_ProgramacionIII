@@ -99,26 +99,20 @@ public class ActivityService {
         return activityMapper.toDTO(entity);
     }
 
-    public List<CompanyResponseDTO> findByCompanyId(Long companyId) {
-        return activityRepository.findByCompanyId(companyId)
-                .stream()
-                .map(activityMapper::toCompanyResponseDTO)  // <-- este es el correcto
-                .collect(Collectors.toList());
+    public Page<CompanyResponseDTO> findByCompanyId(Long companyId, Pageable pageable) {
+        return activityRepository.findByCompanyId(companyId, pageable)
+                .map(activityMapper::toCompanyResponseDTO); // <-- este es el correcto
     }
 
 
-    public List<ActivityResponseDTO> findAll() {
-        return activityRepository.findAll()
-                .stream()
-                .map(activityMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<ActivityResponseDTO> findAll(Pageable pageable) {
+        return activityRepository.findAllByActiveTrue(pageable)
+                .map(activityMapper::toDTO);
     }
 
-    public List<ActivityResponseDTO> findByUserId(Long userId) {
-        return activityRepository.findByUsers_Id(userId)
-                .stream()
-                .map(activityMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<ActivityResponseDTO> findByUserId(Long userId, Pageable pageable) {
+        return activityRepository.findByUsers_Id(userId, pageable)
+                .map(activityMapper::toDTO);
     }
 
     public ActivityResponseDTO updateAndReturn(Long id,ActivityUpdateDTO dto) {
@@ -141,7 +135,11 @@ public class ActivityService {
         if (!activityRepository.existsById(id)) {
             throw new NoSuchElementException("Actividad no encontrada");
         }
-        activityRepository.deleteById(id);
+        ActivityEntity activity = activityRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Actividad no encontrada"));
+
+        activity.setAvailable(false);
+        activity.getItinerary().setActive(false);
     }
 
     public ActivityResponseDTO updateActivityByCompany(Long companyId, Long activityId, ActivityUpdateDTO dto) {
@@ -165,8 +163,8 @@ public class ActivityService {
         if (activity.getCompany() == null || !activity.getCompany().getId().equals(companyId)) {
             throw new IllegalArgumentException("No tienes permiso para eliminar esta actividad");
         }
-
-        activityRepository.delete(activity);
+        activity.setAvailable(false);
+        activity.getItinerary().setActive(false);
     }
 
     public Page<ActivityResponseDTO> findWithFilters(ActivityCategory category, LocalDate startDate, LocalDate endDate, Pageable pageable) {

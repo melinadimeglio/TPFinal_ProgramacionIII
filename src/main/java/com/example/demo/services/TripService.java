@@ -32,9 +32,13 @@ public class TripService {
     }
 
     public Page<TripResponseDTO> findAll(Pageable pageable) {
-        return tripRepository.findAll(pageable)
+        return tripRepository.findAllByActiveTrue(pageable)
                 .map(tripMapper::toDTO);
+    }
 
+    public Page<TripResponseDTO> findAllInactive(Pageable pageable) {
+        return tripRepository.findAllByActiveFalse(pageable)
+                .map(tripMapper::toDTO);
     }
 
     public TripResponseDTO findById(Long id) {
@@ -88,6 +92,8 @@ public class TripService {
         TripEntity trip = tripRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No se encontró el viaje con ID " + id));
         trip.setActive(false);
+        trip.getChecklist().forEach(checkListEntity -> checkListEntity.setActive(false));
+        trip.getItineraries().forEach(itineraryEntity -> itineraryEntity.setActive(false));
     }
 
     public List<TripResponseDTO> findByUserId(Long userId) {
