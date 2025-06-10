@@ -63,6 +63,7 @@ public enum Permit {
     CREAR_COMPANY,
     VER_EMPRESAS,
     VER_EMPRESA,
+    VER_USUARIO,
     //EMPRESA
     MODIFICAR_EMPRESA,
     ELIMINAR_EMPRESA,

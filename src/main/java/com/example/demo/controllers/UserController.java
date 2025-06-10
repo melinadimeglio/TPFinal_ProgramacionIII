@@ -68,7 +68,7 @@ public class UserController {
             @ApiResponse(responseCode = "403", description = "Forbidden - User not authorized to access this resource"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
-    //@PreAuthorize("hasAuthority('VER_TODOS_USUARIOS')") ¿cual va aca?
+    @PreAuthorize("hasAuthority('VER_USUARIO')")
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<UserResponseDTO>> getUserById(
             @PathVariable Long id,
