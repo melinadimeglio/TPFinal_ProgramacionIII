@@ -75,7 +75,7 @@ public class CheckListItemService {
         CheckListItemEntity entity = itemRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Item no encontrado"));
 
-        entity.setActive(false);
+        itemRepository.delete(entity);
     }
 
     public Page<CheckListItemResponseDTO> findByChecklistAndStatus(Long checklistId, boolean completed, Pageable pageable) {

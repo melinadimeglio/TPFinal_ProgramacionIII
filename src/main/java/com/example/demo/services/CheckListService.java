@@ -104,6 +104,7 @@ public class CheckListService {
         CheckListEntity checkListEntity = checkListRepository.findById(id)
                 .orElseThrow(()-> new NoSuchElementException("No se encontro la checklist con ID:" + id));
         checkListEntity.setActive(false);
+        checkListRepository.save(checkListEntity);
     }
 
     public Page<CheckListResponseDTO> findByUserId(Long userId, Pageable pageable) {

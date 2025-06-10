@@ -139,7 +139,10 @@ public class ActivityService {
                 .orElseThrow(() -> new NoSuchElementException("Actividad no encontrada"));
 
         activity.setAvailable(false);
-        activity.getItinerary().setActive(false);
+        activityRepository.save(activity);
+        ItineraryEntity itinerary = activity.getItinerary();
+        itinerary.setActive(false);
+        itineraryRepository.save(itinerary);
     }
 
     public ActivityResponseDTO updateActivityByCompany(Long companyId, Long activityId, ActivityUpdateDTO dto) {

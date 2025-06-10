@@ -99,5 +99,6 @@ public class CompanyService {
                 .orElseThrow(() -> new NoSuchElementException("Item no encontrado"));
         entity.setActive(false);
         entity.getActivities().forEach(activityEntity -> activityEntity.setAvailable(false));
+        companyRepository.save(entity);
     }
 }
