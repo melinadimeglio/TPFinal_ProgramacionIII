@@ -25,5 +25,6 @@ public class CredentialService {
                 .orElseThrow(()-> new NoSuchElementException("No se encontro la credencial"));
 
         credential.setActive(false);
+        credentialRepository.save(credential);
     }
 }

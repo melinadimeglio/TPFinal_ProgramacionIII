@@ -124,6 +124,7 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username: " + username));
         user.setActive(false);
         user.getCredential().setActive(false);
+        userRepository.save(user);
     }
 
     public UserResponseDTO getProfileByUsername(String username){

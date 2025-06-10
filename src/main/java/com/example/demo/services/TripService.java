@@ -94,6 +94,7 @@ public class TripService {
         trip.setActive(false);
         trip.getChecklist().forEach(checkListEntity -> checkListEntity.setActive(false));
         trip.getItineraries().forEach(itineraryEntity -> itineraryEntity.setActive(false));
+        tripRepository.save(trip);
     }
 
     public List<TripResponseDTO> findByUserId(Long userId) {
