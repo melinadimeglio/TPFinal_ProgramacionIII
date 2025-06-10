@@ -16,6 +16,7 @@ public class TripUpdateDTO {
 
     private String name;
     private String destination;
+    private LocalDate startDate;
     private LocalDate endDate;
 
     @PositiveOrZero(message = "El presupuesto debe ser cero o positivo.")

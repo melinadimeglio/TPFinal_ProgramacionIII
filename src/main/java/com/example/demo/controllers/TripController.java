@@ -76,20 +76,27 @@ public class TripController {
         return ResponseEntity.ok(model);
     }
 
-    @Operation(summary = "Get a trip by ID", description = "Returns a specific trip by its ID.")
+    @Operation(summary = "Get a trip by ID", description = "Returns a specific trip by its ID, only if it belongs to the authenticated user.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Trip found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = TripResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Trip not found")
     })
     @PreAuthorize("hasAuthority('VER_VIAJE')")
     @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<TripResponseDTO>> getTripById(@PathVariable Long id) {
-        TripResponseDTO trip = tripService.findById(id);
+    public ResponseEntity<EntityModel<TripResponseDTO>> getTripById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long userId = credential.getUser().getId();
+
+        TripResponseDTO trip = tripService.findByIdForUser(id, userId);
 
         return ResponseEntity.ok(assembler.toModel(trip));
     }
+
 
 
     @Operation(
@@ -156,11 +163,12 @@ public class TripController {
         return ResponseEntity.ok(assembler.toCollectionModelByUser(trips, userId));
     }
 
-    @Operation(summary = "Update a trip by ID", description = "Updates a trip by its ID.")
+    @Operation(summary = "Update a trip by ID", description = "Updates a trip by its ID only if it belongs to the authenticated user.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Trip updated successfully",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = TripResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Trip not found"),
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
@@ -169,38 +177,47 @@ public class TripController {
     public ResponseEntity<TripResponseDTO> updateTrip(
             @Parameter(description = "ID of the trip to update", required = true)
             @PathVariable Long id,
-            @RequestBody(description = "Updated trip data", required = true,
-                    content = @Content(schema = @Schema(implementation = TripUpdateDTO.class)))
-            @org.springframework.web.bind.annotation.RequestBody @Valid TripUpdateDTO tripUpdateDTO) {
+            @org.springframework.web.bind.annotation.RequestBody @Valid TripUpdateDTO tripUpdateDTO,
+            @AuthenticationPrincipal CredentialEntity credential) {
 
-        TripResponseDTO updatedTrip = tripService.update(id, tripUpdateDTO);
+        Long userId = credential.getUser().getId();
+        TripResponseDTO updatedTrip = tripService.updateIfBelongsToUser(id, tripUpdateDTO, userId);
         return ResponseEntity.ok(updatedTrip);
     }
 
-
-    @Operation(summary = "Delete a trip by ID", description = "Deletes a trip by its ID.")
+    @Operation(summary = "Delete a trip by ID", description = "Performs a soft delete of a trip by its ID, only if it belongs to the authenticated user.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Trip deleted successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Trip not found")
     })
     @PreAuthorize("hasAuthority('ELIMINAR_VIAJE')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTrip(
             @Parameter(description = "ID of the trip to delete", required = true)
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            @AuthenticationPrincipal CredentialEntity credential) {
 
-        tripService.delete(id);
+        Long userId = credential.getUser().getId();
+        tripService.softDeleteIfBelongsToUser(id, userId);
+
         return ResponseEntity.noContent().build();
     }
 
+
+
     @Operation(
             summary = "Restore a trip",
-            description = "Reactivates a trip that was previously deleted (soft-deleted) by setting its status to active."
+            description = "Reactivates a trip that was previously deleted (soft-deleted), only if it belongs to the authenticated user."
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "204",
                     description = "Trip restored successfully. No content is returned in the response body."
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied"
             ),
             @ApiResponse(
                     responseCode = "404",
@@ -210,12 +227,14 @@ public class TripController {
     @PreAuthorize("hasAuthority('RESTAURAR_VIAJE')")
     @PutMapping("/restore/{id}")
     public ResponseEntity<Void> restoreTrip(
-            @Parameter(description = "ID of the trip to delete")
-            @PathVariable Long id) {
+            @Parameter(description = "ID of the trip to restore") @PathVariable Long id,
+            @AuthenticationPrincipal CredentialEntity credential) {
 
-        tripService.restore(id);
+        Long userId = credential.getUser().getId();
+        tripService.restoreIfBelongsToUser(id, userId);
         return ResponseEntity.noContent().build();
     }
+
 
     @Operation(
             summary = "Obtener recomendaciones de actividades para un viaje",

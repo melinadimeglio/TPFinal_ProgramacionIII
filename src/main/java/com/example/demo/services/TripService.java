@@ -8,9 +8,11 @@ import com.example.demo.entities.UserEntity;
 import com.example.demo.mappers.TripMapper;
 import com.example.demo.repositories.TripRepository;
 import com.example.demo.repositories.UserRepository;
+import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -47,9 +49,24 @@ public class TripService {
         return tripMapper.toDTO(trip);
     }
 
+
+    public TripResponseDTO findByIdForUser(Long tripId, Long userId) {
+        TripEntity trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new ResourceNotFoundException("Trip not found"));
+
+        boolean belongsToUser = trip.getUsers().stream()
+                .anyMatch(user -> user.getId().equals(userId));
+
+        if (!belongsToUser) {
+            throw new AccessDeniedException("You are not allowed to access this trip");
+        }
+
+        return tripMapper.toDTO(trip);
+    }
+
+
     public TripResponseDTO save(TripCreateDTO dto, Long myUserId) {
 
-        // Creamos el set de usuarios participantes
         Set<UserEntity> users = new HashSet<>();
 
         UserEntity owner = userRepository.findById(myUserId)
@@ -76,33 +93,57 @@ public class TripService {
     }
 
 
+    public TripResponseDTO updateIfBelongsToUser(Long tripId, TripUpdateDTO dto, Long userId) {
+        TripEntity trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new ResourceNotFoundException("Trip not found"));
 
-    public TripResponseDTO update(Long id, TripUpdateDTO dto) {
-        TripEntity entity = tripRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Trip not found"));
+        boolean belongsToUser = trip.getUsers().stream()
+                .anyMatch(user -> user.getId().equals(userId));
 
-        tripMapper.updateEntityFromDTO(dto, entity);
-        TripEntity updated = tripRepository.save(entity);
+        if (!belongsToUser) {
+            throw new AccessDeniedException("You are not allowed to modify this trip");
+        }
 
+        tripMapper.updateEntityFromDTO(dto, trip);
+
+        TripEntity updated = tripRepository.save(trip);
         return tripMapper.toDTO(updated);
     }
 
 
-    public void delete(Long id) {
-        TripEntity trip = tripRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el viaje con ID " + id));
+    public void softDeleteIfBelongsToUser(Long tripId, Long userId) {
+        TripEntity trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new ResourceNotFoundException("Trip not found"));
+
+        boolean belongsToUser = trip.getUsers().stream()
+                .anyMatch(user -> user.getId().equals(userId));
+
+        if (!belongsToUser) {
+            throw new AccessDeniedException("You are not allowed to delete this trip");
+        }
+
         trip.setActive(false);
         trip.getChecklist().forEach(checkListEntity -> checkListEntity.setActive(false));
         trip.getItineraries().forEach(itineraryEntity -> itineraryEntity.setActive(false));
+
         tripRepository.save(trip);
     }
 
-    public void restore(Long id) {
-        TripEntity trip = tripRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el viaje con ID " + id));
+    public void restoreIfBelongsToUser(Long tripId, Long userId) {
+        TripEntity trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new ResourceNotFoundException("Trip not found"));
+
+        boolean belongsToUser = trip.getUsers().stream()
+                .anyMatch(user -> user.getId().equals(userId));
+
+        if (!belongsToUser) {
+            throw new AccessDeniedException("You are not allowed to restore this trip");
+        }
+
         trip.setActive(true);
         trip.getChecklist().forEach(checkListEntity -> checkListEntity.setActive(true));
         trip.getItineraries().forEach(itineraryEntity -> itineraryEntity.setActive(true));
+
         tripRepository.save(trip);
     }
 
