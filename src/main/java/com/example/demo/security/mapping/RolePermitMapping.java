@@ -60,9 +60,9 @@ public class RolePermitMapping {
                 Permit.ELIMINAR_GASTO,
                 Permit.VER_GASTO_USUARIO,
                 Permit.VER_PROMEDIO_USUARIO,
-                Permit.VER_GASTOS_VIAJES_TOTAL,
-                Permit.VER_GASTOS_VIAJES_DIVIDIDO,
                 Permit.VER_PROMEDIO_VIAJE,
+                Permit.VER_GASTOS_VIAJE,
+                Permit.VER_TOTAL_GASTO_VIAJE,
 
                 // ITINERARIO
                 Permit.CREAR_ITINERARIO,

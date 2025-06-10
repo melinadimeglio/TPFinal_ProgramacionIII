@@ -202,19 +202,32 @@ public class ExpenseController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Get total-average of expenses (not divided) by user ID",
-            description = "Returns the average of full expense amounts where the user participated, regardless of how many users shared the cost.")
+    @Operation(
+            summary = "Get total-average of expenses (not divided) by user ID",
+            description = "Returns the average of full expense amounts where the user participated, regardless of how many users shared the cost.",
+            parameters = {
+                    @Parameter(name = "userId", description = "ID of the user to calculate the average", required = true)
+            }
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User average calculated",
                     content = @Content(schema = @Schema(implementation = Double.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Not authorized"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
-
     @PreAuthorize("hasAuthority('VER_PROMEDIO_USUARIO')")
     @GetMapping("/averageByUserId/{userId}")
-    public ResponseEntity<Double> getAverageExpensesByUser(@PathVariable Long userId) {
+    public ResponseEntity<Double> getAverageExpensesByUser(
+            @PathVariable Long userId,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         return ResponseEntity.ok(expenseService.getAverageExpenseByUserId(userId));
     }
+
 
     @Operation(
             summary = "Get expenses by trip ID",
@@ -230,6 +243,7 @@ public class ExpenseController {
             @ApiResponse(responseCode = "404", description = "Trip not found or no expenses for trip"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
+    @PreAuthorize("hasAuthority('VER_GASTOS_VIAJE')")
     @GetMapping("/trip/{tripId}")
     public ResponseEntity<PagedModel<EntityModel<ExpenseResponseDTO>>> getExpensesByTripId(@PathVariable Long tripId, Pageable pageable) {
         Page<ExpenseResponseDTO> expenses = expenseService.findByTripId(tripId, pageable);
@@ -244,10 +258,19 @@ public class ExpenseController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Promedio calculado correctamente",
                     content = @Content(schema = @Schema(implementation = Double.class))),
+            @ApiResponse(responseCode = "403", description = "No autorizado"),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
+    @PreAuthorize("hasAuthority('VER_GASTO_USUARIO')")
     @GetMapping("/realAverageByUserId/{userId}")
-    public ResponseEntity<Double> getRealAverageExpense(@PathVariable Long userId) {
+    public ResponseEntity<Double> getRealAverageExpense(
+            @PathVariable Long userId,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         return ResponseEntity.ok(expenseService.getRealAverageExpenseByUser(userId));
     }
 
@@ -260,6 +283,7 @@ public class ExpenseController {
                     content = @Content(schema = @Schema(implementation = Double.class))),
             @ApiResponse(responseCode = "404", description = "Trip not found or no expenses for trip")
     })
+    @PreAuthorize("hasAuthority('VER_PROMEDIO_VIAJE')")
     @GetMapping("/averageByTripId/{tripId}")
     public ResponseEntity<Double> getAverageExpensesByTrip(@PathVariable Long tripId) {
         return ResponseEntity.ok(expenseService.getAverageExpenseByTripId(tripId));
@@ -274,6 +298,7 @@ public class ExpenseController {
                     content = @Content(schema = @Schema(implementation = Double.class))),
             @ApiResponse(responseCode = "404", description = "Trip not found or no expenses for trip")
     })
+    @PreAuthorize("hasAuthority('VER_TOTAL_GASTO_VIAJE')")
     @GetMapping("/totalByTripId/{tripId}")
     public ResponseEntity<Double> getTotalExpensesByTrip(@PathVariable Long tripId) {
         return ResponseEntity.ok(expenseService.getTotalExpenseByTripId(tripId));
@@ -286,10 +311,20 @@ public class ExpenseController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Total calculated successfully",
                     content = @Content(schema = @Schema(implementation = Double.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Not authorized"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
+    @PreAuthorize("hasAuthority('VER_GASTO_USUARIO')")
     @GetMapping("/realTotalByUserId/{userId}")
-    public ResponseEntity<Double> getTotalRealExpensesByUser(@PathVariable Long userId) {
+    public ResponseEntity<Double> getTotalRealExpensesByUser(
+            @PathVariable Long userId,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         return ResponseEntity.ok(expenseService.getTotalRealExpenseByUser(userId));
     }
+
 }
