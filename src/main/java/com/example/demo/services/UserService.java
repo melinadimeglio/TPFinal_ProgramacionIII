@@ -127,6 +127,14 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public void restore(String username) {
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username: " + username));
+        user.setActive(true);
+        user.getCredential().setActive(true);
+        userRepository.save(user);
+    }
+
     public UserResponseDTO getProfileByUsername(String username){
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username: " + username));

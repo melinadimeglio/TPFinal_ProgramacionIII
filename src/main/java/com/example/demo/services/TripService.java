@@ -97,6 +97,15 @@ public class TripService {
         tripRepository.save(trip);
     }
 
+    public void restore(Long id) {
+        TripEntity trip = tripRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("No se encontró el viaje con ID " + id));
+        trip.setActive(true);
+        trip.getChecklist().forEach(checkListEntity -> checkListEntity.setActive(true));
+        trip.getItineraries().forEach(itineraryEntity -> itineraryEntity.setActive(true));
+        tripRepository.save(trip);
+    }
+
     public List<TripResponseDTO> findByUserId(Long userId) {
         List<TripEntity> trips = tripRepository.findByUsersId(userId);
         return tripMapper.toDTOList(trips);

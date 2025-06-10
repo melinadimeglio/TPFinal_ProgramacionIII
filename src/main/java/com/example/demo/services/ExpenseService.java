@@ -116,6 +116,13 @@ public class ExpenseService{
         expenseRepository.save(entity);
     }
 
+    public void restore(Long id) {
+        ExpenseEntity entity = expenseRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("No se encontró el gasto"));
+        entity.setActive(true);
+        expenseRepository.save(entity);
+    }
+
     public Page<ExpenseResponseDTO> findByUserId(Long userId, Pageable pageable) {
         return expenseRepository.findByUserId(userId, pageable)
                 .map(expenseMapper::toDTO);

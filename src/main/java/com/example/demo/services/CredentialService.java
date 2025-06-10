@@ -27,4 +27,12 @@ public class CredentialService {
         credential.setActive(false);
         credentialRepository.save(credential);
     }
+
+    public void restore(String username){
+        CredentialEntity credential = credentialRepository.findByEmail(username)
+                .orElseThrow(()-> new NoSuchElementException("No se encontro la credencial"));
+
+        credential.setActive(true);
+        credentialRepository.save(credential);
+    }
 }

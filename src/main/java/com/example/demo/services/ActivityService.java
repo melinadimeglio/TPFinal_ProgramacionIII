@@ -145,6 +145,20 @@ public class ActivityService {
         itineraryRepository.save(itinerary);
     }
 
+    public void restore(Long id) {
+        if (!activityRepository.existsById(id)) {
+            throw new NoSuchElementException("Actividad no encontrada");
+        }
+        ActivityEntity activity = activityRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Actividad no encontrada"));
+
+        activity.setAvailable(true);
+        activityRepository.save(activity);
+        ItineraryEntity itinerary = activity.getItinerary();
+        itinerary.setActive(true);
+        itineraryRepository.save(itinerary);
+    }
+
     public ActivityResponseDTO updateActivityByCompany(Long companyId, Long activityId, ActivityUpdateDTO dto) {
         ActivityEntity activity = activityRepository.findById(activityId)
                 .orElseThrow(() -> new NoSuchElementException("La actividad no existe"));

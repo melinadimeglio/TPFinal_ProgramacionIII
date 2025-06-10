@@ -101,4 +101,12 @@ public class CompanyService {
         entity.getActivities().forEach(activityEntity -> activityEntity.setAvailable(false));
         companyRepository.save(entity);
     }
+
+    public void restore(Long id) {
+        CompanyEntity entity = companyRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Item no encontrado"));
+        entity.setActive(true);
+        entity.getActivities().forEach(activityEntity -> activityEntity.setAvailable(true));
+        companyRepository.save(entity);
+    }
 }

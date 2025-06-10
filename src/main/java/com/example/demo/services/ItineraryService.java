@@ -90,5 +90,11 @@ public class ItineraryService {
         entity.setActive(false);
         itineraryRepository.save(entity);
     }
+
+    public void restore(Long id) {
+        ItineraryEntity entity = getEntityById(id);
+        entity.setActive(true);
+        itineraryRepository.save(entity);
+    }
 }
 
