@@ -102,19 +102,36 @@ public class CheckListController {
         return ResponseEntity.ok(updated);
     }
 
-    @Operation(summary = "Get a checklist by ID", description = "Retrieves a checklist by its unique identifier.")
+    @Operation(
+            summary = "Get a checklist by ID",
+            description = "Retrieves a checklist by its unique identifier."
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Checklist found",
-                    content = @Content(schema = @Schema(implementation = CheckListResponseDTO.class))),
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Checklist found",
+                    content = @Content(schema = @Schema(implementation = CheckListResponseDTO.class))
+            ),
+            @ApiResponse(responseCode = "403", description = "User is not allowed to view this checklist"),
             @ApiResponse(responseCode = "404", description = "Checklist not found")
     })
     @PreAuthorize("hasAuthority('VER_CHECKLIST')")
     @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<CheckListResponseDTO>> getById(@PathVariable Long id) {
+    public ResponseEntity<EntityModel<CheckListResponseDTO>> getById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CredentialEntity credential
+    ) {
+        Long userId = credential.getUser().getId();
+
         CheckListResponseDTO checkList = checkListService.findById(id);
+
+        if (!checkList.getUserId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
         return ResponseEntity.ok(assembler.toModel(checkList));
     }
+
 
     @Operation(summary = "Get all checklists", description = "Returns all checklists in the system.")
     @ApiResponses(value = {
