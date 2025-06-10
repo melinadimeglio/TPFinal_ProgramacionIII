@@ -75,7 +75,7 @@ public class UserService {
     public UserResponseDTO save(UserCreateDTO user) {
         UserEntity userEntity = userMapper.toUserEntity(user);
 
-        RoleEntity userRole = roleRepository.findByRole(Role.ROLE_ADMIN)
+        RoleEntity userRole = roleRepository.findByRole(Role.ROLE_USER)
                 .orElseThrow(() -> new RuntimeException("Role USER no encontrado"));
 
         UserEntity savedUser = userRepository.save(userEntity);
@@ -153,8 +153,9 @@ public class UserService {
 
         if (!credential.getRoles().contains(roleEntity)) {
             credential.getRoles().add(roleEntity);
+            credentialRepository.save(credential);
         }
 
-        return userRepository.save(user);
+        return user;
     }
 }
