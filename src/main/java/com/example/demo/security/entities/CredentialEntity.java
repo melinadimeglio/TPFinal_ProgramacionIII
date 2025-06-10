@@ -31,7 +31,8 @@ public class CredentialEntity implements UserDetails {
     private String email;
     private String password;
 
-    private boolean active;
+    @Builder.Default
+    private boolean active = true;
 
 
     @ManyToMany(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
@@ -78,6 +79,21 @@ public class CredentialEntity implements UserDetails {
     @Override
     public String getUsername() {
         return email;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.active;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
     }
 
     public String getRefreshToken() {
