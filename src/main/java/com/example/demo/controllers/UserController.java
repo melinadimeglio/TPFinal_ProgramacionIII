@@ -129,6 +129,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Account deleted successfully"),
             @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
+    @PreAuthorize("hasAuthority('ELIMINAR_USUARIO')")
     @DeleteMapping("/me/delete")
     public ResponseEntity<String> deleteAccount(Authentication authentication) {
         String username = authentication.getName();
@@ -151,11 +152,23 @@ public class UserController {
     }
 
     //solo para hateoas
+    @Operation(summary = "Get user by ID (public)", description = "Retrieves a user's public information by their ID. Currently not implemented.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @GetMapping("/public/{id}")
     public ResponseEntity<EntityModel<UserResponseDTO>> getUserByIdPublic(@PathVariable Long id) {
         return ResponseEntity.notFound().build();
     }
 
+    @Operation(summary = "Assign role to user", description = "Assigns a specific role to a user. Requires the 'ASIGNAR_ROLES' authority.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Role assigned successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UserEntity.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden – User does not have permission"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @PreAuthorize("hasAuthority('ASIGNAR_ROLES')")
     @PutMapping("/roles/{id}/")
     public ResponseEntity<UserEntity> assignRole(@PathVariable Long id,
