@@ -208,7 +208,7 @@ public class TripController {
             )
     })
     @PreAuthorize("hasAuthority('RESTAURAR_VIAJE')")
-    @PutMapping("/trips/restore/{id}")
+    @PutMapping("/restore/{id}")
     public ResponseEntity<Void> restoreTrip(
             @Parameter(description = "ID of the trip to delete")
             @PathVariable Long id) {

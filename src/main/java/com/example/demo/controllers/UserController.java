@@ -146,8 +146,8 @@ public class UserController {
     }
 
     @Operation(
-            summary = "Restore own account",
-            description = "Allows the authenticated user to restore their own account if it was previously deleted (soft-deleted)."
+            summary = "Restore account",
+            description = "Allow to restore account if it was previously deleted (soft-deleted)."
     )
     @ApiResponses(value = {
             @ApiResponse(

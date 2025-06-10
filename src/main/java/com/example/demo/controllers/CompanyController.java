@@ -150,7 +150,7 @@ public class CompanyController {
             )
     })
     @PreAuthorize("hasAuthority('RESTAURAR_EMPRESA')")
-    @PutMapping("/companies/restore/{id}")
+    @PutMapping("/restore/{id}")
     public ResponseEntity<Void> restoreCompany(@PathVariable Long id) {
         companyService.restore(id);
         return ResponseEntity.noContent().build();

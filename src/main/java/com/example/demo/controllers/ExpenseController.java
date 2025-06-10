@@ -217,7 +217,7 @@ public class ExpenseController {
             )
     })
     @PreAuthorize("hasAuthority('RESTAURAR_GASTO')")
-    @PutMapping("/expenses/restore/{id}")
+    @PutMapping("/restore/{id}")
     public ResponseEntity<Void> restoreExpense(@PathVariable Long id) {
         expenseService.restore(id);
         return ResponseEntity.noContent().build();

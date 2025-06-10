@@ -370,7 +370,7 @@ public class ActivityController {
             @ApiResponse(responseCode = "404", description = "Activity not found or company mismatch")
     })
     @PreAuthorize("hasAuthority('ELIMINAR_ACTIVIDAD_EMPRESA')")
-    @DeleteMapping("/company/{companyId}/activities/{activityId}")
+    @DeleteMapping("/company/{companyId}/{activityId}")
     public ResponseEntity<Void> deleteActivityByCompany(
             @PathVariable Long companyId,
             @PathVariable Long activityId) {
@@ -394,7 +394,7 @@ public class ActivityController {
             )
     })
     @PreAuthorize("hasAuthority('RESTAURAR_ACTIVIDAD_EMPRESA')")
-    @PutMapping("/company/{companyId}/activities/{activityId}/restore")
+    @PutMapping("/company/{companyId}/{activityId}/restore")
     public ResponseEntity<Void> restoreActivityByCompany(@PathVariable Long companyId,
                                                          @PathVariable Long activityId){
         activityService.restoreActivityByCompany(companyId, activityId);

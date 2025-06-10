@@ -252,7 +252,7 @@ public class ItineraryController {
             )
     })
     @PreAuthorize("hasAuthority('RESTAURAR_ITINERARIO')")
-    @PutMapping("/itineraries/restore/{id}")
+    @PutMapping("/restore/{id}")
     public ResponseEntity<Void> restoreItinerary(@PathVariable Long id) {
         itineraryService.restore(id);
         return ResponseEntity.noContent().build();
