@@ -84,6 +84,18 @@ public class JWTService {
         return claims.get("roles", List.class);
     }
 
+    public boolean isAdmin(String token){
+        return "ROLE_ADMIN".equals(extractRoles(token));
+    }
+
+    public boolean isCompany(String token){
+        return "ROLE_COMPANY".equals(extractRoles(token));
+    }
+
+    public boolean isUser(String token){
+        return "ROLE_USER".equals(extractRoles(token));
+    }
+
     /*
     public boolean isTokenValid(String token, UserDetails userDetails)
     {

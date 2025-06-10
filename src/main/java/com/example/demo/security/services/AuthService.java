@@ -38,7 +38,6 @@ public class AuthService {
     @Transactional
     public AuthResponse refreshAccessToken(String refreshToken) {
         String username = jwtService.extractUsername(refreshToken);
-        System.out.println("USERNAME FROM TOKEN: " + username);
 
         CredentialEntity user =
                 credentialsRepository.findByEmail(username)
