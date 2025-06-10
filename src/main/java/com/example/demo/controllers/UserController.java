@@ -208,7 +208,6 @@ public class UserController {
     public ResponseEntity<UserEntity> assignRole(@PathVariable Long id,
                                                  @RequestBody String role){
         UserEntity user = userService.assignRole(id, role);
-        userService.update(user);
 
         return ResponseEntity.ok(user);
     }

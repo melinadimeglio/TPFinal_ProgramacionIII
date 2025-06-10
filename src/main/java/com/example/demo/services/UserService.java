@@ -154,8 +154,9 @@ public class UserService {
 
         if (!credential.getRoles().contains(roleEntity)) {
             credential.getRoles().add(roleEntity);
+            credentialRepository.save(credential);
         }
 
-        return userRepository.save(user);
+        return user;
     }
 }
