@@ -29,6 +29,7 @@ public class RolePermitMapping {
                     Permit.VER_VIAJE,
                     Permit.MODIFICAR_VIAJE,
                     Permit.ELIMINAR_VIAJE,
+                    Permit.RESTAURAR_VIAJE,
                     Permit.OBTENER_RECOMENDACIONES_VIAJES,
                     Permit.OBTENER_RECOMENDACIONES_FILTRADAS,
                     Permit.VER_VIAJE_USUARIO,
@@ -39,6 +40,7 @@ public class RolePermitMapping {
                 Permit.VER_ACTIVIDAD_USUARIO,
                 Permit.MODIFICAR_ACTIVIDADES_USUARIO,
                 Permit.ELIMINAR_ACTIVIDAD_USUARIO,
+                Permit.RESTAURAR_ACTIVIDAD_USUARIO,
 
                 // CHECKLIST
                 Permit.CREAR_CHECKLIST,
@@ -46,6 +48,7 @@ public class RolePermitMapping {
                 Permit.VER_CHECKLIST,
                 Permit.VER_CHECKLIST_USER,
                 Permit.ELIMINAR_CHECKLIST,
+                Permit.RESTAURAR_CHECKLIST,
 
                 // CHECKLIST ITEM
                 Permit.CREAR_CHECKLISTITEM,
@@ -63,6 +66,7 @@ public class RolePermitMapping {
                 Permit.VER_PROMEDIO_VIAJE,
                 Permit.VER_GASTOS_VIAJE,
                 Permit.VER_TOTAL_GASTO_VIAJE,
+                Permit.RESTAURAR_GASTO,
 
                 // ITINERARIO
                 Permit.CREAR_ITINERARIO,
@@ -70,6 +74,7 @@ public class RolePermitMapping {
                 Permit.VER_ITINERARIO,
                 Permit.MODIFICAR_ITINERARIO,
                 Permit.ELIMINAR_ITINERARIO,
+                Permit.RESTAURAR_ITINERARIO,
 
                 // USER
                 Permit.REGISTRARSE,
@@ -92,6 +97,7 @@ public class RolePermitMapping {
                 Permit.VER_ACTIVIDAD_EMPRESA,
                 Permit.MODIFICAR_ACTIVIDADES_EMPRESA,
                 Permit.ELIMINAR_ACTIVIDAD_EMPRESA,
+                Permit.RESTAURAR_ACTIVIDAD_EMPRESA,
 
                 // USER (básicos)
                 Permit.INICIAR_SESION,

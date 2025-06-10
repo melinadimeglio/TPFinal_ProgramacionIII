@@ -135,4 +135,25 @@ public class CompanyController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Restore a company",
+            description = "Reactivates a company that was previously deleted (soft-deleted) by setting its status to active."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Company restored successfully. No content is returned in the response body."
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Company not found"
+            )
+    })
+    @PreAuthorize("hasAuthority('RESTAURAR_EMPRESA')")
+    @PutMapping("/companies/restore/{id}")
+    public ResponseEntity<Void> restoreCompany(@PathVariable Long id) {
+        companyService.restore(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

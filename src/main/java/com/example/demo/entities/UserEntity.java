@@ -22,7 +22,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Where(clause = "active = true")
 @ToString(exclude = {"credential"})
 public class UserEntity {
     @Id

@@ -194,6 +194,30 @@ public class TripController {
     }
 
     @Operation(
+            summary = "Restore a trip",
+            description = "Reactivates a trip that was previously deleted (soft-deleted) by setting its status to active."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Trip restored successfully. No content is returned in the response body."
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Trip not found"
+            )
+    })
+    @PreAuthorize("hasAuthority('RESTAURAR_VIAJE')")
+    @PutMapping("/trips/restore/{id}")
+    public ResponseEntity<Void> restoreTrip(
+            @Parameter(description = "ID of the trip to delete")
+            @PathVariable Long id) {
+
+        tripService.restore(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
             summary = "Obtener recomendaciones de actividades para un viaje",
             description = "Devuelve una lista de actividades sugeridas en base al destino, fechas u otros datos del viaje especificado."
     )

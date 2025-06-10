@@ -203,6 +203,27 @@ public class ExpenseController {
     }
 
     @Operation(
+            summary = "Restore an expense",
+            description = "Reactivates an expense that was previously deleted (soft-deleted) by setting its status to active."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Expense restored successfully. No content is returned in the response body."
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Expense not found"
+            )
+    })
+    @PreAuthorize("hasAuthority('RESTAURAR_GASTO')")
+    @PutMapping("/expenses/restore/{id}")
+    public ResponseEntity<Void> restoreExpense(@PathVariable Long id) {
+        expenseService.restore(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
             summary = "Get total-average of expenses (not divided) by user ID",
             description = "Returns the average of full expense amounts where the user participated, regardless of how many users shared the cost.",
             parameters = {

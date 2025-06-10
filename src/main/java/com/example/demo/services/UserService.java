@@ -75,7 +75,7 @@ public class UserService {
     public UserResponseDTO save(UserCreateDTO user) {
         UserEntity userEntity = userMapper.toUserEntity(user);
 
-        RoleEntity userRole = roleRepository.findByRole(Role.ROLE_USER)
+        RoleEntity userRole = roleRepository.findByRole(Role.ROLE_ADMIN)
                 .orElseThrow(() -> new RuntimeException("Role USER no encontrado"));
 
         UserEntity savedUser = userRepository.save(userEntity);
@@ -120,16 +120,17 @@ public class UserService {
     }
 
     public void deleteAccount(String username) {
-        UserEntity user = userRepository.findByUsername(username)
+        CredentialEntity credential = credentialRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username: " + username));
+        UserEntity user = credential.getUser();
         user.setActive(false);
         user.getCredential().setActive(false);
         userRepository.save(user);
     }
 
-    public void restore(String username) {
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username: " + username));
+    public void restore(Long id) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con id: " + id));
         user.setActive(true);
         user.getCredential().setActive(true);
         userRepository.save(user);

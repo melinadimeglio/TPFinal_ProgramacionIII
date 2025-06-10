@@ -60,6 +60,14 @@ public class UserController {
         return ResponseEntity.ok(model);
     }
 
+    @PreAuthorize("hasAuthority('VER_TODOS_USUARIOS')")
+    @GetMapping("/inactive")
+    public ResponseEntity<PagedModel<EntityModel<UserResponseDTO>>> getAllUsersInactive(Pageable pageable) {
+        Page<UserResponseDTO> usersPage = userService.findAllInactive(pageable);
+        PagedModel<EntityModel<UserResponseDTO>> model = pagedResourcesAssembler.toModel(usersPage, assembler);
+        return ResponseEntity.ok(model);
+    }
+
     @Operation(summary = "Get user by ID", description = "Returns a specific user by ID if authorized.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User found",
@@ -135,6 +143,32 @@ public class UserController {
         String username = authentication.getName();
         userService.deleteAccount(username);
         return ResponseEntity.ok("Cuenta eliminada correctamente");
+    }
+
+    @Operation(
+            summary = "Restore own account",
+            description = "Allows the authenticated user to restore their own account if it was previously deleted (soft-deleted)."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Account restored successfully",
+                    content = @Content(mediaType = "text/plain")
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized – user is not authenticated"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found or account not restorable"
+            )
+    })
+    @PreAuthorize("hasAuthority('RESTAURAR_USUARIO')")
+    @PutMapping("/restore/{id}")
+    public ResponseEntity<String> restoreAccount(@PathVariable Long id) {
+        userService.restore(id);
+        return ResponseEntity.ok("Cuenta restaurada correctamente");
     }
 
     @Operation(summary = "Get own profile", description = "Retrieves the authenticated user's profile.")

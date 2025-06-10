@@ -237,4 +237,25 @@ public class ItineraryController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Restore an itinerary",
+            description = "Reactivates an itinerary that was previously deleted (soft-deleted) by setting its status to active."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Itinerary restored successfully. No content is returned in the response body."
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Itinerary not found"
+            )
+    })
+    @PreAuthorize("hasAuthority('RESTAURAR_ITINERARIO')")
+    @PutMapping("/itineraries/restore/{id}")
+    public ResponseEntity<Void> restoreItinerary(@PathVariable Long id) {
+        itineraryService.restore(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

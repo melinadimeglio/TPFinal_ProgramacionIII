@@ -303,6 +303,27 @@ public class ActivityController {
     }
 
     @Operation(
+            summary = "Restore a deleted activity",
+            description = "Reactivates an activity that was previously deleted (soft-deleted) by setting its status to active."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Activity restored successfully. No content is returned in the response body."
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Activity not found"
+            )
+    })
+    @PreAuthorize("hasAuthority('RESTAURAR_ACTIVIDAD_USUARIO')")
+    @PutMapping("/restore/{id}")
+    public ResponseEntity<Void> restoreActivity(@PathVariable Long id) {
+        activityService.restore(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
             summary = "Update a company activity",
             description = "Allows a company to update one of its own activities. Only the company that owns the activity can modify it.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -355,6 +376,28 @@ public class ActivityController {
             @PathVariable Long activityId) {
 
         activityService.deleteActivityByCompany(companyId, activityId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "Restore a company activity",
+            description = "Allows a company to restore (reactivate) one of its own previously deleted activities. Only the company that owns the activity can restore it."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Activity restored successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Activity not found or company mismatch"
+            )
+    })
+    @PreAuthorize("hasAuthority('RESTAURAR_ACTIVIDAD_EMPRESA')")
+    @PutMapping("/company/{companyId}/activities/{activityId}/restore")
+    public ResponseEntity<Void> restoreActivityByCompany(@PathVariable Long companyId,
+                                                         @PathVariable Long activityId){
+        activityService.restoreActivityByCompany(companyId, activityId);
         return ResponseEntity.noContent().build();
     }
 }

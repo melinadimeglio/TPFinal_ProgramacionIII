@@ -184,4 +184,25 @@ public class CheckListController {
         checkListService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(
+            summary = "Restore a checklist",
+            description = "Reactivates a checklist that was previously deleted (soft-deleted) by setting its status to active."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Checklist restored successfully. No content is returned in the response body."
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Checklist not found"
+            )
+    })
+    @PreAuthorize("hasAuthority('RESTAURAR_CHECKLIST')")
+    @PutMapping("/restore/{id}")
+    public ResponseEntity<Void> restore(@PathVariable Long id) {
+        checkListService.restore(id);
+        return ResponseEntity.noContent().build();
+    }
 }

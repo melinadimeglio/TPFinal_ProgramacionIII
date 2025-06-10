@@ -182,6 +182,19 @@ public class ActivityService {
         }
         activity.setAvailable(false);
         activity.getItinerary().setActive(false);
+        activityRepository.save(activity);
+    }
+
+    public void restoreActivityByCompany(Long companyId, Long activityId) {
+        ActivityEntity activity = activityRepository.findById(activityId)
+                .orElseThrow(() -> new NoSuchElementException("La actividad no existe"));
+
+        if (activity.getCompany() == null || !activity.getCompany().getId().equals(companyId)) {
+            throw new IllegalArgumentException("No tienes permiso para eliminar esta actividad");
+        }
+        activity.setAvailable(true);
+        activity.getItinerary().setActive(true);
+        activityRepository.save(activity);
     }
 
     public Page<ActivityResponseDTO> findWithFilters(ActivityCategory category, LocalDate startDate, LocalDate endDate, Pageable pageable) {
