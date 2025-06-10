@@ -248,6 +248,10 @@ public class TripController {
     }
 
     //solo para hateoas
+    @Operation(summary = "Get all trips (paged - HATEOAS only)", description = "Retrieves all trips in paginated format using HATEOAS structure. Currently not implemented.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "404", description = "Endpoint not yet implemented")
+    })
     @GetMapping("/paged")
     public ResponseEntity<PagedModel<EntityModel<TripResponseDTO>>> getAllTrips() {
         return ResponseEntity.notFound().build();
