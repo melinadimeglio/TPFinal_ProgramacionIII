@@ -13,7 +13,7 @@ public class CheckListUpdateDTO {
 
         private String name;
 
-        private boolean completed;
+        private Boolean completed;
 
         @NotNull(message = "El ID del viaje es obligatorio.")
         private Long tripId;

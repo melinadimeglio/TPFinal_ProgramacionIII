@@ -4,6 +4,7 @@ import com.example.demo.DTOs.CheckList.Request.CheckListCreateDTO;
 import com.example.demo.DTOs.CheckList.Response.CheckListResponseDTO;
 import com.example.demo.DTOs.CheckList.CheckListUpdateDTO;
 import com.example.demo.entities.CheckListEntity;
+import com.example.demo.entities.CheckListItemEntity;
 import com.example.demo.mappers.CheckListMapper;
 import com.example.demo.repositories.CheckListItemRepository;
 import com.example.demo.repositories.CheckListRepository;
@@ -80,11 +81,23 @@ public class CheckListService {
         }
 
         checkListMapper.updateEntityFromDTO(dto, entity);
+
         entity.setTrip(tripRepository.findById(dto.getTripId()).orElseThrow());
         entity.setUser(userRepository.findById(userId).orElseThrow());
 
+        if (dto.getCompleted() != null) {
+            entity.setCompleted(dto.getCompleted());
+
+            List<CheckListItemEntity> items = checkListItemRepository.findByChecklistId(entity.getId());
+            for (CheckListItemEntity item : items) {
+                item.setStatus(dto.getCompleted()); // true o false según lo que se mandó
+            }
+            checkListItemRepository.saveAll(items);
+        }
+
         return checkListMapper.toDTO(checkListRepository.save(entity));
     }
+
 
 
     public void delete(Long id) {

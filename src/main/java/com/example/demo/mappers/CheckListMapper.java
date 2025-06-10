@@ -26,6 +26,7 @@ import java.util.List;
         @Mapping(target = "trip", ignore = true)
         @Mapping(target = "user", ignore = true)
         @Mapping(target = "items", ignore = true)
+        @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
         void updateEntityFromDTO(CheckListUpdateDTO dto, @MappingTarget CheckListEntity entity);
     }
 

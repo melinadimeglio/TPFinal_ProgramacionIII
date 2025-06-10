@@ -12,4 +12,5 @@ import java.util.List;
 public interface CheckListItemRepository extends JpaRepository <CheckListItemEntity, Long> {
     Page<CheckListItemEntity> findByChecklistIdAndStatus(Long checklistId, boolean status, Pageable pageable);
     Page<CheckListItemEntity> findByStatus(boolean status, Pageable pageable);
+    List<CheckListItemEntity> findByChecklistId(Long checklistId);
 }
