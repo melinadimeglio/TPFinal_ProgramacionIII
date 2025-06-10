@@ -129,6 +129,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Account deleted successfully"),
             @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
+    @PreAuthorize("hasAuthority('ELIMINAR_USUARIO')")
     @DeleteMapping("/me/delete")
     public ResponseEntity<String> deleteAccount(Authentication authentication) {
         String username = authentication.getName();
