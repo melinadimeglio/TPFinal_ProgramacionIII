@@ -103,17 +103,11 @@ public class ItineraryController {
         return ResponseEntity.ok(model);
     }
 
+    @PreAuthorize("hasAuthority('VER_ITINERARIO')")
+    @GetMapping("/{id}")
     @Operation(
             summary = "Get itinerary by ID",
-            description = "Retrieves a specific itinerary by its unique identifier. Returns 404 if not found.",
-            parameters = {
-                    @io.swagger.v3.oas.annotations.Parameter(
-                            name = "id",
-                            description = "ID of the itinerary to retrieve",
-                            required = true,
-                            example = "1"
-                    )
-            }
+            description = "Retrieves a specific itinerary by its unique identifier, only if it belongs to the authenticated user."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -125,17 +119,24 @@ public class ItineraryController {
                     )
             ),
             @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied"
+            ),
+            @ApiResponse(
                     responseCode = "404",
                     description = "Itinerary not found"
             )
     })
-    @PreAuthorize("hasAuthority('VER_ITINERARIO')")
-    @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<ItineraryResponseDTO>> getItineraryById(@PathVariable Long id) {
-        ItineraryResponseDTO response = itineraryService.findById(id);
+    public ResponseEntity<EntityModel<ItineraryResponseDTO>> getItineraryById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long userId = credential.getUser().getId();
+        ItineraryResponseDTO response = itineraryService.findByIdIfBelongsToUser(id, userId);
 
         return ResponseEntity.ok(assembler.toModel(response));
     }
+
 
 
     @Operation(
@@ -184,9 +185,11 @@ public class ItineraryController {
     }
 
 
+    @PreAuthorize("hasAuthority('MODIFICAR_ITINERARIO')")
+    @PutMapping("/{id}")
     @Operation(
             summary = "Update an existing itinerary",
-            description = "Updates the details of an itinerary by its ID. Returns the updated itinerary data."
+            description = "Updates the details of an itinerary by its ID. Only the owner can update it."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -197,65 +200,59 @@ public class ItineraryController {
                             schema = @Schema(implementation = ItineraryResponseDTO.class)
                     )
             ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Invalid input data"
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Itinerary not found"
-            )
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Itinerary not found")
     })
-    @PreAuthorize("hasAuthority('MODIFICAR_ITINERARIO')")
-    @PutMapping("/{id}")
     public ResponseEntity<ItineraryResponseDTO> updateItinerary(
             @PathVariable Long id,
-            @RequestBody @Valid ItineraryUpdateDTO dto
+            @RequestBody @Valid ItineraryUpdateDTO dto,
+            @AuthenticationPrincipal CredentialEntity credential
     ) {
-        ItineraryResponseDTO updated = itineraryService.updateAndReturn(id, dto);
+        Long userId = credential.getUser().getId();
+        ItineraryResponseDTO updated = itineraryService.updateAndReturnIfOwned(id, dto, userId);
         return ResponseEntity.ok(updated);
     }
 
+
     @Operation(
             summary = "Delete an itinerary by ID",
-            description = "Deletes an itinerary from the system using its unique ID."
+            description = "Deletes (soft delete) an itinerary by its ID, only if it belongs to the authenticated user."
     )
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "204",
-                    description = "Itinerary deleted successfully. No content is returned in the response."
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Itinerary not found"
-            )
+            @ApiResponse(responseCode = "204", description = "Itinerary deleted successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Itinerary not found")
     })
     @PreAuthorize("hasAuthority('ELIMINAR_ITINERARIO')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteItinerary(@PathVariable Long id) {
-        itineraryService.delete(id);
+    public ResponseEntity<Void> deleteItinerary(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CredentialEntity credential
+    ) {
+        Long userId = credential.getUser().getId();
+        itineraryService.softDeleteIfOwned(id, userId);
         return ResponseEntity.noContent().build();
     }
 
     @Operation(
             summary = "Restore an itinerary",
-            description = "Reactivates an itinerary that was previously deleted (soft-deleted) by setting its status to active."
+            description = "Reactivates a previously deleted itinerary (soft-deleted) only if it belongs to the authenticated user."
     )
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "204",
-                    description = "Itinerary restored successfully. No content is returned in the response body."
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Itinerary not found"
-            )
+            @ApiResponse(responseCode = "204", description = "Itinerary restored successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Itinerary not found")
     })
     @PreAuthorize("hasAuthority('RESTAURAR_ITINERARIO')")
     @PutMapping("/restore/{id}")
-    public ResponseEntity<Void> restoreItinerary(@PathVariable Long id) {
-        itineraryService.restore(id);
+    public ResponseEntity<Void> restoreItinerary(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CredentialEntity credential
+    ) {
+        Long userId = credential.getUser().getId();
+        itineraryService.restoreIfOwned(id, userId);
         return ResponseEntity.noContent().build();
     }
+
 
 }

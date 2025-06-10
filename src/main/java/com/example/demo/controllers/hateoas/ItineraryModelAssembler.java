@@ -29,7 +29,7 @@ public class ItineraryModelAssembler implements RepresentationModelAssembler <It
         Set<String> permisos = getAuthorities();
 
         if (permisos.contains("VER_ITINERARIO")) {
-            model.add(linkTo(methodOn(ItineraryController.class).getItineraryById(itinerary.getId())).withSelfRel());
+            model.add(linkTo(methodOn(ItineraryController.class).getItineraryById(itinerary.getId(), null)).withSelfRel());
         }
 
         if (permisos.contains("VER_ITINERARIOS")) {
