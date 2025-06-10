@@ -77,7 +77,7 @@ public class CheckListController {
 
     @Operation(
             summary = "Update a checklist by ID",
-            description = "Updates a checklist with new data, including its name, user, trip and status.",
+            description = "Updates a checklist with new data, including its name, trip and status.",
             requestBody = @RequestBody(
                     required = true,
                     description = "Checklist update data",
@@ -97,10 +97,15 @@ public class CheckListController {
     @PutMapping("/{id}")
     public ResponseEntity<CheckListResponseDTO> update(
             @PathVariable Long id,
-            @org.springframework.web.bind.annotation.RequestBody @Valid CheckListUpdateDTO dto) {
-        CheckListResponseDTO updated = checkListService.update(id, dto);
+            @org.springframework.web.bind.annotation.RequestBody @Valid CheckListUpdateDTO dto,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long userId = credential.getUser().getId();
+
+        CheckListResponseDTO updated = checkListService.update(id, dto, userId);
         return ResponseEntity.ok(updated);
     }
+
 
     @Operation(
             summary = "Get a checklist by ID",

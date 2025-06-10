@@ -19,6 +19,4 @@ public class CheckListUpdateDTO {
         @NotNull(message = "El ID del viaje es obligatorio.")
         private Long tripId;
 
-        @NotNull(message = "El ID del usuario es obligatorio.")
-        private Long userId;
 }

@@ -12,6 +12,7 @@ import com.example.demo.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -70,16 +71,21 @@ public class CheckListService {
     }
 
 
-    public CheckListResponseDTO update(Long id, CheckListUpdateDTO dto) {
+    public CheckListResponseDTO update(Long id, CheckListUpdateDTO dto, Long userId) {
         CheckListEntity entity = checkListRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Checklist no encontrada"));
 
+        if (!entity.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("No tenés permiso para modificar esta checklist.");
+        }
+
         checkListMapper.updateEntityFromDTO(dto, entity);
         entity.setTrip(tripRepository.findById(dto.getTripId()).orElseThrow());
-        entity.setUser(userRepository.findById(dto.getUserId()).orElseThrow());
+        entity.setUser(userRepository.findById(userId).orElseThrow());
 
         return checkListMapper.toDTO(checkListRepository.save(entity));
     }
+
 
     public void delete(Long id) {
         CheckListEntity checkListEntity = checkListRepository.findById(id)
