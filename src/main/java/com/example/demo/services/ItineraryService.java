@@ -13,6 +13,7 @@ import com.example.demo.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,11 +44,17 @@ public class ItineraryService {
                 .map(itineraryMapper::toDTO);
     }
 
-    public ItineraryResponseDTO findById(Long id){
-        ItineraryEntity entity = itineraryRepository.findById(id)
+    public ItineraryResponseDTO findByIdIfBelongsToUser(Long itineraryId, Long userId) {
+        ItineraryEntity itinerary = itineraryRepository.findById(itineraryId)
                 .orElseThrow(() -> new NoSuchElementException("No se encontró el itinerario"));
-        return itineraryMapper.toDTO(entity);
+
+        if (!itinerary.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("No tenés permiso para ver este itinerario");
+        }
+
+        return itineraryMapper.toDTO(itinerary);
     }
+
 
     public ItineraryEntity getEntityById(Long id) {
         return itineraryRepository.findById(id)
@@ -60,15 +67,20 @@ public class ItineraryService {
     }
 
     public ItineraryResponseDTO save(ItineraryCreateDTO dto, Long myUserId) {
-
         UserEntity user = userRepository.findById(myUserId)
                 .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado"));
 
         TripEntity trip = tripRepository.findById(dto.getTripId())
                 .orElseThrow(() -> new NoSuchElementException("Viaje no encontrado"));
 
-        ItineraryEntity entity = itineraryMapper.toEntity(dto);
+        boolean belongsToUser = trip.getUsers().stream()
+                .anyMatch(u -> u.getId().equals(myUserId));
 
+        if (!belongsToUser) {
+            throw new AccessDeniedException("No tenés permiso para agregar itinerarios a este viaje");
+        }
+
+        ItineraryEntity entity = itineraryMapper.toEntity(dto);
         entity.setUser(user);
         entity.setTrip(trip);
 
@@ -77,24 +89,43 @@ public class ItineraryService {
     }
 
 
-    public ItineraryResponseDTO updateAndReturn(Long id, ItineraryUpdateDTO dto) {
-        ItineraryEntity entity = getEntityById(id);
+    public ItineraryResponseDTO updateAndReturnIfOwned(Long id, ItineraryUpdateDTO dto, Long userId) {
+        ItineraryEntity entity = itineraryRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("No se encontró el itinerario"));
+
+        if (!entity.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("No tenés permiso para modificar este itinerario");
+        }
+
         itineraryMapper.updateEntityFromDTO(dto, entity);
         ItineraryEntity saved = itineraryRepository.save(entity);
         return itineraryMapper.toDTO(saved);
     }
 
 
-    public void delete(Long id) {
-        ItineraryEntity entity = getEntityById(id);
+    public void softDeleteIfOwned(Long id, Long userId) {
+        ItineraryEntity entity = itineraryRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("No se encontró el itinerario"));
+
+        if (!entity.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("No tenés permiso para eliminar este itinerario");
+        }
+
         entity.setActive(false);
         itineraryRepository.save(entity);
     }
 
-    public void restore(Long id) {
-        ItineraryEntity entity = getEntityById(id);
+    public void restoreIfOwned(Long id, Long userId) {
+        ItineraryEntity entity = itineraryRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("No se encontró el itinerario"));
+
+        if (!entity.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("No tenés permiso para restaurar este itinerario");
+        }
+
         entity.setActive(true);
         itineraryRepository.save(entity);
     }
+
 }
 

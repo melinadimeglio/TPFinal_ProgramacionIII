@@ -21,7 +21,4 @@ public class ItineraryUpdateDTO {
 
     private String notes;
 
-    private Long tripId;
-
-    private Long userId;
 }
