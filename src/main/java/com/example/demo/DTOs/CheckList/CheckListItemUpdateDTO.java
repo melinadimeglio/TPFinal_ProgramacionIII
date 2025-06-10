@@ -11,7 +11,6 @@ import jakarta.validation.constraints.NotBlank;
 @Builder
 public class CheckListItemUpdateDTO {
 
-    @NotBlank(message = "La descripción del ítem es obligatoria.")
     private String description;
 
     private boolean status;

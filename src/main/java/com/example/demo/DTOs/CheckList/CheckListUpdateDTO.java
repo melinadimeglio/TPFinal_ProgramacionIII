@@ -11,7 +11,6 @@ import lombok.*;
 
 public class CheckListUpdateDTO {
 
-        @NotBlank(message = "El nombre de la checklist es obligatorio.")
         private String name;
 
         private boolean completed;

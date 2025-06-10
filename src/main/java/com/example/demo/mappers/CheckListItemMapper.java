@@ -21,6 +21,7 @@ public interface CheckListItemMapper {
         CheckListItemEntity toEntity(CheckListItemCreateDTO dto);
 
         @Mapping(target = "checklist", ignore = true)
+        @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
         void updateEntityFromDTO(CheckListItemUpdateDTO dto, @MappingTarget CheckListItemEntity entity);
 }
 

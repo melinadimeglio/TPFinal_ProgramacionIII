@@ -181,5 +181,4 @@ public class ExpenseService{
         return expenseRepository.findByCategory(category, pageable)
                 .map(expenseMapper::toDTO);
     }
-
 }

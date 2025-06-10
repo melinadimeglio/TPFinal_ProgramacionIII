@@ -19,9 +19,8 @@ public class CheckListItemEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "La descripcion del item no puede estar vacia.")
     private String description;
-    private boolean status;
+    private Boolean status;
 
     @ManyToOne
     @JoinColumn(name = "checklist_id", nullable = false)
