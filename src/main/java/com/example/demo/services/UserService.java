@@ -137,8 +137,9 @@ public class UserService {
     }
 
     public UserResponseDTO getProfileByUsername(String username){
-        UserEntity user = userRepository.findByUsername(username)
+        CredentialEntity credential = credentialRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username: " + username));
+        UserEntity user = credential.getUser();
         return userMapper.toDTO(user);
     }
 
