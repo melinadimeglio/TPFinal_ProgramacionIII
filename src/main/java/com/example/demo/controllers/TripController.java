@@ -81,6 +81,30 @@ public class TripController {
         return ResponseEntity.ok(model);
     }
 
+    @Operation(
+            summary = "Retrieve all inactive trips",
+            description = "This endpoint returns a paginated list of all trips that have been logically deleted (inactive). "
+                    + "Only users with the 'VER_VIAJES' authority can access this information."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successfully retrieved the list of inactive trips",
+                    content = @Content(mediaType = "application/json")
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied: the user does not have permission to view trips"
+            )
+    })
+    @PreAuthorize("hasAuthority('VER_VIAJES')")
+    @GetMapping("/inactive")
+    public ResponseEntity<PagedModel<EntityModel<TripResponseDTO>>> getAllTripsInactive(Pageable pageable) {
+        Page<TripResponseDTO> trips = tripService.findAllInactive(pageable);
+        PagedModel<EntityModel<TripResponseDTO>> model = pagedResourcesAssembler.toModel(trips, assembler);
+        return ResponseEntity.ok(model);
+    }
+
     @Operation(summary = "Get a trip by ID", description = "Returns a specific trip by its ID, only if it belongs to the authenticated user.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Trip found",
