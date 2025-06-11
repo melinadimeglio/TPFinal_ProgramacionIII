@@ -28,6 +28,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
@@ -37,6 +38,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -156,6 +158,8 @@ public class TripController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<PagedModel<EntityModel<TripResponseDTO>>> getTripsByUserId(
             @PathVariable Long userId,
+            @RequestParam(required = false) String destination,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate date,
             @AuthenticationPrincipal CredentialEntity credential,
             Pageable pageable) {
 
@@ -163,7 +167,7 @@ public class TripController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Page<TripResponseDTO> trips = tripService.findByUserId(userId, pageable);
+        Page<TripResponseDTO> trips = tripService.findByUserId(userId, destination, date, pageable);
         PagedModel<EntityModel<TripResponseDTO>> model = pagedResourcesAssembler.toModel(trips, assembler);
         return ResponseEntity.ok(model);
     }
