@@ -83,4 +83,5 @@ public enum Permit {
     VER_RESERVAS_EMPRESA,
     //ADMIN
     ASIGNAR_ROLES,
+    ELIMINAR_USUARIO_ADMIN
 }

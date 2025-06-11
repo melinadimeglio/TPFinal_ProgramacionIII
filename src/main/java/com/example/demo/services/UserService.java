@@ -116,7 +116,9 @@ public class UserService {
     public void delete(Long id) {
         UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No se encontró el usuario con ID: " + id));
-        userRepository.delete(user);
+        user.setActive(false);
+        user.getCredential().setActive(false);
+        userRepository.save(user);
     }
 
     public void deleteAccount(String username) {
