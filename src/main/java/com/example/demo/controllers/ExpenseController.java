@@ -139,10 +139,12 @@ public class ExpenseController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Expense successfully created",
                     content = @Content(schema = @Schema(implementation = ExpenseResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid data")
+            @ApiResponse(responseCode = "403", description = "Access denied - Cannot create expense for this trip"),
+            @ApiResponse(responseCode = "400", description = "Invalid data"),
+            @ApiResponse(responseCode = "404", description = "Trip or user not found")
     })
-    @PostMapping
     @PreAuthorize("hasAuthority('CREAR_GASTO')")
+    @PostMapping
     public ResponseEntity<ExpenseResponseDTO> createExpense(
             @RequestBody @Valid ExpenseCreateDTO dto,
             @AuthenticationPrincipal CredentialEntity credential) {
@@ -151,6 +153,7 @@ public class ExpenseController {
         ExpenseResponseDTO createdExpense = expenseService.save(dto, myUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdExpense);
     }
+
 
 
     @Operation(
@@ -172,56 +175,68 @@ public class ExpenseController {
             @ApiResponse(responseCode = "200", description = "Expense successfully updated",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ExpenseResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Expense not found"),
             @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PreAuthorize("hasAuthority('MODIFICAR_GASTO')")
     @PutMapping("/{id}")
-    public ResponseEntity<ExpenseResponseDTO> updateExpense(@PathVariable Long id,
-                                                       @RequestBody @Valid ExpenseUpdateDTO dto) {
-        expenseService.update(id, dto);
+    public ResponseEntity<ExpenseResponseDTO> updateExpense(
+            @PathVariable Long id,
+            @RequestBody @Valid ExpenseUpdateDTO dto,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long myUserId = credential.getUser().getId();
+        expenseService.updateIfOwned(id, dto, myUserId);
         return ResponseEntity.ok(expenseService.findById(id));
     }
 
 
+
     @Operation(
             summary = "Delete an expense by ID",
-            description = "Deletes the expense corresponding to the provided ID if it exists.",
+            description = "Deletes the expense corresponding to the provided ID if it belongs to the authenticated user.",
             parameters = {
                     @Parameter(name = "id", description = "ID of the expense to delete", required = true)
             }
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Expense successfully deleted"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Expense not found")
     })
     @PreAuthorize("hasAuthority('ELIMINAR_GASTO')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteExpense(@PathVariable Long id) {
-        expenseService.delete(id);
+    public ResponseEntity<Void> deleteExpense(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long myUserId = credential.getUser().getId();
+        expenseService.deleteIfOwned(id, myUserId);
         return ResponseEntity.noContent().build();
     }
+
 
     @Operation(
             summary = "Restore an expense",
             description = "Reactivates an expense that was previously deleted (soft-deleted) by setting its status to active."
     )
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "204",
-                    description = "Expense restored successfully. No content is returned in the response body."
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Expense not found"
-            )
+            @ApiResponse(responseCode = "204", description = "Expense restored successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Expense not found")
     })
     @PreAuthorize("hasAuthority('RESTAURAR_GASTO')")
     @PutMapping("/restore/{id}")
-    public ResponseEntity<Void> restoreExpense(@PathVariable Long id) {
-        expenseService.restore(id);
+    public ResponseEntity<Void> restoreExpense(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long myUserId = credential.getUser().getId();
+        expenseService.restoreIfOwned(id, myUserId);
         return ResponseEntity.noContent().build();
     }
+
 
     @Operation(
             summary = "Get total-average of expenses (not divided) by user ID",
@@ -252,25 +267,30 @@ public class ExpenseController {
 
     @Operation(
             summary = "Get expenses by trip ID",
-            description = "Retrieves all expenses associated with a specific trip ID.",
+            description = "Retrieves all expenses associated with a specific trip ID, only if the trip belongs to the authenticated user.",
             parameters = {
                     @Parameter(name = "tripId", description = "ID of the trip", required = true)
             }
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Expenses retrieved successfully",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExpenseResponseDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Trip not found or no expenses for trip"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExpenseResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Trip not found")
     })
     @PreAuthorize("hasAuthority('VER_GASTOS_VIAJE')")
     @GetMapping("/trip/{tripId}")
-    public ResponseEntity<PagedModel<EntityModel<ExpenseResponseDTO>>> getExpensesByTripId(@PathVariable Long tripId, Pageable pageable) {
-        Page<ExpenseResponseDTO> expenses = expenseService.findByTripId(tripId, pageable);
+    public ResponseEntity<PagedModel<EntityModel<ExpenseResponseDTO>>> getExpensesByTripId(
+            @PathVariable Long tripId,
+            @AuthenticationPrincipal CredentialEntity credential,
+            Pageable pageable) {
+
+        Long myUserId = credential.getUser().getId();
+        Page<ExpenseResponseDTO> expenses = expenseService.findByTripIdIfOwned(tripId, myUserId, pageable);
         PagedModel<EntityModel<ExpenseResponseDTO>> model = pagedResourcesAssembler.toModel(expenses, assembler);
         return ResponseEntity.ok(model);
     }
+
 
     @Operation(
             summary = "Get real average expense by user ID",
@@ -302,13 +322,20 @@ public class ExpenseController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Average calculated successfully",
                     content = @Content(schema = @Schema(implementation = Double.class))),
-            @ApiResponse(responseCode = "404", description = "Trip not found or no expenses for trip")
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Trip not found")
     })
     @PreAuthorize("hasAuthority('VER_PROMEDIO_VIAJE')")
     @GetMapping("/averageByTripId/{tripId}")
-    public ResponseEntity<Double> getAverageExpensesByTrip(@PathVariable Long tripId) {
-        return ResponseEntity.ok(expenseService.getAverageExpenseByTripId(tripId));
+    public ResponseEntity<Double> getAverageExpensesByTrip(
+            @PathVariable Long tripId,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long myUserId = credential.getUser().getId();
+        Double average = expenseService.getAverageExpenseByTripIdIfOwned(tripId, myUserId);
+        return ResponseEntity.ok(average);
     }
+
 
     @Operation(
             summary = "Get total expenses by trip ID",
@@ -317,13 +344,20 @@ public class ExpenseController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Total calculated successfully",
                     content = @Content(schema = @Schema(implementation = Double.class))),
-            @ApiResponse(responseCode = "404", description = "Trip not found or no expenses for trip")
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Trip not found")
     })
     @PreAuthorize("hasAuthority('VER_TOTAL_GASTO_VIAJE')")
     @GetMapping("/totalByTripId/{tripId}")
-    public ResponseEntity<Double> getTotalExpensesByTrip(@PathVariable Long tripId) {
-        return ResponseEntity.ok(expenseService.getTotalExpenseByTripId(tripId));
+    public ResponseEntity<Double> getTotalExpensesByTrip(
+            @PathVariable Long tripId,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long myUserId = credential.getUser().getId();
+        Double total = expenseService.getTotalExpenseByTripIdIfOwned(tripId, myUserId);
+        return ResponseEntity.ok(total);
     }
+
 
     @Operation(
             summary = "Get total real expenses by user ID",
@@ -348,4 +382,11 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseService.getTotalRealExpenseByUser(userId));
     }
 
+    // hateoas
+    @GetMapping("/trip/{tripId}/assembler-helper")
+    public ResponseEntity<PagedModel<EntityModel<ExpenseResponseDTO>>> getExpensesByTripId(
+            @PathVariable Long tripId,
+            Pageable pageable) {
+        throw new UnsupportedOperationException("Método solo utilizado para link building HATEOAS.");
+    }
 }
