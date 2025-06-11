@@ -110,6 +110,8 @@ public class CheckListItemController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<PagedModel<EntityModel<CheckListItemResponseDTO>>> getItemsByUserId(
             @PathVariable Long userId,
+            @RequestParam Long idChecklist,
+            @RequestParam boolean status,
             @AuthenticationPrincipal CredentialEntity credential,
             Pageable pageable) {
 
@@ -117,7 +119,7 @@ public class CheckListItemController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Page<CheckListItemResponseDTO> items = service.findByUserId(userId, pageable);
+        Page<CheckListItemResponseDTO> items = service.findByUserId(userId, idChecklist, status, pageable);
         PagedModel<EntityModel<CheckListItemResponseDTO>> model = pagedResourcesAssembler.toModel(items, assembler);
         return ResponseEntity.ok(model);
     }

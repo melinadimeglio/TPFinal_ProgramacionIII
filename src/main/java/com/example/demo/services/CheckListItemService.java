@@ -43,9 +43,21 @@ public class CheckListItemService {
         return itemMapper.toDTO(entity);
     }
 
-    public Page<CheckListItemResponseDTO> findByUserId(Long userId, Pageable pageable) {
-        return itemRepository.findByChecklistUserId(userId, pageable)
-                .map(itemMapper::toDTO);
+    public Page<CheckListItemResponseDTO> findByUserId(Long userId, Long checklistId, boolean completed, Pageable pageable) {
+        Page<CheckListItemEntity> checkListItem;
+        if(checklistId != null){
+            checkListItem = itemRepository.findByChecklistIdAndChecklistUserId(checklistId, userId, pageable);
+        }
+        else if(checklistId != null && completed == false){
+            checkListItem = itemRepository.findByChecklistIdAndStatusAndChecklistUserId(checklistId, userId, completed, pageable);
+        }
+        else if(completed == false){
+            checkListItem = itemRepository.findByStatusAndChecklistUserId(completed,userId, pageable);
+        }
+        else {
+            checkListItem = itemRepository.findByChecklistUserId(userId, pageable);
+        }
+        return checkListItem.map(itemMapper::toDTO);
     }
 
 
@@ -103,6 +115,7 @@ public class CheckListItemService {
 
         itemRepository.delete(entity);
     }
+
 
     public Page<CheckListItemResponseDTO> findByChecklistAndStatus(Long checklistId, boolean completed, Pageable pageable) {
         return itemRepository.findByChecklistIdAndStatus(checklistId, completed, pageable)
