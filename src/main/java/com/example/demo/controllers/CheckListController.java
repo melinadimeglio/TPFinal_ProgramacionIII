@@ -143,6 +143,26 @@ public class CheckListController {
         return ResponseEntity.ok(model);
     }
 
+    @Operation(
+            summary = "Get all inactive checklists",
+            description = "Retrieves a paginated list of all inactive checklists in the system. Requires the 'VER_TODOS_CHECKLIST' authority."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Checklists retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CheckListResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authenticated"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
+    })
+
+    @PreAuthorize("hasAuthority('VER_TODOS_CHECKLIST')")
+    @GetMapping("/inactive")
+    public ResponseEntity<PagedModel<EntityModel<CheckListResponseDTO>>> getAllInactive(Pageable pageable) {
+        Page<CheckListResponseDTO> checklists = checkListService.findAllInactive(pageable);
+        PagedModel<EntityModel<CheckListResponseDTO>> model = pagedResourcesAssembler.toModel(checklists, assembler);
+        return ResponseEntity.ok(model);
+    }
+
     @Operation(summary = "Get all checklists by user ID", description = "Retrieves all checklists created by the specified user.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of checklists for the user",
