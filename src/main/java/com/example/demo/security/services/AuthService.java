@@ -31,8 +31,7 @@ public class AuthService {
                         input.password()
                 )
         );
-        return
-                credentialsRepository.findByEmail(input.username()).orElseThrow();
+        return credentialsRepository.findByEmail(input.username()).orElseThrow();
     }
 
     @Transactional
