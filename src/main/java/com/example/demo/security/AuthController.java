@@ -7,6 +7,8 @@ import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.security.repositories.CredentialRepository;
 import com.example.demo.security.services.AuthService;
 import com.example.demo.security.services.JWTService;
+import com.example.demo.security.services.TokenBlacklistService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,12 +23,14 @@ public class AuthController {
     private final AuthService authService;
     private final JWTService jwtService;
     private final CredentialRepository credentialRepository;
+    private final TokenBlacklistService tokenBlacklistService;
 
     public AuthController(AuthService authService, JWTService
-            jwtService, CredentialRepository credentialRepository) {
+            jwtService, CredentialRepository credentialRepository, TokenBlacklistService tokenBlacklistService) {
         this.authService = authService;
         this.jwtService = jwtService;
         this.credentialRepository = credentialRepository;
+        this.tokenBlacklistService = tokenBlacklistService;
     }
 
     @PostMapping()
@@ -52,6 +56,18 @@ public class AuthController {
                 authService.refreshAccessToken(request.getRefreshToken());
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest httpServletRequest){
+        String auth = httpServletRequest.getHeader("Authorization");
+        if(auth != null && auth.startsWith("Bearer")){
+            String token = auth.substring(7);
+            tokenBlacklistService.blacklist(token);
+        }
+        return ResponseEntity.ok("Sesion cerrada correctamente.");
+    }
+
+
 
 }
 
