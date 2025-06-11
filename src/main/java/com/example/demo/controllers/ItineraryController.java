@@ -103,6 +103,25 @@ public class ItineraryController {
         return ResponseEntity.ok(model);
     }
 
+    @Operation(
+            summary = "Get all inactive itineraries",
+            description = "Retrieves a paginated list of all inactive itineraries. Requires the 'VER_ITINERARIOS' authority."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Itineraries retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ItineraryResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authenticated"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
+    })
+    @PreAuthorize("hasAuthority('VER_ITINERARIOS')")
+    @GetMapping("/inactive")
+    public ResponseEntity<PagedModel<EntityModel<ItineraryResponseDTO>>> getAllItinerariesInactive(Pageable pageable) {
+        Page<ItineraryResponseDTO> itineraries = itineraryService.findAllInactive(pageable);
+        PagedModel<EntityModel<ItineraryResponseDTO>> model = pagedResourcesAssembler.toModel(itineraries, assembler);
+        return ResponseEntity.ok(model);
+    }
+
     @PreAuthorize("hasAuthority('VER_ITINERARIO')")
     @GetMapping("/{id}")
     @Operation(
