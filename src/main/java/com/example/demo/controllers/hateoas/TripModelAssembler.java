@@ -64,7 +64,7 @@ public class TripModelAssembler implements RepresentationModelAssembler <TripRes
         Set<String> permisos = getAuthorities();
 
         if (permisos.contains("VER_VIAJE_USUARIO")) {
-            collection.add(linkTo(methodOn(TripController.class).getTripsByUserId(userId, null)).withSelfRel());
+            collection.add(linkTo(methodOn(TripController.class).getTripsByUserId(userId, null, PageRequest.of(0,10))).withSelfRel());
         }
 
         if (permisos.contains("VER_VIAJES")) {
