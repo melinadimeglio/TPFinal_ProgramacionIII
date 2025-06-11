@@ -143,18 +143,6 @@ public class UserController {
         return ResponseEntity.ok(assembler.toModel(response));
     }
 
-    @Operation(summary = "Delete user by ID", description = "Deletes a specific user by ID.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "User deleted successfully"),
-            @ApiResponse(responseCode = "404", description = "User not found")
-    })
-    @PreAuthorize("hasAuthority('ELIMINAR_USUARIO')")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
-
     @Operation(summary = "Delete own account", description = "Deletes the authenticated user's account.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Account deleted successfully"),
