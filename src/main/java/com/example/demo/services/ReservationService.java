@@ -46,9 +46,18 @@ public class ReservationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Activity not found"));
 
         ReservationEntity reservation = reservationMapper.toEntity(dto, user, activity);
+        reservation.setStatus(ReservationStatus.PENDING);
         ReservationEntity saved = reservationRepository.save(reservation);
 
         return reservationMapper.toDTO(saved);
+    }
+
+    public void paidReservation(Long reservationId){
+        ReservationEntity reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
+
+        reservation.setStatus(ReservationStatus.ACTIVE);
+        reservationRepository.save(reservation);
     }
 
     public void cancelReservation(Long reservationId) {

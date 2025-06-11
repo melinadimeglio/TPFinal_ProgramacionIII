@@ -86,7 +86,9 @@ public class ActivityService {
         return activityMapper.toDTO(saved);
     }
 
-    public ActivityResponseDTO createFromCompany(CompanyActivityCreateDTO dto, Long companyId) {
+    public ActivityResponseDTO createFromCompanyService(CompanyActivityCreateDTO dto, Long companyId) {
+
+        System.out.println("ID DE COMPANY DENTRO DE CREATE FROM COMPANY: " + companyId);
 
         CompanyEntity company = companyRepository.findById(companyId)
                 .orElseThrow(() -> new NoSuchElementException("Empresa no encontrada"));
@@ -107,7 +109,7 @@ public class ActivityService {
 
     public Page<CompanyResponseDTO> findByCompanyId(Long companyId, Pageable pageable) {
         return activityRepository.findByCompanyId(companyId, pageable)
-                .map(activityMapper::toCompanyResponseDTO); // <-- este es el correcto
+                .map(activityMapper::toCompanyResponseDTO);
     }
 
 

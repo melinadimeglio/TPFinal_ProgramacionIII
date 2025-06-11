@@ -3,7 +3,10 @@ package com.example.demo.controllers;
 import com.example.demo.DTOs.Reservation.Request.ReservationCreateDTO;
 import com.example.demo.DTOs.Reservation.Response.ReservationResponseDTO;
 import com.example.demo.security.entities.CredentialEntity;
+import com.example.demo.services.MPService;
 import com.example.demo.services.ReservationService;
+import com.mercadopago.exceptions.MPApiException;
+import com.mercadopago.exceptions.MPException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -21,19 +24,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import com.mercadopago.client.payment.PaymentClient;
+import com.mercadopago.resources.payment.Payment;
 
 @RestController
 @RequestMapping("/reservation")
 public class ReservationController {
 
     private final ReservationService reservationService;
+    private final MPService mpService;
     private final PagedResourcesAssembler<ReservationResponseDTO> pagedResourcesAssembler;
 
     @Autowired
-    public ReservationController(ReservationService reservationService, PagedResourcesAssembler<ReservationResponseDTO> pagedResourcesAssembler) {
+    public ReservationController(ReservationService reservationService, MPService mpService, PagedResourcesAssembler<ReservationResponseDTO> pagedResourcesAssembler) {
         this.reservationService = reservationService;
+        this.mpService = mpService;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
@@ -60,7 +65,39 @@ public class ReservationController {
 
         Long myUserId = credential.getUser().getId();
         ReservationResponseDTO reservation = reservationService.createReservation(dto, myUserId);
+        try {
+            String link = mpService.mercado(reservation);
+            reservation.setUrlPayment(link);
+        } catch (MPException e) {
+            throw new RuntimeException("Error al generar reserva o link de pago.");
+        } catch (MPApiException e) {
+            throw new RuntimeException("Error al generar reserva o link de pago.");
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
+    }
+
+    @PreAuthorize("hasAuthority('PAGAR_RESERVA')")
+    @GetMapping("/confirmar-pago")
+    public ResponseEntity<String> confirmarPago(@RequestParam Long reservaId, @RequestParam Long paymentId, @RequestParam String status){
+
+        try {
+            PaymentClient paymentClient = new PaymentClient();
+            Payment payment = paymentClient.get(paymentId);
+
+            if(payment.getStatus().equalsIgnoreCase("approved")){
+                reservationService.paidReservation(reservaId);
+                return ResponseEntity.ok("Reserva marcada como paga.");
+            }else{
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("El pago no fue aprobado.");
+            }
+
+        } catch (MPException e) {
+            throw new RuntimeException("Error al procesar el pago.");
+        } catch (MPApiException e) {
+            throw new RuntimeException("Error al procesar el pago.");
+        }
+
     }
 
     @Operation(

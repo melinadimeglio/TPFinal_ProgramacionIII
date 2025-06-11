@@ -11,9 +11,11 @@ import com.example.demo.security.entities.RoleEntity;
 import com.example.demo.security.enums.Role;
 import com.example.demo.security.repositories.CredentialRepository;
 import com.example.demo.security.repositories.RoleRepository;
+import com.example.demo.security.services.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,17 +33,19 @@ public class CompanyService {
     private final CredentialRepository credentialRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final JWTService jwtService;
 
     @Autowired
     public CompanyService(CompanyRepository companyRepository,
                           CompanyMapper companyMapper,
                           CredentialRepository credentialRepository,
-                          PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
+                          PasswordEncoder passwordEncoder, RoleRepository roleRepository, JWTService jwtService) {
         this.companyRepository = companyRepository;
         this.companyMapper = companyMapper;
         this.credentialRepository = credentialRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
+        this.jwtService = jwtService;
     }
 
     public CompanyResponseDTO save(CompanyCreateDTO dto) {
@@ -49,19 +53,26 @@ public class CompanyService {
             throw new IllegalArgumentException("El Tax ID ya se encuentra registrado en el sistema.");
         }
 
-        CompanyEntity company = companyMapper.toEntity(dto);
-        CompanyEntity savedCompany = companyRepository.save(company);
+        CompanyEntity companyEntity = companyMapper.toEntity(dto);
 
-        RoleEntity companyRole = roleRepository.findByRole(Role.ROLE_COMPANY)
-                .orElseThrow(() -> new RuntimeException("El rol COMPANY no existe"));
+        RoleEntity userRole = roleRepository.findByRole(Role.ROLE_COMPANY)
+                .orElseThrow(() -> new RuntimeException("Role COMPANY no encontrado"));
 
-        CredentialEntity credential = CredentialEntity.builder()
-                .email(dto.getEmail())
-                .password(passwordEncoder.encode(dto.getPassword()))
-                .roles(Set.of(companyRole))  // <-- ahora seteamos el rol de base
-                .company(savedCompany)
-                .active(true)
-                .build();
+        CompanyEntity savedCompany = companyRepository.save(companyEntity);
+        CredentialEntity credential = new CredentialEntity();
+        credential.setEmail(dto.getEmail());
+        credential.setPassword(passwordEncoder.encode(dto.getPassword()));
+        credential.setCompany(savedCompany);
+        credential.setRoles(Set.of(userRole));
+
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                credential.getEmail(),
+                credential.getPassword(),
+                credential.getAuthorities()
+        );
+
+        String refreshToken = jwtService.generateRefreshToken(userDetails);
+        credential.setRefreshToken(refreshToken);
 
         credentialRepository.save(credential);
 

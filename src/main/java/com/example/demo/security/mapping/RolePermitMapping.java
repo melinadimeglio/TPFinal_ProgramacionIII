@@ -87,7 +87,8 @@ public class RolePermitMapping {
                 // RESERVATION
                 Permit.CREAR_RESERVA,
                 Permit.CANCELAR_RESERVA,
-                Permit.VER_RESERVAS_USUARIO
+                Permit.VER_RESERVAS_USUARIO,
+                Permit.PAGAR_RESERVA
         ));
 
         // COMPANY
