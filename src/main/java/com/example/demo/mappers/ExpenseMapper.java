@@ -3,6 +3,7 @@ package com.example.demo.mappers;
 import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
 import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
 import com.example.demo.DTOs.Expense.ExpenseUpdateDTO;
+import com.example.demo.DTOs.Expense.Response.ExpenseResumeDTO;
 import com.example.demo.entities.ExpenseEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.repositories.UserRepository;
@@ -25,20 +26,30 @@ public abstract class ExpenseMapper {
                 this.userRepository = userRepository;
         }
 
+        // Mapea hacia el DTO completo (por si lo seguís usando)
         @Mapping(source = "trip.id", target = "tripId")
         @Mapping(target = "userIds", expression = "java(mapUsersToIds(entity.getUsers()))")
-        @Mapping(target = "dividedAmount", ignore = true)
         public abstract ExpenseResponseDTO toDTO(ExpenseEntity entity);
 
         public abstract List<ExpenseResponseDTO> toDTOList(List<ExpenseEntity> entities);
 
+        // Mapea hacia el DTO resumido
+        @Mapping(source = "trip.id", target = "tripId")
+        @Mapping(target = "userIds", expression = "java(mapUsersToIds(entity.getUsers()))")
+        public abstract ExpenseResumeDTO toResumeDTO(ExpenseEntity entity);
+
+        public abstract List<ExpenseResumeDTO> toResumeList(List<ExpenseEntity> entities);
+
+        // Creación de entidad desde el create DTO
         @Mapping(target = "id", ignore = true)
         @Mapping(target = "trip", ignore = true)
         @Mapping(target = "users", ignore = true)
         public abstract ExpenseEntity toEntity(ExpenseCreateDTO dto);
 
+        // Actualización de entidad desde update DTO
         public abstract void updateEntityFromDTO(ExpenseUpdateDTO dto, @MappingTarget ExpenseEntity entity);
 
+        // Conversión de Set<UserEntity> a Set<Long>
         protected Set<Long> mapUsersToIds(Set<UserEntity> users) {
                 return users.stream()
                         .map(UserEntity::getId)

@@ -3,7 +3,9 @@ package com.example.demo.controllers;
 import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
 import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
 import com.example.demo.DTOs.Expense.ExpenseUpdateDTO;
+import com.example.demo.DTOs.Expense.Response.ExpenseResumeDTO;
 import com.example.demo.controllers.hateoas.ExpenseModelAssembler;
+import com.example.demo.controllers.hateoas.ExpenseResumeModelAssembler;
 import com.example.demo.enums.ExpenseCategory;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.ExpenseService;
@@ -39,12 +41,20 @@ public class ExpenseController {
     private final ExpenseService expenseService;
     private final ExpenseModelAssembler assembler;
     private final PagedResourcesAssembler<ExpenseResponseDTO> pagedResourcesAssembler;
+    private final PagedResourcesAssembler<ExpenseResumeDTO> pagedResourcesAssemblerResume;
+    private final ExpenseResumeModelAssembler resumeAssembler;
+
 
     @Autowired
-    public ExpenseController(ExpenseService expenseService, ExpenseModelAssembler assembler, PagedResourcesAssembler<ExpenseResponseDTO> pagedResourcesAssembler) {
+    public ExpenseController(ExpenseService expenseService, ExpenseModelAssembler assembler, PagedResourcesAssembler<ExpenseResponseDTO> pagedResourcesAssembler,
+                             ExpenseResumeModelAssembler resumeAssembler,  PagedResourcesAssembler<ExpenseResumeDTO> pagedResourcesAssemblerResume) {
         this.expenseService = expenseService;
         this.assembler = assembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
+        this.resumeAssembler = resumeAssembler;
+        this.pagedResourcesAssemblerResume = pagedResourcesAssemblerResume;
+
+
     }
 
     @Operation(
@@ -134,7 +144,7 @@ public class ExpenseController {
     })
     @PreAuthorize("hasAuthority('VER_GASTO_USUARIO')")
     @GetMapping("/user/{userId}")
-    public ResponseEntity<PagedModel<EntityModel<ExpenseResponseDTO>>> findByUserId(
+    public ResponseEntity<PagedModel<EntityModel<ExpenseResumeDTO>>> findByUserId(
             @PathVariable Long userId,
             @AuthenticationPrincipal CredentialEntity credential,
             Pageable pageable) {
@@ -143,8 +153,8 @@ public class ExpenseController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Page<ExpenseResponseDTO> expenses = expenseService.findByUserId(userId, pageable);
-        PagedModel<EntityModel<ExpenseResponseDTO>> model = pagedResourcesAssembler.toModel(expenses, assembler);
+        Page<ExpenseResumeDTO> expenses = expenseService.findByUserId(userId, pageable);
+        PagedModel<EntityModel<ExpenseResumeDTO>> model = pagedResourcesAssemblerResume.toModel(expenses, resumeAssembler);
         return ResponseEntity.ok(model);
     }
 
@@ -205,16 +215,16 @@ public class ExpenseController {
     })
     @PreAuthorize("hasAuthority('MODIFICAR_GASTO')")
     @PutMapping("/{id}")
-    public ResponseEntity<ExpenseResponseDTO> updateExpense(
+    public ResponseEntity<ExpenseResumeDTO> updateExpense(
             @PathVariable Long id,
             @RequestBody @Valid ExpenseUpdateDTO dto,
             @AuthenticationPrincipal CredentialEntity credential) {
 
         Long myUserId = credential.getUser().getId();
         expenseService.updateIfOwned(id, dto, myUserId);
-        return ResponseEntity.ok(expenseService.findById(id));
+        ExpenseResumeDTO updated = expenseService.findResumeById(id);
+        return ResponseEntity.ok(updated);
     }
-
 
 
     @Operation(
@@ -304,14 +314,14 @@ public class ExpenseController {
     })
     @PreAuthorize("hasAuthority('VER_GASTOS_VIAJE')")
     @GetMapping("/trip/{tripId}")
-    public ResponseEntity<PagedModel<EntityModel<ExpenseResponseDTO>>> getExpensesByTripId(
+    public ResponseEntity<PagedModel<EntityModel<ExpenseResumeDTO>>> getExpensesByTripId(
             @PathVariable Long tripId,
             @AuthenticationPrincipal CredentialEntity credential,
             Pageable pageable) {
 
         Long myUserId = credential.getUser().getId();
-        Page<ExpenseResponseDTO> expenses = expenseService.findByTripIdIfOwned(tripId, myUserId, pageable);
-        PagedModel<EntityModel<ExpenseResponseDTO>> model = pagedResourcesAssembler.toModel(expenses, assembler);
+        Page<ExpenseResumeDTO> expenses = expenseService.findByTripIdIfOwned(tripId, myUserId, pageable);
+        PagedModel<EntityModel<ExpenseResumeDTO>> model = pagedResourcesAssemblerResume.toModel(expenses, resumeAssembler);
         return ResponseEntity.ok(model);
     }
 

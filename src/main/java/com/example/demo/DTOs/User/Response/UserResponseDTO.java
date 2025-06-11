@@ -24,6 +24,6 @@ public class UserResponseDTO {
     private LocalDateTime fechaRegistro;
     private Set<UserPreferences> preferencias;
     private boolean active;
-    private List<TripResumeDTO> destinos; // ver si devolver en vez de id, una lista con los destinos
+    private List<TripResumeDTO> destinos;
 
 }

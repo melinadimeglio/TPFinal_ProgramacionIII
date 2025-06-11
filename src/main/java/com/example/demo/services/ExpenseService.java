@@ -3,6 +3,7 @@ package com.example.demo.services;
 import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
 import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
 import com.example.demo.DTOs.Expense.ExpenseUpdateDTO;
+import com.example.demo.DTOs.Expense.Response.ExpenseResumeDTO;
 import com.example.demo.entities.ExpenseEntity;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
@@ -166,9 +167,9 @@ public class ExpenseService{
     }
 
 
-    public Page<ExpenseResponseDTO> findByUserId(Long userId, Pageable pageable) {
+    public Page<ExpenseResumeDTO> findByUserId(Long userId, Pageable pageable) {
         return expenseRepository.findByUserId(userId, pageable)
-                .map(expenseMapper::toDTO);
+                .map(expenseMapper::toResumeDTO);
     }
 
     public Double getAverageExpenseByUserId(Long id) {
@@ -197,7 +198,7 @@ public class ExpenseService{
         return count == 0 ? 0.0 : total / count;
     }
 
-    public Page<ExpenseResponseDTO> findByTripIdIfOwned(Long tripId, Long myUserId, Pageable pageable) {
+    public Page<ExpenseResumeDTO> findByTripIdIfOwned(Long tripId, Long myUserId, Pageable pageable) {
 
         TripEntity trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new NoSuchElementException("Viaje no encontrado"));
@@ -210,7 +211,7 @@ public class ExpenseService{
         }
 
         return expenseRepository.findByTripId(tripId, pageable)
-                .map(expenseMapper::toDTO);
+                .map(expenseMapper::toResumeDTO);
     }
 
 
@@ -266,5 +267,10 @@ public class ExpenseService{
                 .map(expenseMapper::toDTO);
     }
 
+    public ExpenseResumeDTO findResumeById(Long id) {
+        ExpenseEntity entity = expenseRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("No se encontró el gasto"));
+        return expenseMapper.toResumeDTO(entity);
+    }
 
 }
