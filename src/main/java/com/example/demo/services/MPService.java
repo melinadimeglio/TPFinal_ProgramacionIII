@@ -11,6 +11,7 @@ import com.mercadopago.exceptions.MPApiException;
 import com.mercadopago.exceptions.MPException;
 import com.mercadopago.resources.preference.Preference;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authorization.method.AuthorizeReturnObject;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -57,7 +58,10 @@ public class MPService {
         items.add(itemRequest);
 
         PreferenceRequest preferenceRequest = PreferenceRequest.builder()
-                .items(items).backUrls(backUrls).build();
+                .items(items)
+                .backUrls(backUrls)
+                .externalReference(String.valueOf(reservation.getId()))
+                .build();
 
         PreferenceClient client = new PreferenceClient();
 

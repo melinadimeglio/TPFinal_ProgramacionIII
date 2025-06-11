@@ -78,14 +78,14 @@ public class ReservationController {
 
     @PreAuthorize("hasAuthority('PAGAR_RESERVA')")
     @GetMapping("/confirmar-pago")
-    public ResponseEntity<String> confirmarPago(@RequestParam Long reservaId, @RequestParam Long paymentId, @RequestParam String status){
+    public ResponseEntity<String> confirmarPago(@RequestParam Long external_reference, @RequestParam Long payment_id){
 
         try {
             PaymentClient paymentClient = new PaymentClient();
-            Payment payment = paymentClient.get(paymentId);
+            Payment payment = paymentClient.get(payment_id);
 
             if(payment.getStatus().equalsIgnoreCase("approved")){
-                reservationService.paidReservation(reservaId);
+                reservationService.paidReservation(external_reference);
                 return ResponseEntity.ok("Reserva marcada como paga.");
             }else{
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
