@@ -111,12 +111,35 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
-    @PreAuthorize("hasAuthority('MODIFICAR_USUARIO')")
+    @PreAuthorize("hasAuthority('MODIFICAR_USUARIO_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<UserResponseDTO>> updateUser(
             @PathVariable Long id,
             @RequestBody @Valid UserUpdateDTO updatedUserDTO) {
         UserResponseDTO response = userService.update(id, updatedUserDTO);
+        return ResponseEntity.ok(assembler.toModel(response));
+    }
+
+    @Operation(
+            summary = "Update own account",
+            description = "Allows the authenticated user to update their own profile information, such as username, email, password, DNI, and preferences. " +
+                    "Only the fields included in the request will be updated (partial update)."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Account updated successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UserResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input data"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authenticated"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
+    })
+    @PreAuthorize("hasAuthority('MODIFICAR_USUARIO')")
+    @PutMapping("/me/update")
+    public ResponseEntity<EntityModel<UserResponseDTO>> updateAccount(
+            Authentication authentication,
+            @RequestBody @Valid UserUpdateDTO updatedUserDTO) {
+        String username = authentication.getName();
+        UserResponseDTO response = userService.update(username, updatedUserDTO);
         return ResponseEntity.ok(assembler.toModel(response));
     }
 
