@@ -55,6 +55,7 @@ public class RolePermitMapping {
                 Permit.VER_CHECKLISTITEM,
                 Permit.ELIMINAR_CHECKLISTITEM,
                 Permit.MODIFICAR_CHECKLISTITEM,
+                    Permit.VER_CHECKLISTITEM_USER,
 
                 // EXPENSE
                 Permit.CREAR_GASTO,
