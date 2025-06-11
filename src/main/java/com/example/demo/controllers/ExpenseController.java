@@ -74,6 +74,30 @@ public class ExpenseController {
         return ResponseEntity.ok(model);
     }
 
+    @Operation(
+            summary = "Get all inactive expenses",
+            description = "Retrieves a paginated list of all inactive expenses in the system. " +
+                    "Requires the 'VER_TODOS_GASTOS' authority."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Expenses retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ExpenseResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authenticated"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
+    })
+    @PreAuthorize("hasAuthority('VER_TODOS_GASTOS')")
+    @GetMapping("/inactive")
+    public ResponseEntity<PagedModel<EntityModel<ExpenseResponseDTO>>> getAllExpensesInactive(
+            Pageable pageable) {
+
+        Page<ExpenseResponseDTO> expenses;
+        expenses = expenseService.findAllInactive(pageable);
+        PagedModel<EntityModel<ExpenseResponseDTO>> model = pagedResourcesAssembler.toModel(expenses, assembler);
+
+        return ResponseEntity.ok(model);
+    }
+
 
     @Operation(
             summary = "Get an expense by ID",

@@ -112,12 +112,9 @@ public class CheckListController {
             description = "Retrieves a checklist by its unique identifier."
     )
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Checklist found",
-                    content = @Content(schema = @Schema(implementation = CheckListResponseDTO.class))
-            ),
-            @ApiResponse(responseCode = "403", description = "User is not allowed to view this checklist"),
+            @ApiResponse(responseCode = "200", description = "Checklist found",
+                    content = @Content(schema = @Schema(implementation = CheckListResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Checklist not found")
     })
     @PreAuthorize("hasAuthority('VER_CHECKLIST')")
@@ -127,15 +124,10 @@ public class CheckListController {
             @AuthenticationPrincipal CredentialEntity credential
     ) {
         Long userId = credential.getUser().getId();
-
-        CheckListResponseDTO checkList = checkListService.findById(id);
-
-        if (!checkList.getUserId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
+        CheckListResponseDTO checkList = checkListService.findByIdIfOwned(id, userId);
         return ResponseEntity.ok(assembler.toModel(checkList));
     }
+
 
 
     @Operation(summary = "Get all checklists", description = "Returns all checklists in the system.")
@@ -147,6 +139,26 @@ public class CheckListController {
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<CheckListResponseDTO>>> getAll(Pageable pageable) {
         Page<CheckListResponseDTO> checklists = checkListService.findAll(pageable);
+        PagedModel<EntityModel<CheckListResponseDTO>> model = pagedResourcesAssembler.toModel(checklists, assembler);
+        return ResponseEntity.ok(model);
+    }
+
+    @Operation(
+            summary = "Get all inactive checklists",
+            description = "Retrieves a paginated list of all inactive checklists in the system. Requires the 'VER_TODOS_CHECKLIST' authority."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Checklists retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CheckListResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authenticated"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
+    })
+
+    @PreAuthorize("hasAuthority('VER_TODOS_CHECKLIST')")
+    @GetMapping("/inactive")
+    public ResponseEntity<PagedModel<EntityModel<CheckListResponseDTO>>> getAllInactive(Pageable pageable) {
+        Page<CheckListResponseDTO> checklists = checkListService.findAllInactive(pageable);
         PagedModel<EntityModel<CheckListResponseDTO>> model = pagedResourcesAssembler.toModel(checklists, assembler);
         return ResponseEntity.ok(model);
     }
@@ -176,33 +188,39 @@ public class CheckListController {
     @Operation(summary = "Delete a checklist by ID", description = "Deletes the specified checklist and all its items.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Checklist deleted successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Checklist not found")
     })
     @PreAuthorize("hasAuthority('ELIMINAR_CHECKLIST')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        checkListService.delete(id);
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long userId = credential.getUser().getId();
+        checkListService.deleteIfOwned(id, userId);
         return ResponseEntity.noContent().build();
     }
+
 
     @Operation(
             summary = "Restore a checklist",
             description = "Reactivates a checklist that was previously deleted (soft-deleted) by setting its status to active."
     )
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "204",
-                    description = "Checklist restored successfully. No content is returned in the response body."
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Checklist not found"
-            )
+            @ApiResponse(responseCode = "204", description = "Checklist restored successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Checklist not found")
     })
     @PreAuthorize("hasAuthority('RESTAURAR_CHECKLIST')")
     @PutMapping("/restore/{id}")
-    public ResponseEntity<Void> restore(@PathVariable Long id) {
-        checkListService.restore(id);
+    public ResponseEntity<Void> restore(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long userId = credential.getUser().getId();
+        checkListService.restoreIfOwned(id, userId);
         return ResponseEntity.noContent().build();
     }
+
 }

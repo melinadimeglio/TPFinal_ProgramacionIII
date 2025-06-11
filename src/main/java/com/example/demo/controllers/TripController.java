@@ -25,8 +25,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
@@ -36,6 +38,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -51,15 +54,17 @@ public class TripController {
     private final TripRepository tripRepository;
     private final TripModelAssembler assembler;
     private final PagedResourcesAssembler<TripResponseDTO> pagedResourcesAssembler;
+    private final PagedResourcesAssembler<RecommendationDTO> pagedResourcesAssemblerRec;
 
     @Autowired
-    public TripController(TripService tripService, RecommendationService recommendationService, UserRepository userRepository, TripRepository tripRepository, TripModelAssembler assembler, PagedResourcesAssembler<TripResponseDTO> pagedResourcesAssembler) {
+    public TripController(TripService tripService, RecommendationService recommendationService, UserRepository userRepository, TripRepository tripRepository, TripModelAssembler assembler, PagedResourcesAssembler<TripResponseDTO> pagedResourcesAssembler, PagedResourcesAssembler<RecommendationDTO> pagedResourcesAssemblerRec) {
         this.tripService = tripService;
         this.recommendationService = recommendationService;
         this.userRepository = userRepository;
         this.tripRepository = tripRepository;
         this.assembler = assembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
+        this.pagedResourcesAssemblerRec = pagedResourcesAssemblerRec;
     }
 
     @Operation(summary = "Get all trips", description = "Returns a list of all trips.")
@@ -153,6 +158,8 @@ public class TripController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<PagedModel<EntityModel<TripResponseDTO>>> getTripsByUserId(
             @PathVariable Long userId,
+            @RequestParam(required = false) String destination,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate date,
             @AuthenticationPrincipal CredentialEntity credential,
             Pageable pageable) {
 
@@ -160,7 +167,7 @@ public class TripController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Page<TripResponseDTO> trips = tripService.findByUserId(userId, pageable);
+        Page<TripResponseDTO> trips = tripService.findByUserId(userId, destination, date, pageable);
         PagedModel<EntityModel<TripResponseDTO>> model = pagedResourcesAssembler.toModel(trips, assembler);
         return ResponseEntity.ok(model);
     }
@@ -258,15 +265,15 @@ public class TripController {
     })
     @PreAuthorize("hasAuthority('OBTENER_RECOMENDACIONES_VIAJE')")
     @GetMapping("/{tripId}/recommendations")
-    public ResponseEntity<List<RecommendationDTO>> getRecommendations(@PathVariable Long tripId){
-        List<RecommendationDTO> recomemendations = recommendationService.getRecommendationsForTrip(tripId);
-        return ResponseEntity.ok(recomemendations);
+    public ResponseEntity<PagedModel<EntityModel<RecommendationDTO>>> getRecommendations(@PathVariable Long tripId, Pageable pageable){
+        Page<RecommendationDTO> recomemendations = recommendationService.getRecommendationsForTrip(tripId, pageable);
+        return ResponseEntity.ok(pagedResourcesAssemblerRec.toModel(recomemendations));
     }
 
     @PreAuthorize("hasAuthority('OBTENER_RECOMENDACIONES_FILTRADAS')")
     @GetMapping("/{tripId}/recommendations/filtered")
-    public ResponseEntity<List<RecommendationDTO>> getFilteredRecommendations(@PathVariable Long tripId){
-        List<RecommendationDTO> recomendations = recommendationService.getRecommendationsForTrip(tripId);
+    public ResponseEntity<PagedModel<EntityModel<RecommendationDTO>>> getFilteredRecommendations(@PathVariable Long tripId, Pageable pageable){
+        Page<RecommendationDTO> recomendations = recommendationService.getRecommendationsForTrip(tripId, pageable);
         TripEntity trip = tripService.getTripById(tripId);
 
         Set<UserEntity> users = trip.getUsers();
@@ -285,7 +292,13 @@ public class TripController {
                         .anyMatch(allPreferences::contains))
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(filteredRecommendations);
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), filteredRecommendations.size());
+        List<RecommendationDTO> paged = filteredRecommendations.subList(start, end);
+
+        Page<RecommendationDTO> pagedResult = new PageImpl<>(paged, pageable, filteredRecommendations.size());
+
+        return ResponseEntity.ok(pagedResourcesAssemblerRec.toModel(pagedResult));
     }
 
     //solo para hateoas

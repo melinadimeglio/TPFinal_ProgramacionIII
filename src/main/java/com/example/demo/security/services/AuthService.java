@@ -54,5 +54,4 @@ public class AuthService {
         credentialsRepository.save(user);
         return new AuthResponse(newAccessToken, newRefreshToken);
     }
-
 }

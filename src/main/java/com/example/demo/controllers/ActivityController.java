@@ -194,6 +194,29 @@ public class ActivityController {
         return ResponseEntity.ok(model);
     }
 
+    @Operation(
+            summary = "Get all inactive activities",
+            description = "Retrieves a paginated list of all inactive activities in the system. Requires the 'VER_TODAS_ACTIVIDADES' authority."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Activities retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ActivityResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authenticated"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
+    })
+
+    @PreAuthorize("hasAuthority('VER_TODAS_ACTIVIDADES')")
+    @GetMapping("/inactive")
+    public ResponseEntity<PagedModel<EntityModel<ActivityResponseDTO>>> getAllActivitiesInactive(
+            Pageable pageable) {
+
+        Page<ActivityResponseDTO> activities = activityService.findAllInactive(pageable);
+        PagedModel model = pagedResourcesAssembler.toModel(activities, assembler);
+        return ResponseEntity.ok(model);
+    }
+
+
 
     @Operation(
             summary = "Get an activity by ID",

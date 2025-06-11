@@ -4,6 +4,7 @@ import com.example.demo.DTOs.CheckList.Request.CheckListItemCreateDTO;
 import com.example.demo.DTOs.CheckList.Response.CheckListItemResponseDTO;
 import com.example.demo.DTOs.CheckList.CheckListItemUpdateDTO;
 import com.example.demo.controllers.hateoas.CheckListItemModelAssembler;
+import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.CheckListItemService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -25,6 +26,7 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -81,15 +83,48 @@ public class CheckListItemController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Item found",
                     content = @Content(schema = @Schema(implementation = CheckListItemResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Item not found")
     })
     @PreAuthorize("hasAuthority('VER_CHECKLISTITEM')")
     @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<CheckListItemResponseDTO>> getById(@PathVariable Long id) {
-        CheckListItemResponseDTO checkListItem = service.findById(id);
+    public ResponseEntity<EntityModel<CheckListItemResponseDTO>> getById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CredentialEntity credential) {
 
+        Long userId = credential.getUser().getId();
+
+        CheckListItemResponseDTO checkListItem = service.findByIdIfOwned(id, userId);
         return ResponseEntity.ok(assembler.toModel(checkListItem));
     }
+
+
+    @Operation(summary = "Get all checklist items by user ID", description = "Returns all checklist items for the authenticated user.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Items retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = CheckListItemResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "User not found or no items")
+    })
+    @PreAuthorize("hasAuthority('VER_CHECKLISTITEM_USER')")
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<PagedModel<EntityModel<CheckListItemResponseDTO>>> getItemsByUserId(
+            @PathVariable Long userId,
+            @RequestParam Long idChecklist,
+            @RequestParam boolean status,
+            @AuthenticationPrincipal CredentialEntity credential,
+            Pageable pageable) {
+
+        if (!credential.getUser().getId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        Page<CheckListItemResponseDTO> items = service.findByUserId(userId, idChecklist, status, pageable);
+        PagedModel<EntityModel<CheckListItemResponseDTO>> model = pagedResourcesAssembler.toModel(items, assembler);
+        return ResponseEntity.ok(model);
+    }
+
+
 
     @Operation(
             summary = "Create a new item",
@@ -103,58 +138,60 @@ public class CheckListItemController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Item successfully created",
                     content = @Content(schema = @Schema(implementation = CheckListItemResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "400", description = "Invalid data provided")
     })
     @PreAuthorize("hasAuthority('CREAR_CHECKLISTITEM')")
     @PostMapping
     public ResponseEntity<CheckListItemResponseDTO> createItem(
-            @org.springframework.web.bind.annotation.RequestBody @Valid CheckListItemCreateDTO dto) {
+            @org.springframework.web.bind.annotation.RequestBody @Valid CheckListItemCreateDTO dto,
+            @AuthenticationPrincipal CredentialEntity credential) {
 
-        CheckListItemResponseDTO createdItem = service.create(dto);
+        Long userId = credential.getUser().getId();
+
+        CheckListItemResponseDTO createdItem = service.create(dto, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdItem);
     }
 
+
     @Operation(
             summary = "Update an item",
-            description = "Updates an existing checklist item using its ID and the provided updated data.",
-            parameters = {
-                    @Parameter(name = "id", description = "ID of the checklist item to update", required = true)
-            },
-            requestBody = @RequestBody(
-                    required = true,
-                    description = "Updated data for the item",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = CheckListItemUpdateDTO.class)
-                    )
-            )
+            description = "Updates an existing checklist item using its ID and the provided updated data."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Item successfully updated",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = CheckListItemResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid data provided"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Item or checklist not found")
     })
     @PreAuthorize("hasAuthority('MODIFICAR_CHECKLISTITEM')")
     @PutMapping("/{id}")
     public ResponseEntity<CheckListItemResponseDTO> update(
             @PathVariable Long id,
-            @org.springframework.web.bind.annotation.RequestBody @Valid CheckListItemUpdateDTO dto) {
+            @org.springframework.web.bind.annotation.RequestBody @Valid CheckListItemUpdateDTO dto,
+            @AuthenticationPrincipal CredentialEntity credential) {
 
-        CheckListItemResponseDTO updatedItem = service.update(id, dto);
+        Long userId = credential.getUser().getId();
+        CheckListItemResponseDTO updatedItem = service.updateIfOwned(id, dto, userId);
         return ResponseEntity.ok(updatedItem);
     }
 
     @Operation(summary = "Delete an item", description = "Deletes a checklist item by its ID.")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Item successfully deleted"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Item not found")
     })
     @PreAuthorize("hasAuthority('ELIMINAR_CHECKLISTITEM')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.delete(id);
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long userId = credential.getUser().getId();
+        service.deleteIfOwned(id, userId);
         return ResponseEntity.noContent().build();
     }
+
 }
