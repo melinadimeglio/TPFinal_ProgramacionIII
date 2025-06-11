@@ -26,7 +26,6 @@ public class UserUpdateDTO {
     private String dni;
     private Role role;
     private Set<UserPreferences> preferencias;
-    private Boolean active;
     private List<TripResumeDTO> destinos;
 
 }
