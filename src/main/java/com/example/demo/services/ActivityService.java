@@ -118,6 +118,11 @@ public class ActivityService {
                 .map(activityMapper::toDTO);
     }
 
+    public Page<ActivityResponseDTO> findAllInactive(Pageable pageable) {
+        return activityRepository.findAllByAvailableFalse(pageable)
+                .map(activityMapper::toDTO);
+    }
+
     public Page<ActivityResponseDTO> findByUserId(Long userId, Pageable pageable) {
         return activityRepository.findByUsers_Id(userId, pageable)
                 .map(activityMapper::toDTO);

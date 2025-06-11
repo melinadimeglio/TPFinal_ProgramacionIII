@@ -69,6 +69,38 @@ public class CompanyController {
         return ResponseEntity.ok(model);
     }
 
+    @Operation(
+            summary = "Get all inactive companies",
+            description = "Retrieves a paginated list of all inactive companies in the system. " +
+                    "If the authenticated user is associated with a company, only their own company's data is returned."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Companies retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CompanyResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authenticated"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
+    })
+    @PreAuthorize("hasAuthority('VER_EMPRESAS')")
+    @GetMapping("/inactive")
+    public ResponseEntity<PagedModel<EntityModel<CompanyResponseDTO>>> getAllCompaniesInactive(
+            Pageable pageable,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        if (credential.getCompany() != null) {
+            CompanyResponseDTO company = companyService.findById(credential.getCompany().getId());
+            PagedModel<EntityModel<CompanyResponseDTO>> model = PagedModel.of(
+                    List.of(assembler.toModel(company)),
+                    new PagedModel.PageMetadata(1, 0, 1)
+            );
+            return ResponseEntity.ok(model);
+        }
+
+        Page<CompanyResponseDTO> companies = companyService.findAllInactive(pageable);
+        PagedModel<EntityModel<CompanyResponseDTO>> model = pagedResourcesAssembler.toModel(companies, assembler);
+        return ResponseEntity.ok(model);
+    }
+
 
     @Operation(summary = "Get company by ID", description = "Returns a specific company by its ID.")
     @ApiResponses(value = {
