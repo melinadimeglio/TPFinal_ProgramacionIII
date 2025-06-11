@@ -30,7 +30,7 @@ public class RolePermitMapping {
                     Permit.MODIFICAR_VIAJE,
                     Permit.ELIMINAR_VIAJE,
                     Permit.RESTAURAR_VIAJE,
-                    Permit.OBTENER_RECOMENDACIONES_VIAJES,
+                    Permit.OBTENER_RECOMENDACIONES_VIAJE,
                     Permit.OBTENER_RECOMENDACIONES_FILTRADAS,
                     Permit.VER_VIAJE_USUARIO,
 
