@@ -12,6 +12,9 @@ import com.example.demo.repositories.CategoryRepository;
 import com.example.demo.repositories.RecommendationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -34,7 +37,7 @@ public class RecommendationService {
     private final CategoryRepository categoryRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public List<RecommendationDTO> getRecommendationsForTrip(Long tripId) {
+    public Page<RecommendationDTO> getRecommendationsForTrip(Long tripId, Pageable pageable) {
         TripEntity trip = tripService.getTripById(tripId);
         Coordinates coords = geocodingService.getCoordinates(trip.getDestination());
 
@@ -61,9 +64,15 @@ public class RecommendationService {
 
         recommendationRepository.saveAll(entities);
 
-        return entities.stream()
+        List<RecommendationDTO> dtos = entities.stream()
                 .map(recommendationMapper::toDTO)
                 .collect(Collectors.toList());
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), dtos.size());
+
+        List<RecommendationDTO> paged = dtos.subList(start, end);
+        return new PageImpl<>(paged, pageable, dtos.size());
 
     }
 

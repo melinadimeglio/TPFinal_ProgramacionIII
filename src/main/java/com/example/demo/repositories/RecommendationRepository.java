@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface RecommendationRepository extends JpaRepository<RecommendationEntity, Long> {
 
-    List<RecommendationEntity> findByTripId(Long tripId);
+    Page<RecommendationEntity> findByTripId(Long tripId, Pageable pageable);
     Page<RecommendationEntity> findAllByActiveTrue(Pageable pageable);
     Page<RecommendationEntity> findAllByActiveFalse(Pageable pageable);
 
