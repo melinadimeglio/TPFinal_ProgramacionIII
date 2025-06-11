@@ -147,9 +147,9 @@ public class TripService {
         tripRepository.save(trip);
     }
 
-    public List<TripResponseDTO> findByUserId(Long userId) {
-        List<TripEntity> trips = tripRepository.findByUsersId(userId);
-        return tripMapper.toDTOList(trips);
+    public Page<TripResponseDTO> findByUserId(Long userId, Pageable pageable) {
+        return tripRepository.findByUsersId(userId, pageable)
+                .map(tripMapper::toDTO);
     }
 
     //necesario para la api

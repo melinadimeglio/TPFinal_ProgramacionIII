@@ -151,16 +151,18 @@ public class TripController {
     })
     @PreAuthorize("hasAuthority('VER_VIAJE_USUARIO')")
     @GetMapping("/user/{userId}")
-    public ResponseEntity<CollectionModel<EntityModel<TripResponseDTO>>> getTripsByUserId(
+    public ResponseEntity<PagedModel<EntityModel<TripResponseDTO>>> getTripsByUserId(
             @PathVariable Long userId,
-            @AuthenticationPrincipal CredentialEntity credential) {
+            @AuthenticationPrincipal CredentialEntity credential,
+            Pageable pageable) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        List<TripResponseDTO> trips = tripService.findByUserId(userId);
-        return ResponseEntity.ok(assembler.toCollectionModelByUser(trips, userId));
+        Page<TripResponseDTO> trips = tripService.findByUserId(userId, pageable);
+        PagedModel<EntityModel<TripResponseDTO>> model = pagedResourcesAssembler.toModel(trips, assembler);
+        return ResponseEntity.ok(model);
     }
 
     @Operation(summary = "Update a trip by ID", description = "Updates a trip by its ID only if it belongs to the authenticated user.")
@@ -267,11 +269,7 @@ public class TripController {
         List<RecommendationDTO> recomendations = recommendationService.getRecommendationsForTrip(tripId);
         TripEntity trip = tripService.getTripById(tripId);
 
-        System.out.println("TRIP: " + trip);
-
-
         Set<UserEntity> users = trip.getUsers();
-        System.out.println("USersss: " + users);
 
         Set<String> allPreferences = users.stream()
                 .flatMap(user -> user.getPreferencias().stream())
