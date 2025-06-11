@@ -230,7 +230,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @PreAuthorize("hasAuthority('ASIGNAR_ROLES')")
-    @PutMapping("/roles/{id}/")
+    @PutMapping("/roles/{id}")
     public ResponseEntity<UserEntity> assignRole(@PathVariable Long id,
                                                  @RequestBody String role){
         UserEntity user = userService.assignRole(id, role);
