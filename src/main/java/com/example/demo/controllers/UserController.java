@@ -145,6 +145,13 @@ public class UserController {
         return ResponseEntity.ok("Cuenta eliminada correctamente");
     }
 
+    @PreAuthorize("hasAuthority('ELIMINAR_USUARIO')")
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteAccountAdmin(@PathVariable Long id) {
+        userService.delete(id);
+        return ResponseEntity.ok("Cuenta eliminada correctamente");
+    }
+
     @Operation(
             summary = "Restore account",
             description = "Allow to restore account if it was previously deleted (soft-deleted)."
