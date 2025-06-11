@@ -19,4 +19,6 @@ public class ReservationResponseDTO {
     private Double amount;
     private LocalDateTime reservationDate;
     private ReservationStatus status;
+    private String urlPayment;
+
 }
