@@ -145,7 +145,26 @@ public class UserController {
         return ResponseEntity.ok("Cuenta eliminada correctamente");
     }
 
-    @PreAuthorize("hasAuthority('ELIMINAR_USUARIO')")
+    @Operation(
+            summary = "Delete a user account by ID (admin)",
+            description = "Allows an administrator to delete any user account by its ID. This action performs a logical delete (sets the account as inactive)."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "User account deleted successfully",
+                    content = @Content(mediaType = "text/plain")
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden – the user does not have the required authority"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found"
+            )
+    })
+    @PreAuthorize("hasAuthority('ELIMINAR_USUARIO_ADMIN')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteAccountAdmin(@PathVariable Long id) {
         userService.delete(id);
