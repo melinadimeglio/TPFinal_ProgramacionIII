@@ -1,6 +1,7 @@
 package com.example.demo.mappers;
 
 import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
+import com.example.demo.DTOs.Activity.CompanyActivityUpdateDTO;
 import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
@@ -43,11 +44,13 @@ public interface ActivityMapper {
 
         List<ActivityResponseDTO> toDTOList(List<ActivityEntity> entities);
 
-        // Este es el nuevo que agregamos:
         CompanyResponseDTO toCompanyResponseDTO(ActivityEntity entity);
 
         @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
         void updateEntityFromDTO(ActivityUpdateDTO dto, @MappingTarget ActivityEntity entity);
+
+        @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+        void updateEntityFromCompanyDTO(CompanyActivityUpdateDTO dto, @MappingTarget ActivityEntity entity);
 
         default Set<Long> mapUsersToIds(Set<UserEntity> users) {
                 return users == null ? null :

@@ -25,5 +25,4 @@ public class CompanyUpdateDTO {
     private Boolean active;
     private String description;
     private List<ActivityResumeDTO> activities;
-
 }

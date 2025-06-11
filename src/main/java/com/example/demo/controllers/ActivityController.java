@@ -1,6 +1,7 @@
 package com.example.demo.controllers;
 
 import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
+import com.example.demo.DTOs.Activity.CompanyActivityUpdateDTO;
 import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
@@ -56,16 +57,27 @@ public class ActivityController {
 
     @Operation(
             summary = "Create an activity shared by one or more users",
-            description = "This endpoint allows one or more users to create a new shared activity associated with an itinerary.",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Activity details including users who will participate",
-                    required = true,
+            description = "This endpoint allows one or more users to create a new shared activity associated with an itinerary. " +
+                    "Only the owner of the itinerary can associate activities to it."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Activity successfully created",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = UserActivityCreateDTO.class)
+                            schema = @Schema(implementation = ActivityResponseDTO.class)
                     )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied - You are not allowed to associate activities to this itinerary"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input data"
             )
-    )
+    })
     @PreAuthorize("hasAuthority('CREAR_ACTIVIDAD_USUARIO')")
     @PostMapping("/user")
     public ResponseEntity<ActivityResponseDTO> createFromUser(
@@ -113,22 +125,21 @@ public class ActivityController {
     }
 
     @Operation(
-            summary = "Get all activities by company ID",
-            description = "Returns a list of all activities created by the specified company."
+            summary = "Get activities by company ID",
+            description = "Returns a paginated list of activities created by the authenticated company only."
     )
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Activities retrieved successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ActivityResponseDTO.class))
-            ),
-            @ApiResponse(responseCode = "404", description = "Company not found or has no activities")
+            @ApiResponse(responseCode = "200", description = "Activities retrieved successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ActivityResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied - Cannot view other companies' activities")
     })
     @PreAuthorize("hasAuthority('VER_ACTIVIDAD_EMPRESA')")
     @GetMapping("/company/{companyId}")
-    public ResponseEntity<PagedModel<EntityModel<CompanyResponseDTO>>> getByCompanyId(@PathVariable Long companyId,
-                                                                   @AuthenticationPrincipal CredentialEntity credential,
-                                                                                      Pageable pageable) {
+    public ResponseEntity<PagedModel<EntityModel<CompanyResponseDTO>>> getByCompanyId(
+            @PathVariable Long companyId,
+            @AuthenticationPrincipal CredentialEntity credential,
+            Pageable pageable) {
+
         Long myCompanyId = credential.getCompany().getId();
 
         if (!myCompanyId.equals(companyId)) {
@@ -251,153 +262,148 @@ public class ActivityController {
 
     @Operation(
             summary = "Update an existing activity",
-            description = "This endpoint allows updating an existing activity. Only the provided fields will be updated."
+            description = "This endpoint allows updating an existing activity only if it belongs to the authenticated user. Only the provided fields will be updated."
     )
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Activity updated successfully",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ActivityResponseDTO.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Invalid input data"
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Activity not found"
-            )
+            @ApiResponse(responseCode = "200", description = "Activity updated successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ActivityResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Activity not found")
     })
     @PreAuthorize("hasAuthority('MODIFICAR_ACTIVIDADES_USUARIO')")
     @PutMapping("/{id}")
     public ResponseEntity<ActivityResponseDTO> updateActivity(
             @PathVariable Long id,
-            @RequestBody @Valid ActivityUpdateDTO dto
+            @RequestBody @Valid ActivityUpdateDTO dto,
+            @AuthenticationPrincipal CredentialEntity credential
     ) {
-        ActivityResponseDTO updated = activityService.updateAndReturn(id, dto);
+        Long myUserId = credential.getUser().getId();
+        ActivityResponseDTO updated = activityService.updateAndReturnIfOwned(id, dto, myUserId);
         return ResponseEntity.ok(updated);
     }
 
     @Operation(
             summary = "Delete an activity by ID",
-            description = "This endpoint deletes an activity from the system using its unique ID."
+            description = "Deletes an activity only if it belongs to the authenticated user."
     )
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "204",
-                    description = "Activity deleted successfully. No content is returned in the response body."
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Activity not found"
-            )
+            @ApiResponse(responseCode = "204", description = "Activity deleted successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Activity not found")
     })
     @PreAuthorize("hasAuthority('ELIMINAR_ACTIVIDAD_USUARIO')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteActivity(@PathVariable Long id) {
-        activityService.delete(id);
+    public ResponseEntity<Void> deleteActivity(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long myUserId = credential.getUser().getId();
+        activityService.deleteIfOwned(id, myUserId);
         return ResponseEntity.noContent().build();
     }
 
+
     @Operation(
             summary = "Restore a deleted activity",
-            description = "Reactivates an activity that was previously deleted (soft-deleted) by setting its status to active."
+            description = "Reactivates an activity previously soft-deleted, only if it belongs to the authenticated user."
     )
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "204",
-                    description = "Activity restored successfully. No content is returned in the response body."
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Activity not found"
-            )
+            @ApiResponse(responseCode = "204", description = "Activity restored successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Activity not found")
     })
     @PreAuthorize("hasAuthority('RESTAURAR_ACTIVIDAD_USUARIO')")
     @PutMapping("/restore/{id}")
-    public ResponseEntity<Void> restoreActivity(@PathVariable Long id) {
-        activityService.restore(id);
+    public ResponseEntity<Void> restoreActivity(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long myUserId = credential.getUser().getId();
+        activityService.restoreIfOwned(id, myUserId);
         return ResponseEntity.noContent().build();
     }
 
     @Operation(
             summary = "Update a company activity",
-            description = "Allows a company to update one of its own activities. Only the company that owns the activity can modify it.",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Activity fields to update",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ActivityUpdateDTO.class)
-                    )
-            )
+            description = "Allows the authenticated company to update one of its own activities."
     )
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Activity updated successfully",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ActivityResponseDTO.class)
-                    )
-            ),
-            @ApiResponse(responseCode = "400", description = "Invalid input data"),
-            @ApiResponse(responseCode = "404", description = "Activity not found or company mismatch")
+            @ApiResponse(responseCode = "200", description = "Activity updated successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ActivityResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Activity not found")
     })
     @PreAuthorize("hasAuthority('MODIFICAR_ACTIVIDADES_EMPRESA')")
     @PutMapping("/company/{companyId}/activities/{activityId}")
     public ResponseEntity<ActivityResponseDTO> updateActivityByCompany(
             @PathVariable Long companyId,
             @PathVariable Long activityId,
-            @RequestBody @Valid ActivityUpdateDTO dto) {
+            @RequestBody @Valid CompanyActivityUpdateDTO dto,
+            @AuthenticationPrincipal CredentialEntity credential) {
 
-        ActivityResponseDTO updated = activityService.updateActivityByCompany(companyId, activityId, dto);
+        Long myCompanyId = credential.getCompany().getId();
+
+        if (!myCompanyId.equals(companyId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        ActivityResponseDTO updated = activityService.updateActivityByCompany(myCompanyId, activityId, dto);
         return ResponseEntity.ok(updated);
     }
 
+
     @Operation(
             summary = "Delete a company activity",
-            description = "Allows a company to delete one of its own activities. Only the company that owns the activity can delete it."
+            description = "Allows the authenticated company to delete one of its own activities."
     )
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "204",
-                    description = "Activity deleted successfully"
-            ),
-            @ApiResponse(responseCode = "404", description = "Activity not found or company mismatch")
+            @ApiResponse(responseCode = "204", description = "Activity deleted successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Activity not found")
     })
     @PreAuthorize("hasAuthority('ELIMINAR_ACTIVIDAD_EMPRESA')")
     @DeleteMapping("/company/{companyId}/{activityId}")
     public ResponseEntity<Void> deleteActivityByCompany(
             @PathVariable Long companyId,
-            @PathVariable Long activityId) {
+            @PathVariable Long activityId,
+            @AuthenticationPrincipal CredentialEntity credential) {
 
-        activityService.deleteActivityByCompany(companyId, activityId);
+        Long myCompanyId = credential.getCompany().getId();
+
+        if (!myCompanyId.equals(companyId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        activityService.deleteActivityByCompany(myCompanyId, activityId);
         return ResponseEntity.noContent().build();
     }
+
 
     @Operation(
             summary = "Restore a company activity",
-            description = "Allows a company to restore (reactivate) one of its own previously deleted activities. Only the company that owns the activity can restore it."
+            description = "Allows the authenticated company to restore one of its own previously deleted activities."
     )
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "204",
-                    description = "Activity restored successfully"
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Activity not found or company mismatch"
-            )
+            @ApiResponse(responseCode = "204", description = "Activity restored successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Activity not found")
     })
     @PreAuthorize("hasAuthority('RESTAURAR_ACTIVIDAD_EMPRESA')")
     @PutMapping("/company/{companyId}/{activityId}/restore")
-    public ResponseEntity<Void> restoreActivityByCompany(@PathVariable Long companyId,
-                                                         @PathVariable Long activityId){
-        activityService.restoreActivityByCompany(companyId, activityId);
+    public ResponseEntity<Void> restoreActivityByCompany(
+            @PathVariable Long companyId,
+            @PathVariable Long activityId,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long myCompanyId = credential.getCompany().getId();
+
+        if (!myCompanyId.equals(companyId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        activityService.restoreActivityByCompany(myCompanyId, activityId);
         return ResponseEntity.noContent().build();
     }
+
 }

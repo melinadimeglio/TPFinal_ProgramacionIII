@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.DTOs.Activity.CompanyActivityUpdateDTO;
 import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
@@ -18,6 +19,7 @@ import com.example.demo.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -54,6 +56,7 @@ public class ActivityService {
         entity.setAvailable(true);
 
         Set<UserEntity> users = new HashSet<>();
+
         UserEntity currentUser = userRepository.findById(myUserId)
                 .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado"));
         users.add(currentUser);
@@ -71,14 +74,17 @@ public class ActivityService {
         if (dto.getItineraryId() != null) {
             ItineraryEntity itinerary = itineraryRepository.findById(dto.getItineraryId())
                     .orElseThrow(() -> new NoSuchElementException("Itinerario no encontrado"));
+
+            if (!itinerary.getUser().getId().equals(myUserId)) {
+                throw new AccessDeniedException("No tienes permiso para agregar actividades a este itinerario");
+            }
+
             entity.setItinerary(itinerary);
         }
 
         ActivityEntity saved = activityRepository.save(entity);
         return activityMapper.toDTO(saved);
     }
-
-
 
     public ActivityResponseDTO createFromCompany(CompanyActivityCreateDTO dto, Long companyId) {
 
@@ -115,9 +121,32 @@ public class ActivityService {
                 .map(activityMapper::toDTO);
     }
 
-    public ActivityResponseDTO updateAndReturn(Long id,ActivityUpdateDTO dto) {
+    public ActivityResponseDTO updateAndReturnIfOwned(Long id, ActivityUpdateDTO dto, Long myUserId) {
         ActivityEntity entity = activityRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Actividad no encontrada"));
+
+        if (dto.getItineraryId() == null || dto.getItineraryId().equals(entity.getItinerary() != null ? entity.getItinerary().getId() : null)) {
+            if (entity.getItinerary() != null) {
+                if (!entity.getItinerary().getUser().getId().equals(myUserId)) {
+                    throw new AccessDeniedException("No tienes permiso para modificar actividades de este itinerario");
+                }
+            } else {
+                boolean belongsToUser = entity.getUsers().stream()
+                        .anyMatch(user -> user.getId().equals(myUserId));
+                if (!belongsToUser) {
+                    throw new AccessDeniedException("No tienes permiso para modificar esta actividad");
+                }
+            }
+        }
+
+        if (dto.getItineraryId() != null && (entity.getItinerary() == null || !dto.getItineraryId().equals(entity.getItinerary().getId()))) {
+            ItineraryEntity newItinerary = itineraryRepository.findById(dto.getItineraryId())
+                    .orElseThrow(() -> new NoSuchElementException("Itinerario no encontrado"));
+            if (!newItinerary.getUser().getId().equals(myUserId)) {
+                throw new AccessDeniedException("No tienes permiso para mover la actividad a ese itinerario");
+            }
+            entity.setItinerary(newItinerary);
+        }
 
         activityMapper.updateEntityFromDTO(dto, entity);
 
@@ -131,57 +160,74 @@ public class ActivityService {
     }
 
 
-    public void delete(Long id) {
-        if (!activityRepository.existsById(id)) {
-            throw new NoSuchElementException("Actividad no encontrada");
-        }
+    public void deleteIfOwned(Long id, Long myUserId) {
         ActivityEntity activity = activityRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Actividad no encontrada"));
+
+        if (activity.getItinerary() != null) {
+            ItineraryEntity itinerary = activity.getItinerary();
+            if (!itinerary.getUser().getId().equals(myUserId)) {
+                throw new AccessDeniedException("No tienes permiso para eliminar esta actividad");
+            }
+        } else {
+            boolean belongsToUser = activity.getUsers().stream()
+                    .anyMatch(user -> user.getId().equals(myUserId));
+            if (!belongsToUser) {
+                throw new AccessDeniedException("No tienes permiso para eliminar esta actividad");
+            }
+        }
 
         activity.setAvailable(false);
         activityRepository.save(activity);
-        ItineraryEntity itinerary = activity.getItinerary();
-        itinerary.setActive(false);
-        itineraryRepository.save(itinerary);
     }
 
-    public void restore(Long id) {
-        if (!activityRepository.existsById(id)) {
-            throw new NoSuchElementException("Actividad no encontrada");
-        }
+    public void restoreIfOwned(Long id, Long myUserId) {
         ActivityEntity activity = activityRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Actividad no encontrada"));
 
+        if (activity.getItinerary() != null) {
+            ItineraryEntity itinerary = activity.getItinerary();
+            if (!itinerary.getUser().getId().equals(myUserId)) {
+                throw new AccessDeniedException("No tienes permiso para restaurar esta actividad (no eres dueño del itinerario)");
+            }
+        }
+        else {
+            boolean belongsToUser = activity.getUsers().stream()
+                    .anyMatch(user -> user.getId().equals(myUserId));
+            if (!belongsToUser) {
+                throw new AccessDeniedException("No tienes permiso para restaurar esta actividad");
+            }
+        }
+
         activity.setAvailable(true);
         activityRepository.save(activity);
-        ItineraryEntity itinerary = activity.getItinerary();
-        itinerary.setActive(true);
-        itineraryRepository.save(itinerary);
     }
 
-    public ActivityResponseDTO updateActivityByCompany(Long companyId, Long activityId, ActivityUpdateDTO dto) {
+
+    public ActivityResponseDTO updateActivityByCompany(Long companyId, Long activityId, CompanyActivityUpdateDTO dto) {
         ActivityEntity activity = activityRepository.findById(activityId)
                 .orElseThrow(() -> new NoSuchElementException("La actividad no existe"));
 
         if (activity.getCompany() == null || !activity.getCompany().getId().equals(companyId)) {
-            throw new IllegalArgumentException("No tienes permiso para modificar esta actividad");
+            throw new AccessDeniedException("No tienes permiso para modificar esta actividad");
         }
 
-        activityMapper.updateEntityFromDTO(dto, activity);
+        activityMapper.updateEntityFromCompanyDTO(dto, activity);
         activityRepository.save(activity);
 
         return activityMapper.toDTO(activity);
     }
 
+
     public void deleteActivityByCompany(Long companyId, Long activityId) {
         ActivityEntity activity = activityRepository.findById(activityId)
-                .orElseThrow(() -> new NoSuchElementException("La actividad no existe"));
+                .orElseThrow(() -> new NoSuchElementException("Actividad no encontrada"));
 
         if (activity.getCompany() == null || !activity.getCompany().getId().equals(companyId)) {
-            throw new IllegalArgumentException("No tienes permiso para eliminar esta actividad");
+            throw new AccessDeniedException("No tienes permiso para eliminar esta actividad");
         }
+
         activity.setAvailable(false);
-        activity.getItinerary().setActive(false);
         activityRepository.save(activity);
     }
 
@@ -190,10 +236,10 @@ public class ActivityService {
                 .orElseThrow(() -> new NoSuchElementException("La actividad no existe"));
 
         if (activity.getCompany() == null || !activity.getCompany().getId().equals(companyId)) {
-            throw new IllegalArgumentException("No tienes permiso para eliminar esta actividad");
+            throw new AccessDeniedException("No tienes permiso para restaurar esta actividad");
         }
+
         activity.setAvailable(true);
-        activity.getItinerary().setActive(true);
         activityRepository.save(activity);
     }
 
