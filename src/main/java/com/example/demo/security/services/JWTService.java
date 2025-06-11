@@ -96,7 +96,6 @@ public class JWTService {
         return "ROLE_USER".equals(extractRoles(token));
     }
 
-    /*
     public boolean isTokenValid(String token, UserDetails userDetails)
     {
         final String username = extractUsername(token);
@@ -104,15 +103,15 @@ public class JWTService {
                 && !isTokenExpired(token)
                 && userDetails.isAccountNonLocked()
                 && userDetails.isEnabled();
-    }*/
-
+    }
+/*
     public boolean isTokenValid(String token) {
         try {
             return !isTokenExpired(token);
         } catch (Exception e) {
             return false;
         }
-    }
+    }*/
 
     private String buildToken(
             Map<String, Object> extraClaims,

@@ -145,15 +145,24 @@ public class UserService {
         return userMapper.toDTO(user);
     }
 
-    public UserEntity assignRole(Long id){
+    public String assignRole(Long id){
         UserEntity user = findByIdAdmin(id);
         CredentialEntity credential = user.getCredential();
         RoleEntity userRole = roleRepository.findByRole(Role.ROLE_ADMIN)
                 .orElseThrow(() -> new RuntimeException("Role USER no encontrado"));
 
-            credential.getRoles().add(userRole);
-            credentialRepository.save(credential);
+        Set<RoleEntity> rolesUser = credential.getRoles();
+        rolesUser.clear();
+        rolesUser.add(userRole);
 
-        return user;
+        credential.setRoles(rolesUser);
+        credentialRepository.save(credential);
+
+
+        if (!rolesUser.contains(userRole)){
+            return "No se pudo asignar el nuevo rol.";
+        }
+
+        return "Rol asignado con exito.";
     }
 }

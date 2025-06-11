@@ -8,14 +8,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -43,34 +42,42 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt = authHeader.substring(7);
         final String username = jwtService.extractUsername(jwt);
 
-        if(tokenBlacklistService.isBlacklisted(jwt)){
+        if (tokenBlacklistService.isBlacklisted(jwt)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Token revocado. Ingrese sesion nuevamente");
             return;
         }
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            if (jwtService.isTokenValid(jwt)) {
+        var userDetails = userDetailsService.loadUserByUsername(username);
 
-                var userDetails = userDetailsService.loadUserByUsername(username);
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    if (jwtService.isTokenValid(jwt, userDetails)) {
 
-                var roles = jwtService.extractRoles(jwt);
-                var authorities = roles.stream()
-                        .map(org.springframework.security.core.authority.SimpleGrantedAuthority::new)
-                        .toList();
+                        //var userDetails = userDetailsService.loadUserByUsername(username);
 
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                authorities
-                        );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
-        }
+                        var roles = jwtService.extractRoles(jwt);
 
-        filterChain.doFilter(request, response);
+                        System.out.println("Roles: " + roles);
+                        System.out.println("JWT: " + jwt);
+
+                        var authorities = roles.stream()
+                                .map(org.springframework.security.core.authority.SimpleGrantedAuthority::new)
+                                .collect(Collectors.toList());
+
+                        UsernamePasswordAuthenticationToken authToken =
+                                new UsernamePasswordAuthenticationToken(
+                                        userDetails,
+                                        null,
+                                        authorities
+                                );
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                        System.out.println("Authorities: " + authorities);
+                        System.out.println("Authorities dos: " + userDetails.getAuthorities());
+                    }
+                }
+                filterChain.doFilter(request, response);
     }
 }
 
