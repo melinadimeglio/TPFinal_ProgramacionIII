@@ -53,5 +53,5 @@ public class ActivityEntity {
     @JoinColumn(name = "company_id")
     private CompanyEntity company;
 
-    private Integer available_quantity;
+    private Long available_quantity;
 }

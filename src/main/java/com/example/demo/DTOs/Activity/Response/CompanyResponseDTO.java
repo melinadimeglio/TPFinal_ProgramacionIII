@@ -21,5 +21,5 @@ public class CompanyResponseDTO {
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
-    private Integer available_quantity;
+    private Long available_quantity;
 }

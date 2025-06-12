@@ -32,7 +32,7 @@ public class CompanyActivityUpdateDTO {
 
     private LocalTime endTime;
 
-    private Integer available_quantity;
+    private Long available_quantity;
 
 }
 

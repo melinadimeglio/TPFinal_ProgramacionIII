@@ -38,7 +38,7 @@ public class MPService {
 
         PreferenceBackUrlsRequest backUrls =
                 PreferenceBackUrlsRequest.builder()
-                        .success("https://www.seu-site/reservas/confirmar-pago?reservaId=" + reservation.getId())
+                        .success("https://www.seu-site/reservation/confirmar-pago?reservaId=" + reservation.getId())
                         .pending("https://www.seu-site/pending")
                         .failure("https://www.seu-site/failure")
                         .build();

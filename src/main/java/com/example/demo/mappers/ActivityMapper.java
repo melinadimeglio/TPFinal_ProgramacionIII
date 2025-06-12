@@ -33,6 +33,7 @@ public interface ActivityMapper {
         @Mapping(target = "date", source = "dto.date")
         @Mapping(target = "startTime", source = "dto.startTime")
         @Mapping(target = "endTime", source = "dto.endTime")
+        @Mapping(target = "available_quantity", source = "dto.available_quantity")
         @Mapping(target = "itinerary", ignore = true)
         @Mapping(target = "users", ignore = true)
         ActivityEntity toEntity(CompanyActivityCreateDTO dto, CompanyEntity company);
