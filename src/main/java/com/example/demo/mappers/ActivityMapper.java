@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public interface ActivityMapper {
 
         @Mapping(target = "id", ignore = true)
-        @Mapping(target = "itinerary.id", source = "itineraryId")
+        //@Mapping(target = "itinerary.id", source = "itineraryId")
         @Mapping(target = "users", ignore = true)
         @Mapping(target = "company", ignore = true)
         ActivityEntity toEntity(UserActivityCreateDTO dto);

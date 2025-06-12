@@ -88,6 +88,7 @@ public class ReservationService {
         activityRepository.save(activity);
 
         reservation.setStatus(ReservationStatus.ACTIVE);
+        reservation.setPaid(true);
         reservationRepository.save(reservation);
     }
 

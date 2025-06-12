@@ -28,6 +28,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/reservation")
@@ -86,26 +87,35 @@ public class ReservationController {
 
     @PreAuthorize("hasAuthority('PAGAR_RESERVA')")
     @GetMapping("/confirmar-pago")
-    public ResponseEntity<String> confirmarPago(@RequestParam Long external_reference, @RequestParam Long payment_id){
+    public ResponseEntity<String> confirmarPago(@RequestParam Long external_reference,
+                                                @RequestParam Long payment_id,
+                                                @AuthenticationPrincipal CredentialEntity credential, Pageable pageable){
 
-        try {
-            PaymentClient paymentClient = new PaymentClient();
-            Payment payment = paymentClient.get(payment_id);
+        Long myUserId = credential.getUser().getId();
+        Set<ReservationResponseDTO> reservas = reservationService.findByUserId(myUserId, pageable).toSet();
 
-            if(payment.getStatus().equalsIgnoreCase("approved")){
-                reservationService.paidReservation(external_reference);
-                return ResponseEntity.ok("Reserva marcada como paga.");
-            }else{
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("El pago no fue aprobado.");
+        if (reservas.contains(external_reference)){
+            try {
+                PaymentClient paymentClient = new PaymentClient();
+                Payment payment = paymentClient.get(payment_id);
+
+                if(payment.getStatus().equalsIgnoreCase("approved")){
+                    reservationService.paidReservation(external_reference);
+                    return ResponseEntity.ok("Reserva marcada como paga.");
+                }else{
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("El pago no fue aprobado.");
+                }
+
+            } catch (MPException e) {
+                throw new RuntimeException("Error al procesar el pago.");
+            } catch (MPApiException e) {
+                throw new RuntimeException("Error al procesar el pago.");
             }
-
-        } catch (MPException e) {
-            throw new RuntimeException("Error al procesar el pago.");
-        } catch (MPApiException e) {
-            throw new RuntimeException("Error al procesar el pago.");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Su user no tiene una reserva correspondiente al pago.");
         }
-
     }
 
     @Operation(

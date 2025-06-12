@@ -43,10 +43,6 @@ public class UserActivityCreateDTO {
     @Schema(description = "Hora de fin", example = "12:00:00")
     private LocalTime endTime;
 
-    @NotNull(message = "El itinerario es obligatorio")
-    @Schema(description = "ID del itinerario asociado", example = "2")
-    private Long itineraryId;
-
     @Schema(description = "Lista de IDs de usuarios que tambien participan de la actividad", example = "[3, 5]")
     private Set<Long> sharedUserIds;
 }

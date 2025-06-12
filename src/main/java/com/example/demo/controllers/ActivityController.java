@@ -6,17 +6,22 @@ import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.DTOs.Activity.Response.CompanyResponseDTO;
+import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.controllers.hateoas.ActivityModelAssembler;
+import com.example.demo.entities.ItineraryEntity;
 import com.example.demo.enums.ActivityCategory;
+import com.example.demo.repositories.ItineraryRepository;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.security.enums.Role;
 import com.example.demo.services.ActivityService;
+import com.example.demo.services.ItineraryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.SecondaryTable;
 import jakarta.validation.Valid;
 import org.springdoc.ui.SpringDocUIException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +37,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -47,13 +55,17 @@ public class ActivityController {
     private final ActivityModelAssembler assembler;
     private final PagedResourcesAssembler<ActivityResponseDTO> pagedResourcesAssembler;
     private final PagedResourcesAssembler<CompanyResponseDTO> pagedResourcesAssemblerCompany;
+    private final ItineraryService itineraryService;
+    private final ItineraryRepository itineraryRepository;
 
     @Autowired
-    public ActivityController(ActivityService activityService, ActivityModelAssembler assembler, PagedResourcesAssembler<ActivityResponseDTO> pagedResourcesAssembler, PagedResourcesAssembler<CompanyResponseDTO> pagedResourcesAssemblerCompany) {
+    public ActivityController(ActivityService activityService, ActivityModelAssembler assembler, PagedResourcesAssembler<ActivityResponseDTO> pagedResourcesAssembler, PagedResourcesAssembler<CompanyResponseDTO> pagedResourcesAssemblerCompany, ItineraryService itineraryService, ItineraryRepository itineraryRepository) {
         this.activityService = activityService;
         this.assembler = assembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
         this.pagedResourcesAssemblerCompany = pagedResourcesAssemblerCompany;
+        this.itineraryService = itineraryService;
+        this.itineraryRepository = itineraryRepository;
     }
 
     @Operation(
@@ -83,10 +95,20 @@ public class ActivityController {
     @PostMapping("/user")
     public ResponseEntity<ActivityResponseDTO> createFromUser(
             @RequestBody @Valid UserActivityCreateDTO dto,
-            @AuthenticationPrincipal CredentialEntity credential) {
+            @AuthenticationPrincipal CredentialEntity credential, Pageable pageable) {
 
         Long myUserId = credential.getUser().getId();
-        ActivityResponseDTO createdActivity = activityService.createFromUser(dto, myUserId);
+        Set<ItineraryResponseDTO> itineraries = itineraryService.findByUserId(myUserId, pageable).toSet();
+
+        Optional<ItineraryResponseDTO> itinerario = itineraries.stream()
+                .filter(itinerary -> itinerary.getItineraryDate().equals(dto.getDate()))
+                .findFirst();
+
+        if (itinerario.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No existe un itinerario para la fecha de la actividad. Por favor primero cree un itinerario.");
+        }
+
+        ActivityResponseDTO createdActivity = activityService.createFromUser(dto, myUserId, itinerario.get().getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(createdActivity);
     }
 
@@ -165,6 +187,7 @@ public class ActivityController {
         PagedModel<EntityModel<CompanyResponseDTO>> model = pagedResourcesAssemblerCompany.toModel(activities);
         return ResponseEntity.ok(model);
     }
+
 
 
     @Operation(

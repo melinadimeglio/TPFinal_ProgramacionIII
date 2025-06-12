@@ -19,8 +19,10 @@ import com.example.demo.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,21 +39,23 @@ public class ActivityService {
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final ItineraryRepository itineraryRepository;
+    private final ItineraryService itineraryService;
 
     @Autowired
     public ActivityService(ActivityRepository activityRepository,
                            ActivityMapper activityMapper,
                            UserRepository userRepository,
                            CompanyRepository companyRepository,
-                           ItineraryRepository itineraryRepository) {
+                           ItineraryRepository itineraryRepository, ItineraryService itineraryService) {
         this.activityRepository = activityRepository;
         this.activityMapper = activityMapper;
         this.userRepository = userRepository;
         this.companyRepository = companyRepository;
         this.itineraryRepository = itineraryRepository;
+        this.itineraryService = itineraryService;
     }
 
-    public ActivityResponseDTO createFromUser(UserActivityCreateDTO dto, Long myUserId) {
+    public ActivityResponseDTO createFromUser(UserActivityCreateDTO dto, Long myUserId, Long itineraryId) {
         ActivityEntity entity = activityMapper.toEntity(dto);
         entity.setAvailable(true);
 
@@ -71,8 +75,8 @@ public class ActivityService {
 
         entity.setUsers(users);
 
-        if (dto.getItineraryId() != null) {
-            ItineraryEntity itinerary = itineraryRepository.findById(dto.getItineraryId())
+        if (itineraryId != null) {
+            ItineraryEntity itinerary = itineraryRepository.findById(itineraryId)
                     .orElseThrow(() -> new NoSuchElementException("Itinerario no encontrado"));
 
             if (!itinerary.getUser().getId().equals(myUserId)) {
@@ -83,6 +87,10 @@ public class ActivityService {
         }
 
         ActivityEntity saved = activityRepository.save(entity);
+        if (!itineraryService.addActivity(itineraryId, myUserId, saved.getId())){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "No se pudo crear la actividad.");
+        }
+
         return activityMapper.toDTO(saved);
     }
 
