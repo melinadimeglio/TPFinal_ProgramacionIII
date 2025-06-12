@@ -94,6 +94,20 @@ public class ActivityService {
         return activityMapper.toDTO(saved);
     }
 
+    public boolean updateCapacity (Long activityId, int quantity){
+
+        ActivityEntity activity = activityRepository.findById(activityId)
+                .orElseThrow(() -> new NoSuchElementException("No se encontro la actividad."));
+
+        if (activity.getAvailable_quantity() != null && activity.getAvailable_quantity()-quantity >= 0){
+            activity.setAvailable_quantity(activity.getAvailable_quantity() - quantity);
+            activityRepository.save(activity);
+            return true;
+        }else {
+            return false;
+        }
+    }
+
     public ActivityResponseDTO createFromCompanyService(CompanyActivityCreateDTO dto, Long companyId) {
 
         System.out.println("ID DE COMPANY DENTRO DE CREATE FROM COMPANY: " + companyId);

@@ -62,9 +62,12 @@ public class ItineraryService {
         ActivityEntity activity = activityRepository.findById(activityId)
                 .orElseThrow(() -> new NoSuchElementException("No fue posible encontrar la actividad para agregarla al itinerario."));
 
+        activity.setItinerary(itinerary);
+
         List<ActivityEntity> activitiesItinerary = itinerary.getActivities();
         activitiesItinerary.add(activity);
         itinerary.setActivities(activitiesItinerary);
+        itineraryRepository.save(itinerary);
 
         return true;
     }

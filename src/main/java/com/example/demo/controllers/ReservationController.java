@@ -93,14 +93,17 @@ public class ReservationController {
 
         Long myUserId = credential.getUser().getId();
         Set<ReservationResponseDTO> reservas = reservationService.findByUserId(myUserId, pageable).toSet();
+        List<Long> idReservas = reservas.stream()
+                .map(ReservationResponseDTO::getId)
+                .toList();
 
-        if (reservas.contains(external_reference)){
+        if (idReservas.contains(external_reference)){
             try {
                 PaymentClient paymentClient = new PaymentClient();
                 Payment payment = paymentClient.get(payment_id);
 
                 if(payment.getStatus().equalsIgnoreCase("approved")){
-                    reservationService.paidReservation(external_reference);
+                    reservationService.paidReservation(external_reference, myUserId, pageable);
                     return ResponseEntity.ok("Reserva marcada como paga.");
                 }else{
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -108,9 +111,11 @@ public class ReservationController {
                 }
 
             } catch (MPException e) {
-                throw new RuntimeException("Error al procesar el pago.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("\"Error al procesar el pago.");
             } catch (MPApiException e) {
-                throw new RuntimeException("Error al procesar el pago.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("\"Error al procesar el pago.");
             }
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
