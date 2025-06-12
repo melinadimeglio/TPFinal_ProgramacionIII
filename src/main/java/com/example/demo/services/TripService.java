@@ -12,8 +12,10 @@ import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -74,10 +76,18 @@ public class TripService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         users.add(owner);
 
-        if (dto.getSharedUserIds() != null) {
+        if (!dto.getSharedUserIds().isEmpty() && dto.getSharedUserIds() != null) {
             for (Long sharedId : dto.getSharedUserIds()) {
                 UserEntity sharedUser = userRepository.findById(sharedId)
                         .orElseThrow(() -> new RuntimeException("Usuario compartido no encontrado"));
+
+                if (sharedUser.getCredential().getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))){
+                        throw new ResponseStatusException(HttpStatus.CONFLICT, "No puede agregar usuarios de tipo administrador.");
+                } else if (sharedUser.getCredential().getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_COMPANY"))){
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "No puede agregar usuarios de tipo empresa.");
+                }
                 users.add(sharedUser);
             }
         }
