@@ -81,7 +81,8 @@ public class ReservationService {
         ActivityEntity activity = activityRepository.findById(reservation.getActivity().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Activity not found"));
 
-        int cant = reservation.getActivity().getUsers().size();
+        int cant = reservation.getActivity().getUsers().size(); /// claramente despues cambiar esto.
+        /// devuelve vacio xq el getusers de activity esta vacio JUAS
 
         activity.setAvailable_quantity(activity.getAvailable_quantity()-cant);
         activityRepository.save(activity);
