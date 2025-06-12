@@ -24,7 +24,4 @@ public class TripUpdateDTO {
 
     @Min(value = 1, message = "Debe haber al menos un pasajero.")
     private Integer companions;
-
-    private Boolean active;
-
 }
