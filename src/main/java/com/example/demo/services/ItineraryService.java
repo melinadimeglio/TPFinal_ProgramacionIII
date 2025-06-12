@@ -1,12 +1,16 @@
 package com.example.demo.services;
 
+import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.DTOs.Itinerary.Request.ItineraryCreateDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
+import com.example.demo.entities.ActivityEntity;
 import com.example.demo.entities.ItineraryEntity;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
+import com.example.demo.mappers.ActivityMapper;
 import com.example.demo.mappers.ItineraryMapper;
+import com.example.demo.repositories.ActivityRepository;
 import com.example.demo.repositories.ItineraryRepository;
 import com.example.demo.repositories.TripRepository;
 import com.example.demo.repositories.UserRepository;
@@ -25,13 +29,15 @@ public class ItineraryService {
     private final ItineraryMapper itineraryMapper;
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
+    private final ActivityRepository activityRepository;
 
     @Autowired
-    public ItineraryService(ItineraryRepository itineraryRepository, ItineraryMapper itineraryMapper, TripRepository tripRepository, UserRepository userRepository) {
+    public ItineraryService(ItineraryRepository itineraryRepository, ItineraryMapper itineraryMapper, TripRepository tripRepository, UserRepository userRepository, ActivityRepository activityRepository) {
         this.itineraryRepository = itineraryRepository;
         this.itineraryMapper = itineraryMapper;
         this.tripRepository = tripRepository;
         this.userRepository = userRepository;
+        this.activityRepository = activityRepository;
     }
 
     public Page<ItineraryResponseDTO> findAll(Pageable pageable){
@@ -42,6 +48,28 @@ public class ItineraryService {
     public Page<ItineraryResponseDTO> findAllInactive(Pageable pageable){
         return itineraryRepository.findAllByActiveFalse(pageable)
                 .map(itineraryMapper::toDTO);
+    }
+
+    public boolean addActivity (Long itineraryId, Long userId, Long activityId){
+
+        ItineraryEntity itinerary = itineraryRepository.findById(itineraryId)
+                .orElseThrow(() -> new NoSuchElementException("No se encontró el itinerario"));
+
+        if (!itinerary.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("No tenés permiso para acceder a este itinerario.");
+        }
+
+        ActivityEntity activity = activityRepository.findById(activityId)
+                .orElseThrow(() -> new NoSuchElementException("No fue posible encontrar la actividad para agregarla al itinerario."));
+
+        activity.setItinerary(itinerary);
+
+        List<ActivityEntity> activitiesItinerary = itinerary.getActivities();
+        activitiesItinerary.add(activity);
+        itinerary.setActivities(activitiesItinerary);
+        itineraryRepository.save(itinerary);
+
+        return true;
     }
 
     public ItineraryResponseDTO findByIdIfBelongsToUser(Long itineraryId, Long userId) {

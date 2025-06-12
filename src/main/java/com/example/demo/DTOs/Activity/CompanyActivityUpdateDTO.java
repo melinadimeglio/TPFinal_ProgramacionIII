@@ -1,8 +1,10 @@
 package com.example.demo.DTOs.Activity;
 
 import com.example.demo.enums.ActivityCategory;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -29,5 +31,8 @@ public class CompanyActivityUpdateDTO {
     private LocalTime startTime;
 
     private LocalTime endTime;
+
+    private Long available_quantity;
+
 }
 

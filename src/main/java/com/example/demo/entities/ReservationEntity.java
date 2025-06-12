@@ -26,7 +26,8 @@ public class ReservationEntity {
     @JoinColumn(name = "activity_id", nullable = false)
     private ActivityEntity activity;
 
-    private boolean paid;
+    @Builder.Default
+    private boolean paid = false;
 
     private Double amount;
 

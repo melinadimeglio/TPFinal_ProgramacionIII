@@ -5,8 +5,10 @@ import com.example.demo.DTOs.Reservation.Response.ReservationResponseDTO;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.MPService;
 import com.example.demo.services.ReservationService;
+import com.mercadopago.client.payment.PaymentClient;
 import com.mercadopago.exceptions.MPApiException;
 import com.mercadopago.exceptions.MPException;
+import com.mercadopago.resources.payment.Payment;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,22 +26,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import com.mercadopago.client.payment.PaymentClient;
-import com.mercadopago.resources.payment.Payment;
+
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/reservation")
 public class ReservationController {
 
     private final ReservationService reservationService;
-    private final MPService mpService;
     private final PagedResourcesAssembler<ReservationResponseDTO> pagedResourcesAssembler;
+    private final MPService mpService;
 
     @Autowired
-    public ReservationController(ReservationService reservationService, MPService mpService, PagedResourcesAssembler<ReservationResponseDTO> pagedResourcesAssembler) {
+    public ReservationController(ReservationService reservationService, PagedResourcesAssembler<ReservationResponseDTO> pagedResourcesAssembler, MPService mpService) {
         this.reservationService = reservationService;
-        this.mpService = mpService;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
+        this.mpService = mpService;
     }
 
     @Operation(
@@ -65,6 +68,12 @@ public class ReservationController {
 
         Long myUserId = credential.getUser().getId();
         ReservationResponseDTO reservation = reservationService.createReservation(dto, myUserId);
+
+        if (!reservationService.activityDisponible(reservation.getId())){
+            reservationService.cancelReservation(reservation.getId());
+            throw new RuntimeException("La actividad no cuenta con la disponibilidad necesaria.");
+        }
+
         try {
             String link = mpService.mercado(reservation);
             reservation.setUrlPayment(link);
@@ -78,26 +87,40 @@ public class ReservationController {
 
     @PreAuthorize("hasAuthority('PAGAR_RESERVA')")
     @GetMapping("/confirmar-pago")
-    public ResponseEntity<String> confirmarPago(@RequestParam Long external_reference, @RequestParam Long payment_id){
+    public ResponseEntity<String> confirmarPago(@RequestParam Long external_reference,
+                                                @RequestParam Long payment_id,
+                                                @AuthenticationPrincipal CredentialEntity credential, Pageable pageable){
 
-        try {
-            PaymentClient paymentClient = new PaymentClient();
-            Payment payment = paymentClient.get(payment_id);
+        Long myUserId = credential.getUser().getId();
+        Set<ReservationResponseDTO> reservas = reservationService.findByUserId(myUserId, pageable).toSet();
+        List<Long> idReservas = reservas.stream()
+                .map(ReservationResponseDTO::getId)
+                .toList();
 
-            if(payment.getStatus().equalsIgnoreCase("approved")){
-                reservationService.paidReservation(external_reference);
-                return ResponseEntity.ok("Reserva marcada como paga.");
-            }else{
+        if (idReservas.contains(external_reference)){
+            try {
+                PaymentClient paymentClient = new PaymentClient();
+                Payment payment = paymentClient.get(payment_id);
+
+                if(payment.getStatus().equalsIgnoreCase("approved")){
+                    reservationService.paidReservation(external_reference, myUserId, pageable);
+                    return ResponseEntity.ok("Reserva marcada como paga.");
+                }else{
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("El pago no fue aprobado.");
+                }
+
+            } catch (MPException e) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("El pago no fue aprobado.");
+                        .body("\"Error al procesar el pago.");
+            } catch (MPApiException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("\"Error al procesar el pago.");
             }
-
-        } catch (MPException e) {
-            throw new RuntimeException("Error al procesar el pago.");
-        } catch (MPApiException e) {
-            throw new RuntimeException("Error al procesar el pago.");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Su user no tiene una reserva correspondiente al pago.");
         }
-
     }
 
     @Operation(
