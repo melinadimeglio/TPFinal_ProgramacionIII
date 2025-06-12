@@ -28,7 +28,7 @@ public class UserActivityCreateDTO {
     @NotBlank(message = "La descripción es obligatoria.")
     private String description;
 
-    @Schema(description = "Categoría de la actividad", example = "ENTRETENIMIENTO")
+    @Schema(description = "Categoría de la actividad", example = "SHOPPING")
     @NotNull(message = "La categoría es obligatoria.")
     private ActivityCategory category;
 

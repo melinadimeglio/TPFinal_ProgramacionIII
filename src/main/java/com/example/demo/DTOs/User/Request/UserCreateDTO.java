@@ -37,6 +37,6 @@ public class UserCreateDTO {
     @NotBlank(message = "El DNI no debe estar vacio.")
     private String dni;
 
-    @Schema(description = "Preferencias de viaje del usuario", example = "[\"PLAYA\", \"AVENTURA\", \"CULTURA\"]")
+    @Schema(description = "Preferencias de viaje del usuario", example = "[\"BEACHES\", \"SPORT\", \"FOODS\"]")
     private Set<UserPreferences> preferencias;
 }
