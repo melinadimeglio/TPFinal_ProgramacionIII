@@ -7,9 +7,7 @@ import com.example.demo.DTOs.Expense.Response.ExpenseResumeDTO;
 import com.example.demo.entities.ExpenseEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.repositories.UserRepository;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -26,27 +24,24 @@ public abstract class ExpenseMapper {
                 this.userRepository = userRepository;
         }
 
-        // Mapea hacia el DTO completo (por si lo seguís usando)
         @Mapping(source = "trip.id", target = "tripId")
         @Mapping(target = "userIds", expression = "java(mapUsersToIds(entity.getUsers()))")
         public abstract ExpenseResponseDTO toDTO(ExpenseEntity entity);
 
         public abstract List<ExpenseResponseDTO> toDTOList(List<ExpenseEntity> entities);
 
-        // Mapea hacia el DTO resumido
         @Mapping(source = "trip.id", target = "tripId")
         @Mapping(target = "userIds", expression = "java(mapUsersToIds(entity.getUsers()))")
         public abstract ExpenseResumeDTO toResumeDTO(ExpenseEntity entity);
 
         public abstract List<ExpenseResumeDTO> toResumeList(List<ExpenseEntity> entities);
 
-        // Creación de entidad desde el create DTO
         @Mapping(target = "id", ignore = true)
         @Mapping(target = "trip", ignore = true)
         @Mapping(target = "users", ignore = true)
         public abstract ExpenseEntity toEntity(ExpenseCreateDTO dto);
 
-        // Actualización de entidad desde update DTO
+        @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
         public abstract void updateEntityFromDTO(ExpenseUpdateDTO dto, @MappingTarget ExpenseEntity entity);
 
         // Conversión de Set<UserEntity> a Set<Long>
