@@ -51,6 +51,27 @@ public class ReservationService {
         return reservationMapper.toDTO(saved);
     }
 
+    public boolean activityDisponible (Long reservationId){
+        ReservationEntity reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
+
+        ActivityEntity activity = activityRepository.findById(reservation.getActivity().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Activity not found"));
+
+        int cant = reservation.getActivity().getUsers().size();
+
+        if (activity.getAvailable_quantity() - cant >= 0){
+            activity.setAvailable_quantity(activity.getAvailable_quantity()-cant);
+            activityRepository.save(activity);
+            reservation.setStatus(ReservationStatus.ACTIVE);
+            reservationRepository.save(reservation);
+        }else {
+            return false;
+        }
+
+        return true;
+    }
+
     public void cancelReservation(Long reservationId) {
         ReservationEntity reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));

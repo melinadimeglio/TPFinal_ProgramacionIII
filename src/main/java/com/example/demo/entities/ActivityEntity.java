@@ -49,8 +49,9 @@ public class ActivityEntity {
     )
     private Set<UserEntity> users;
 
-
     @ManyToOne
     @JoinColumn(name = "company_id")
     private CompanyEntity company;
+
+    private Integer available_quantity;
 }

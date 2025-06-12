@@ -46,5 +46,12 @@ public class CompanyActivityCreateDTO {
     @Schema(description = "Hora de finalización de la actividad", example = "12:00")
     @NotNull(message = "La hora de fin es obligatoria.")
     private LocalTime endTime;
+
+    private Long companyId;
+
+    @Schema(description = "Disponibilidad de personas en la actividad", example = "12:00")
+    @NotNull(message = "La cantidad de lugares disponibles es obligatoria.")
+    private Integer available_quantity;
+
 }
 

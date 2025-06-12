@@ -28,4 +28,5 @@ public class ActivityResponseDTO {
 
     private Set<Long> userIds;
     private Long companyId;
+    private Integer available_quantity;
 }
