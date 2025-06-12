@@ -11,6 +11,7 @@ import com.example.demo.repositories.CheckListRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,52 +32,90 @@ public class CheckListItemService {
                 .map(itemMapper::toDTO);
     }
 
-    public CheckListItemResponseDTO findById(Long id) {
+    public CheckListItemResponseDTO findByIdIfOwned(Long id, Long userId) {
         CheckListItemEntity entity = itemRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Item no encontrado"));
+
+        if (!entity.getChecklist().getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("No tienes permiso para ver este item.");
+        }
+
         return itemMapper.toDTO(entity);
     }
 
+    public Page<CheckListItemResponseDTO> findByUserId(Long userId, Long checklistId, boolean completed, Pageable pageable) {
+        Page<CheckListItemEntity> checkListItem;
+        if(checklistId != null){
+            checkListItem = itemRepository.findByChecklistIdAndChecklistUserId(checklistId, userId, pageable);
+        }
+        else if(checklistId != null && completed == false){
+            checkListItem = itemRepository.findByChecklistIdAndStatusAndChecklistUserId(checklistId, userId, completed, pageable);
+        }
+        else if(completed == false){
+            checkListItem = itemRepository.findByStatusAndChecklistUserId(completed,userId, pageable);
+        }
+        else {
+            checkListItem = itemRepository.findByChecklistUserId(userId, pageable);
+        }
+        return checkListItem.map(itemMapper::toDTO);
+    }
 
-    public CheckListItemResponseDTO create(CheckListItemCreateDTO dto) {
+
+    public CheckListItemResponseDTO create(CheckListItemCreateDTO dto, Long userId) {
 
         CheckListItemEntity entity = itemMapper.toEntity(dto);
+
         CheckListEntity checklist = checkListRepository.findById(dto.getChecklistId())
                 .orElseThrow(() -> new NoSuchElementException("Checklist no encontrada"));
-        if (checklist.getUser() == null) {
-            throw new IllegalStateException("La checklist no tiene un usuario asignado.");
+
+        if (!checklist.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("No tienes permiso para agregar items en esta checklist.");
         }
+
         entity.setChecklist(checklist);
         entity.setStatus(false);
+
         return itemMapper.toDTO(itemRepository.save(entity));
     }
 
-    public CheckListItemResponseDTO update(Long id, CheckListItemUpdateDTO dto) {
-        // Buscar el ítem existente
+
+    public CheckListItemResponseDTO updateIfOwned(Long id, CheckListItemUpdateDTO dto, Long userId) {
         CheckListItemEntity entity = itemRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Item no encontrado"));
 
-        // Mapear los campos desde el DTO, ignorando nulls y checklist
+        if (!entity.getChecklist().getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("No tienes permiso para modificar este item.");
+        }
+
         itemMapper.updateEntityFromDTO(dto, entity);
 
-        // Asignar la checklist manualmente
-        CheckListEntity checklist = checkListRepository.findById(dto.getChecklistId())
-                .orElseThrow(() -> new NoSuchElementException("Checklist no encontrada"));
+        if (dto.getChecklistId() != null && !dto.getChecklistId().equals(entity.getChecklist().getId())) {
+            CheckListEntity checklist = checkListRepository.findById(dto.getChecklistId())
+                    .orElseThrow(() -> new NoSuchElementException("Checklist no encontrada"));
 
-        entity.setChecklist(checklist);
+            if (!checklist.getUser().getId().equals(userId)) {
+                throw new AccessDeniedException("No tienes permiso para asignar este item a otra checklist.");
+            }
 
-        // Guardar y devolver como DTO
+            entity.setChecklist(checklist);
+        }
+
         CheckListItemEntity updated = itemRepository.save(entity);
         return itemMapper.toDTO(updated);
     }
 
 
-    public void delete(Long id) {
+    public void deleteIfOwned(Long id, Long userId) {
         CheckListItemEntity entity = itemRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Item no encontrado"));
 
+        if (!entity.getChecklist().getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("No tienes permiso para eliminar este item.");
+        }
+
         itemRepository.delete(entity);
     }
+
 
     public Page<CheckListItemResponseDTO> findByChecklistAndStatus(Long checklistId, boolean completed, Pageable pageable) {
         return itemRepository.findByChecklistIdAndStatus(checklistId, completed, pageable)
@@ -87,6 +126,5 @@ public class CheckListItemService {
         return itemRepository.findByStatus(completed, pageable)
                 .map(itemMapper::toDTO);
     }
-
 
 }

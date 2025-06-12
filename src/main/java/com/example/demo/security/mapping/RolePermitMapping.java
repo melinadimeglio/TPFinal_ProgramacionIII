@@ -55,6 +55,7 @@ public class RolePermitMapping {
                 Permit.VER_CHECKLISTITEM,
                 Permit.ELIMINAR_CHECKLISTITEM,
                 Permit.MODIFICAR_CHECKLISTITEM,
+                    Permit.VER_CHECKLISTITEM_USER,
 
                 // EXPENSE
                 Permit.CREAR_GASTO,
@@ -87,7 +88,8 @@ public class RolePermitMapping {
                 // RESERVATION
                 Permit.CREAR_RESERVA,
                 Permit.CANCELAR_RESERVA,
-                Permit.VER_RESERVAS_USUARIO
+                Permit.VER_RESERVAS_USUARIO,
+                Permit.PAGAR_RESERVA
         ));
 
         // COMPANY

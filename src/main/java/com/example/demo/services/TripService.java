@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -147,9 +148,22 @@ public class TripService {
         tripRepository.save(trip);
     }
 
-    public Page<TripResponseDTO> findByUserId(Long userId, Pageable pageable) {
-        return tripRepository.findByUsersId(userId, pageable)
-                .map(tripMapper::toDTO);
+    public Page<TripResponseDTO> findByUserId(Long userId, String destination, LocalDate date, Pageable pageable) {
+        Page<TripEntity> tripEntity;
+
+        if(destination != null && date != null){
+            tripEntity = tripRepository.findByDestinationContainsIgnoreCaseAndStartDateAndId(destination, date, userId, pageable);
+        }
+        else if (destination != null){
+            tripEntity = tripRepository.findByDestinationContainsIgnoreCaseAndId(destination, userId, pageable);
+        }
+        else if(date != null){
+            tripEntity = tripRepository.findByStartDateAndId(date, userId, pageable);
+        }
+        else {
+            tripEntity = tripRepository.findByUsersId(userId, pageable);
+        }
+        return tripEntity.map(tripMapper::toDTO);
     }
 
     //necesario para la api

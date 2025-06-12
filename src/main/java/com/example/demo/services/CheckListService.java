@@ -5,6 +5,8 @@ import com.example.demo.DTOs.CheckList.Response.CheckListResponseDTO;
 import com.example.demo.DTOs.CheckList.CheckListUpdateDTO;
 import com.example.demo.entities.CheckListEntity;
 import com.example.demo.entities.CheckListItemEntity;
+import com.example.demo.entities.TripEntity;
+import com.example.demo.entities.UserEntity;
 import com.example.demo.mappers.CheckListMapper;
 import com.example.demo.repositories.CheckListItemRepository;
 import com.example.demo.repositories.CheckListRepository;
@@ -49,10 +51,15 @@ public class CheckListService {
                 .map(checkListMapper::toDTO);
     }
 
-    public CheckListResponseDTO findById(Long id) {
-        return checkListRepository.findById(id)
-                .map(checkListMapper::toDTO)
+    public CheckListResponseDTO findByIdIfOwned(Long id, Long myUserId) {
+        CheckListEntity entity = checkListRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Checklist no encontrada"));
+
+        if (!entity.getUser().getId().equals(myUserId)) {
+            throw new AccessDeniedException("No tienes permiso para ver este checklist");
+        }
+
+        return checkListMapper.toDTO(entity);
     }
 
     public CheckListResponseDTO create(CheckListCreateDTO dto, Long myUserId) {
@@ -60,19 +67,30 @@ public class CheckListService {
             throw new IllegalArgumentException("TripId no puede ser null.");
         }
 
+        TripEntity trip = tripRepository.findById(dto.getTripId())
+                .orElseThrow(() -> new NoSuchElementException("Viaje no encontrado"));
+
+        boolean belongsToUser = trip.getUsers().stream()
+                .anyMatch(user -> user.getId().equals(myUserId));
+
+        if (!belongsToUser) {
+            throw new AccessDeniedException("No tienes permiso para crear checklists en este viaje");
+        }
+
+        UserEntity user = userRepository.findById(myUserId)
+                .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado"));
+
         CheckListEntity entity = checkListMapper.toEntity(dto);
-        entity.setTrip(tripRepository.findById(dto.getTripId())
-                .orElseThrow(() -> new NoSuchElementException("Viaje no encontrado")));
-
-        entity.setUser(userRepository.findById(myUserId)
-                .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado")));
-
+        entity.setTrip(trip);
+        entity.setUser(user);
         entity.setCompleted(false);
+
         return checkListMapper.toDTO(checkListRepository.save(entity));
     }
 
 
     public CheckListResponseDTO update(Long id, CheckListUpdateDTO dto, Long userId) {
+
         CheckListEntity entity = checkListRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Checklist no encontrada"));
 
@@ -82,15 +100,28 @@ public class CheckListService {
 
         checkListMapper.updateEntityFromDTO(dto, entity);
 
-        entity.setTrip(tripRepository.findById(dto.getTripId()).orElseThrow());
-        entity.setUser(userRepository.findById(userId).orElseThrow());
+        TripEntity trip = tripRepository.findById(dto.getTripId())
+                .orElseThrow(() -> new NoSuchElementException("Viaje no encontrado"));
+
+        boolean belongsToUser = trip.getUsers().stream()
+                .anyMatch(user -> user.getId().equals(userId));
+
+        if (!belongsToUser) {
+            throw new AccessDeniedException("No tienes permiso para asignar esta checklist a ese viaje");
+        }
+
+        entity.setTrip(trip);
+
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado"));
+        entity.setUser(user);
 
         if (dto.getCompleted() != null) {
             entity.setCompleted(dto.getCompleted());
 
             List<CheckListItemEntity> items = checkListItemRepository.findByChecklistId(entity.getId());
             for (CheckListItemEntity item : items) {
-                item.setStatus(dto.getCompleted()); // true o false según lo que se mandó
+                item.setStatus(dto.getCompleted());
             }
             checkListItemRepository.saveAll(items);
         }
@@ -99,20 +130,31 @@ public class CheckListService {
     }
 
 
-
-    public void delete(Long id) {
+    public void deleteIfOwned(Long id, Long userId) {
         CheckListEntity checkListEntity = checkListRepository.findById(id)
-                .orElseThrow(()-> new NoSuchElementException("No se encontro la checklist con ID:" + id));
+                .orElseThrow(() -> new NoSuchElementException("No se encontró la checklist con ID: " + id));
+
+        if (!checkListEntity.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("No tienes permiso para eliminar esta checklist.");
+        }
+
         checkListEntity.setActive(false);
         checkListRepository.save(checkListEntity);
     }
 
-    public void restore(Long id) {
+
+    public void restoreIfOwned(Long id, Long userId) {
         CheckListEntity checkListEntity = checkListRepository.findById(id)
-                .orElseThrow(()-> new NoSuchElementException("No se encontro la checklist con ID:" + id));
+                .orElseThrow(() -> new NoSuchElementException("No se encontró la checklist con ID: " + id));
+
+        if (!checkListEntity.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("No tienes permiso para restaurar esta checklist.");
+        }
+
         checkListEntity.setActive(true);
         checkListRepository.save(checkListEntity);
     }
+
 
     public Page<CheckListResponseDTO> findByUserId(Long userId, Pageable pageable) {
         return checkListRepository.findByUserId(userId, pageable)

@@ -111,7 +111,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
-    @PreAuthorize("hasAuthority('MODIFICAR_USUARIO')")
+    @PreAuthorize("hasAuthority('MODIFICAR_USUARIO_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<UserResponseDTO>> updateUser(
             @PathVariable Long id,
@@ -120,16 +120,27 @@ public class UserController {
         return ResponseEntity.ok(assembler.toModel(response));
     }
 
-    @Operation(summary = "Delete user by ID", description = "Deletes a specific user by ID.")
+    @Operation(
+            summary = "Update own account",
+            description = "Allows the authenticated user to update their own profile information, such as username, email, password, DNI, and preferences. " +
+                    "Only the fields included in the request will be updated (partial update)."
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "User deleted successfully"),
-            @ApiResponse(responseCode = "404", description = "User not found")
+            @ApiResponse(responseCode = "200", description = "Account updated successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UserResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input data"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authenticated"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
     })
-    @PreAuthorize("hasAuthority('ELIMINAR_USUARIO')")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.delete(id);
-        return ResponseEntity.noContent().build();
+    @PreAuthorize("hasAuthority('MODIFICAR_USUARIO')")
+    @PutMapping("/me/update")
+    public ResponseEntity<EntityModel<UserResponseDTO>> updateAccount(
+            Authentication authentication,
+            @RequestBody @Valid UserUpdateDTO updatedUserDTO) {
+        String username = authentication.getName();
+        UserResponseDTO response = userService.update(username, updatedUserDTO);
+        return ResponseEntity.ok(assembler.toModel(response));
     }
 
     @Operation(summary = "Delete own account", description = "Deletes the authenticated user's account.")

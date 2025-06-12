@@ -57,9 +57,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                         var roles = jwtService.extractRoles(jwt);
 
-                        System.out.println("Roles: " + roles);
-                        System.out.println("JWT: " + jwt);
-
                         var authorities = roles.stream()
                                 .map(org.springframework.security.core.authority.SimpleGrantedAuthority::new)
                                 .collect(Collectors.toList());
@@ -72,9 +69,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 );
                         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authToken);
-
-                        System.out.println("Authorities: " + authorities);
-                        System.out.println("Authorities dos: " + userDetails.getAuthorities());
                     }
                 }
                 filterChain.doFilter(request, response);

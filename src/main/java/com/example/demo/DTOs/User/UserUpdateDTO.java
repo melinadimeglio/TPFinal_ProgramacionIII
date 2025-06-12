@@ -24,7 +24,6 @@ public class UserUpdateDTO {
     private String email;
     private String password;  // opcional para cambio de contraseña
     private String dni;
-    private Role role;
     private Set<UserPreferences> preferencias;
     private List<TripResumeDTO> destinos;
 

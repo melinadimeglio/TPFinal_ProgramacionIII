@@ -103,6 +103,30 @@ public class UserService {
         UserEntity existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No se encontró el usuario con ID: " + id));
 
+        if(dto.getPassword() != null){
+            existingUser.getCredential().setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
+        if(dto.getEmail() != null){
+            existingUser.getCredential().setEmail(dto.getEmail());
+        }
+        userMapper.updateUserEntityFromDTO(dto, existingUser);
+        UserEntity savedUser = userRepository.save(existingUser);
+
+        return userMapper.toDTO(savedUser);
+    }
+
+    public UserResponseDTO update(String username, UserUpdateDTO dto) {
+        CredentialEntity credential = credentialRepository.findByEmail(username)
+                .orElseThrow(() -> new NoSuchElementException("No se encontró el usuario con username: " + username));
+
+        UserEntity existingUser = credential.getUser();
+
+        if(dto.getPassword() != null){
+            existingUser.getCredential().setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
+        if(dto.getEmail() != null){
+            existingUser.getCredential().setEmail(dto.getEmail());
+        }
         userMapper.updateUserEntityFromDTO(dto, existingUser);
         UserEntity savedUser = userRepository.save(existingUser);
 

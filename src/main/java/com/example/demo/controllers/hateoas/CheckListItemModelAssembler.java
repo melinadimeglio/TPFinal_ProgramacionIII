@@ -29,7 +29,7 @@ public class CheckListItemModelAssembler implements RepresentationModelAssembler
         Set<String> permisos = getAuthorities();
 
         if (permisos.contains("VER_CHECKLIST_ITEM")) {
-            model.add(linkTo(methodOn(CheckListItemController.class).getById(checklistItem.getId())).withSelfRel());
+            model.add(linkTo(methodOn(CheckListItemController.class).getById(checklistItem.getId(), null)).withSelfRel());
         }
 
         if (permisos.contains("VER_TODOS_CHECKLISTITEM")) {

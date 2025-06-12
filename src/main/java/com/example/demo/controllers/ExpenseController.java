@@ -3,7 +3,9 @@ package com.example.demo.controllers;
 import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
 import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
 import com.example.demo.DTOs.Expense.ExpenseUpdateDTO;
+import com.example.demo.DTOs.Expense.Response.ExpenseResumeDTO;
 import com.example.demo.controllers.hateoas.ExpenseModelAssembler;
+import com.example.demo.controllers.hateoas.ExpenseResumeModelAssembler;
 import com.example.demo.enums.ExpenseCategory;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.ExpenseService;
@@ -39,12 +41,20 @@ public class ExpenseController {
     private final ExpenseService expenseService;
     private final ExpenseModelAssembler assembler;
     private final PagedResourcesAssembler<ExpenseResponseDTO> pagedResourcesAssembler;
+    private final PagedResourcesAssembler<ExpenseResumeDTO> pagedResourcesAssemblerResume;
+    private final ExpenseResumeModelAssembler resumeAssembler;
+
 
     @Autowired
-    public ExpenseController(ExpenseService expenseService, ExpenseModelAssembler assembler, PagedResourcesAssembler<ExpenseResponseDTO> pagedResourcesAssembler) {
+    public ExpenseController(ExpenseService expenseService, ExpenseModelAssembler assembler, PagedResourcesAssembler<ExpenseResponseDTO> pagedResourcesAssembler,
+                             ExpenseResumeModelAssembler resumeAssembler,  PagedResourcesAssembler<ExpenseResumeDTO> pagedResourcesAssemblerResume) {
         this.expenseService = expenseService;
         this.assembler = assembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
+        this.resumeAssembler = resumeAssembler;
+        this.pagedResourcesAssemblerResume = pagedResourcesAssemblerResume;
+
+
     }
 
     @Operation(
@@ -69,6 +79,30 @@ public class ExpenseController {
         } else {
             expenses = expenseService.findAll(pageable);
         }
+        PagedModel<EntityModel<ExpenseResponseDTO>> model = pagedResourcesAssembler.toModel(expenses, assembler);
+
+        return ResponseEntity.ok(model);
+    }
+
+    @Operation(
+            summary = "Get all inactive expenses",
+            description = "Retrieves a paginated list of all inactive expenses in the system. " +
+                    "Requires the 'VER_TODOS_GASTOS' authority."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Expenses retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ExpenseResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authenticated"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
+    })
+    @PreAuthorize("hasAuthority('VER_TODOS_GASTOS')")
+    @GetMapping("/inactive")
+    public ResponseEntity<PagedModel<EntityModel<ExpenseResponseDTO>>> getAllExpensesInactive(
+            Pageable pageable) {
+
+        Page<ExpenseResponseDTO> expenses;
+        expenses = expenseService.findAllInactive(pageable);
         PagedModel<EntityModel<ExpenseResponseDTO>> model = pagedResourcesAssembler.toModel(expenses, assembler);
 
         return ResponseEntity.ok(model);
@@ -110,7 +144,7 @@ public class ExpenseController {
     })
     @PreAuthorize("hasAuthority('VER_GASTO_USUARIO')")
     @GetMapping("/user/{userId}")
-    public ResponseEntity<PagedModel<EntityModel<ExpenseResponseDTO>>> findByUserId(
+    public ResponseEntity<PagedModel<EntityModel<ExpenseResumeDTO>>> findByUserId(
             @PathVariable Long userId,
             @AuthenticationPrincipal CredentialEntity credential,
             Pageable pageable) {
@@ -119,8 +153,8 @@ public class ExpenseController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Page<ExpenseResponseDTO> expenses = expenseService.findByUserId(userId, pageable);
-        PagedModel<EntityModel<ExpenseResponseDTO>> model = pagedResourcesAssembler.toModel(expenses, assembler);
+        Page<ExpenseResumeDTO> expenses = expenseService.findByUserId(userId, pageable);
+        PagedModel<EntityModel<ExpenseResumeDTO>> model = pagedResourcesAssemblerResume.toModel(expenses, resumeAssembler);
         return ResponseEntity.ok(model);
     }
 
@@ -139,10 +173,12 @@ public class ExpenseController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Expense successfully created",
                     content = @Content(schema = @Schema(implementation = ExpenseResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid data")
+            @ApiResponse(responseCode = "403", description = "Access denied - Cannot create expense for this trip"),
+            @ApiResponse(responseCode = "400", description = "Invalid data"),
+            @ApiResponse(responseCode = "404", description = "Trip or user not found")
     })
-    @PostMapping
     @PreAuthorize("hasAuthority('CREAR_GASTO')")
+    @PostMapping
     public ResponseEntity<ExpenseResponseDTO> createExpense(
             @RequestBody @Valid ExpenseCreateDTO dto,
             @AuthenticationPrincipal CredentialEntity credential) {
@@ -151,6 +187,7 @@ public class ExpenseController {
         ExpenseResponseDTO createdExpense = expenseService.save(dto, myUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdExpense);
     }
+
 
 
     @Operation(
@@ -172,56 +209,68 @@ public class ExpenseController {
             @ApiResponse(responseCode = "200", description = "Expense successfully updated",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ExpenseResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Expense not found"),
             @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PreAuthorize("hasAuthority('MODIFICAR_GASTO')")
     @PutMapping("/{id}")
-    public ResponseEntity<ExpenseResponseDTO> updateExpense(@PathVariable Long id,
-                                                       @RequestBody @Valid ExpenseUpdateDTO dto) {
-        expenseService.update(id, dto);
-        return ResponseEntity.ok(expenseService.findById(id));
+    public ResponseEntity<ExpenseResumeDTO> updateExpense(
+            @PathVariable Long id,
+            @RequestBody @Valid ExpenseUpdateDTO dto,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long myUserId = credential.getUser().getId();
+        expenseService.updateIfOwned(id, dto, myUserId);
+        ExpenseResumeDTO updated = expenseService.findResumeById(id);
+        return ResponseEntity.ok(updated);
     }
 
 
     @Operation(
             summary = "Delete an expense by ID",
-            description = "Deletes the expense corresponding to the provided ID if it exists.",
+            description = "Deletes the expense corresponding to the provided ID if it belongs to the authenticated user.",
             parameters = {
                     @Parameter(name = "id", description = "ID of the expense to delete", required = true)
             }
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Expense successfully deleted"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Expense not found")
     })
     @PreAuthorize("hasAuthority('ELIMINAR_GASTO')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteExpense(@PathVariable Long id) {
-        expenseService.delete(id);
+    public ResponseEntity<Void> deleteExpense(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long myUserId = credential.getUser().getId();
+        expenseService.deleteIfOwned(id, myUserId);
         return ResponseEntity.noContent().build();
     }
+
 
     @Operation(
             summary = "Restore an expense",
             description = "Reactivates an expense that was previously deleted (soft-deleted) by setting its status to active."
     )
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "204",
-                    description = "Expense restored successfully. No content is returned in the response body."
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Expense not found"
-            )
+            @ApiResponse(responseCode = "204", description = "Expense restored successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Expense not found")
     })
     @PreAuthorize("hasAuthority('RESTAURAR_GASTO')")
     @PutMapping("/restore/{id}")
-    public ResponseEntity<Void> restoreExpense(@PathVariable Long id) {
-        expenseService.restore(id);
+    public ResponseEntity<Void> restoreExpense(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long myUserId = credential.getUser().getId();
+        expenseService.restoreIfOwned(id, myUserId);
         return ResponseEntity.noContent().build();
     }
+
 
     @Operation(
             summary = "Get total-average of expenses (not divided) by user ID",
@@ -252,25 +301,30 @@ public class ExpenseController {
 
     @Operation(
             summary = "Get expenses by trip ID",
-            description = "Retrieves all expenses associated with a specific trip ID.",
+            description = "Retrieves all expenses associated with a specific trip ID, only if the trip belongs to the authenticated user.",
             parameters = {
                     @Parameter(name = "tripId", description = "ID of the trip", required = true)
             }
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Expenses retrieved successfully",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExpenseResponseDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Trip not found or no expenses for trip"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExpenseResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Trip not found")
     })
     @PreAuthorize("hasAuthority('VER_GASTOS_VIAJE')")
     @GetMapping("/trip/{tripId}")
-    public ResponseEntity<PagedModel<EntityModel<ExpenseResponseDTO>>> getExpensesByTripId(@PathVariable Long tripId, Pageable pageable) {
-        Page<ExpenseResponseDTO> expenses = expenseService.findByTripId(tripId, pageable);
-        PagedModel<EntityModel<ExpenseResponseDTO>> model = pagedResourcesAssembler.toModel(expenses, assembler);
+    public ResponseEntity<PagedModel<EntityModel<ExpenseResumeDTO>>> getExpensesByTripId(
+            @PathVariable Long tripId,
+            @AuthenticationPrincipal CredentialEntity credential,
+            Pageable pageable) {
+
+        Long myUserId = credential.getUser().getId();
+        Page<ExpenseResumeDTO> expenses = expenseService.findByTripIdIfOwned(tripId, myUserId, pageable);
+        PagedModel<EntityModel<ExpenseResumeDTO>> model = pagedResourcesAssemblerResume.toModel(expenses, resumeAssembler);
         return ResponseEntity.ok(model);
     }
+
 
     @Operation(
             summary = "Get real average expense by user ID",
@@ -302,13 +356,20 @@ public class ExpenseController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Average calculated successfully",
                     content = @Content(schema = @Schema(implementation = Double.class))),
-            @ApiResponse(responseCode = "404", description = "Trip not found or no expenses for trip")
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Trip not found")
     })
     @PreAuthorize("hasAuthority('VER_PROMEDIO_VIAJE')")
     @GetMapping("/averageByTripId/{tripId}")
-    public ResponseEntity<Double> getAverageExpensesByTrip(@PathVariable Long tripId) {
-        return ResponseEntity.ok(expenseService.getAverageExpenseByTripId(tripId));
+    public ResponseEntity<Double> getAverageExpensesByTrip(
+            @PathVariable Long tripId,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long myUserId = credential.getUser().getId();
+        Double average = expenseService.getAverageExpenseByTripIdIfOwned(tripId, myUserId);
+        return ResponseEntity.ok(average);
     }
+
 
     @Operation(
             summary = "Get total expenses by trip ID",
@@ -317,13 +378,20 @@ public class ExpenseController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Total calculated successfully",
                     content = @Content(schema = @Schema(implementation = Double.class))),
-            @ApiResponse(responseCode = "404", description = "Trip not found or no expenses for trip")
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Trip not found")
     })
     @PreAuthorize("hasAuthority('VER_TOTAL_GASTO_VIAJE')")
     @GetMapping("/totalByTripId/{tripId}")
-    public ResponseEntity<Double> getTotalExpensesByTrip(@PathVariable Long tripId) {
-        return ResponseEntity.ok(expenseService.getTotalExpenseByTripId(tripId));
+    public ResponseEntity<Double> getTotalExpensesByTrip(
+            @PathVariable Long tripId,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long myUserId = credential.getUser().getId();
+        Double total = expenseService.getTotalExpenseByTripIdIfOwned(tripId, myUserId);
+        return ResponseEntity.ok(total);
     }
+
 
     @Operation(
             summary = "Get total real expenses by user ID",
@@ -348,4 +416,11 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseService.getTotalRealExpenseByUser(userId));
     }
 
+    // hateoas
+    @GetMapping("/trip/{tripId}/assembler-helper")
+    public ResponseEntity<PagedModel<EntityModel<ExpenseResponseDTO>>> getExpensesByTripId(
+            @PathVariable Long tripId,
+            Pageable pageable) {
+        throw new UnsupportedOperationException("Método solo utilizado para link building HATEOAS.");
+    }
 }

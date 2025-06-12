@@ -3,6 +3,7 @@ package com.example.demo.services;
 import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
 import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
 import com.example.demo.DTOs.Expense.ExpenseUpdateDTO;
+import com.example.demo.DTOs.Expense.Response.ExpenseResumeDTO;
 import com.example.demo.entities.ExpenseEntity;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
@@ -14,6 +15,7 @@ import com.example.demo.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -59,19 +61,30 @@ public class ExpenseService{
 
     public ExpenseResponseDTO save(ExpenseCreateDTO dto, Long myUserId) {
 
-        ExpenseEntity expense = expenseMapper.toEntity(dto);
-
         TripEntity trip = tripRepository.findById(dto.getTripId())
                 .orElseThrow(() -> new NoSuchElementException("Viaje no encontrado con ID: " + dto.getTripId()));
-        expense.setTrip(trip);
+
+        boolean belongsToUser = trip.getUsers().stream()
+                .anyMatch(user -> user.getId().equals(myUserId));
+
+        if (!belongsToUser) {
+            throw new AccessDeniedException("No tienes permiso para registrar gastos en este viaje");
+        }
 
         Set<Long> userIds = dto.getSharedUserIds() != null ? dto.getSharedUserIds() : new HashSet<>();
         userIds.add(myUserId);
 
-        Set<UserEntity> users = userRepository.findAllById(userIds).stream().collect(Collectors.toSet());
-        expense.setUsers(users);
+        List<UserEntity> foundUsers = userRepository.findAllById(userIds);
 
-        if (users.isEmpty()) {
+        if (foundUsers.size() != userIds.size()) {
+            throw new NoSuchElementException("Algunos de los usuarios compartidos no existen");
+        }
+
+        ExpenseEntity expense = expenseMapper.toEntity(dto);
+        expense.setTrip(trip);
+        expense.setUsers(new HashSet<>(foundUsers));
+
+        if (foundUsers.isEmpty()) {
             throw new IllegalStateException("No se puede dividir el gasto: no hay usuarios asignados.");
         }
 
@@ -101,31 +114,62 @@ public class ExpenseService{
         return response;
     }
 
-
-    public void update(Long id, ExpenseUpdateDTO dto) {
+    public void updateIfOwned(Long id, ExpenseUpdateDTO dto, Long myUserId) {
         ExpenseEntity entity = expenseRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No se encontró el gasto"));
+
+        TripEntity trip = entity.getTrip();
+
+        boolean belongsToUser = trip.getUsers().stream()
+                .anyMatch(user -> user.getId().equals(myUserId));
+
+        if (!belongsToUser) {
+            throw new AccessDeniedException("No tienes permiso para modificar este gasto");
+        }
+
         expenseMapper.updateEntityFromDTO(dto, entity);
         expenseRepository.save(entity);
     }
 
-    public void delete(Long id) {
+    public void deleteIfOwned(Long id, Long myUserId) {
         ExpenseEntity entity = expenseRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No se encontró el gasto"));
+
+        TripEntity trip = entity.getTrip();
+
+        boolean belongsToUser = trip.getUsers().stream()
+                .anyMatch(user -> user.getId().equals(myUserId));
+
+        if (!belongsToUser) {
+            throw new AccessDeniedException("No tienes permiso para eliminar este gasto");
+        }
+
         entity.setActive(false);
         expenseRepository.save(entity);
     }
 
-    public void restore(Long id) {
+
+    public void restoreIfOwned(Long id, Long myUserId) {
         ExpenseEntity entity = expenseRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No se encontró el gasto"));
+
+        TripEntity trip = entity.getTrip();
+
+        boolean belongsToUser = trip.getUsers().stream()
+                .anyMatch(user -> user.getId().equals(myUserId));
+
+        if (!belongsToUser) {
+            throw new AccessDeniedException("No tienes permiso para restaurar este gasto");
+        }
+
         entity.setActive(true);
         expenseRepository.save(entity);
     }
 
-    public Page<ExpenseResponseDTO> findByUserId(Long userId, Pageable pageable) {
+
+    public Page<ExpenseResumeDTO> findByUserId(Long userId, Pageable pageable) {
         return expenseRepository.findByUserId(userId, pageable)
-                .map(expenseMapper::toDTO);
+                .map(expenseMapper::toResumeDTO);
     }
 
     public Double getAverageExpenseByUserId(Long id) {
@@ -154,12 +198,34 @@ public class ExpenseService{
         return count == 0 ? 0.0 : total / count;
     }
 
-    public Page<ExpenseResponseDTO> findByTripId(Long tripId, Pageable pageable) {
+    public Page<ExpenseResumeDTO> findByTripIdIfOwned(Long tripId, Long myUserId, Pageable pageable) {
+
+        TripEntity trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new NoSuchElementException("Viaje no encontrado"));
+
+        boolean belongsToUser = trip.getUsers().stream()
+                .anyMatch(user -> user.getId().equals(myUserId));
+
+        if (!belongsToUser) {
+            throw new AccessDeniedException("No tienes permiso para ver los gastos de este viaje");
+        }
+
         return expenseRepository.findByTripId(tripId, pageable)
-                .map(expenseMapper::toDTO);
+                .map(expenseMapper::toResumeDTO);
     }
 
-    public Double getAverageExpenseByTripId(Long tripId) {
+
+    public Double getAverageExpenseByTripIdIfOwned(Long tripId, Long myUserId) {
+        TripEntity trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new NoSuchElementException("Viaje no encontrado"));
+
+        boolean belongsToUser = trip.getUsers().stream()
+                .anyMatch(user -> user.getId().equals(myUserId));
+
+        if (!belongsToUser) {
+            throw new AccessDeniedException("No tienes permiso para ver los gastos de este viaje");
+        }
+
         List<ExpenseEntity> expenses = expenseRepository.findByTripId(tripId);
 
         if (expenses.isEmpty()) return 0.0;
@@ -168,13 +234,24 @@ public class ExpenseService{
         return total / expenses.size();
     }
 
-    public Double getTotalExpenseByTripId(Long tripId) {
+    public Double getTotalExpenseByTripIdIfOwned(Long tripId, Long myUserId) {
+        TripEntity trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new NoSuchElementException("Viaje no encontrado"));
+
+        boolean belongsToUser = trip.getUsers().stream()
+                .anyMatch(user -> user.getId().equals(myUserId));
+
+        if (!belongsToUser) {
+            throw new AccessDeniedException("No tienes permiso para ver los gastos de este viaje");
+        }
+
         List<ExpenseEntity> expenses = expenseRepository.findByTripId(tripId);
 
         return expenses.stream()
                 .mapToDouble(ExpenseEntity::getAmount)
                 .sum();
     }
+
 
     public Double getTotalRealExpenseByUser(Long userId) {
         List<ExpenseEntity> expenses = expenseRepository.findAll();
@@ -189,4 +266,11 @@ public class ExpenseService{
         return expenseRepository.findByCategory(category, pageable)
                 .map(expenseMapper::toDTO);
     }
+
+    public ExpenseResumeDTO findResumeById(Long id) {
+        ExpenseEntity entity = expenseRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("No se encontró el gasto"));
+        return expenseMapper.toResumeDTO(entity);
+    }
+
 }

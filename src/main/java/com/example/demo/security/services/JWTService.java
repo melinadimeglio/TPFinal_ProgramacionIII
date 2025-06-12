@@ -104,14 +104,6 @@ public class JWTService {
                 && userDetails.isAccountNonLocked()
                 && userDetails.isEnabled();
     }
-/*
-    public boolean isTokenValid(String token) {
-        try {
-            return !isTokenExpired(token);
-        } catch (Exception e) {
-            return false;
-        }
-    }*/
 
     private String buildToken(
             Map<String, Object> extraClaims,

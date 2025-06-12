@@ -8,6 +8,11 @@ import com.example.demo.security.repositories.CredentialRepository;
 import com.example.demo.security.services.AuthService;
 import com.example.demo.security.services.JWTService;
 import com.example.demo.security.services.TokenBlacklistService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,6 +38,16 @@ public class AuthController {
         this.tokenBlacklistService = tokenBlacklistService;
     }
 
+    @Operation(
+            summary = "Authenticate user",
+            description = "Authenticates a user using email and password, and returns a JWT access token and a refresh token."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Authenticated successfully",
+                    content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid credentials")
+    })
+
     @PostMapping()
     public ResponseEntity<AuthResponse> authenticateUser(@RequestBody
                                                          AuthRequest authRequest){
@@ -49,6 +64,15 @@ public class AuthController {
         return ResponseEntity.ok(new AuthResponse(token, refreshToken));
     }
 
+    @Operation(
+            summary = "Refresh access token",
+            description = "Renews the access token using a valid refresh token. Returns a new access token and refresh token."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Token refreshed successfully",
+                    content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid or expired refresh token")
+    })
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refreshToken(@RequestBody
                                                      RefreshTokenRequest request){
@@ -57,6 +81,14 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "Logout user",
+            description = "Logs out the user by revoking the current access token. Adds the token to a blacklist."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Logged out successfully"),
+            @ApiResponse(responseCode = "400", description = "No valid token provided")
+    })
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest httpServletRequest){
         String auth = httpServletRequest.getHeader("Authorization");

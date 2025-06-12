@@ -9,6 +9,7 @@ import com.example.demo.DTOs.Activity.Response.CompanyResponseDTO;
 import com.example.demo.controllers.hateoas.ActivityModelAssembler;
 import com.example.demo.enums.ActivityCategory;
 import com.example.demo.security.entities.CredentialEntity;
+import com.example.demo.security.enums.Role;
 import com.example.demo.services.ActivityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -114,13 +115,27 @@ public class ActivityController {
     })
     @PreAuthorize("hasAuthority('CREAR_ACTIVIDAD_EMPRESA')")
     @PostMapping("/company")
-    public ResponseEntity<ActivityResponseDTO> createFromCompany(
+    public ResponseEntity<ActivityResponseDTO> createActivityFromCompany(
             @RequestBody @Valid CompanyActivityCreateDTO dto,
             @AuthenticationPrincipal CredentialEntity credential) {
 
-        Long companyId = credential.getCompany().getId();
+        Long companyId = 0L;
 
-        ActivityResponseDTO response = activityService.createFromCompany(dto, companyId);
+        List<String> authorities = credential.getAuthorities()
+                .stream()
+                .map(Object::toString)
+                .toList();
+
+        if (authorities.contains("ROLE_ADMIN")){
+            companyId = dto.getCompanyId();
+        }else if (authorities.contains("ROLE_COMPANY")){
+            if (credential.getCompany() == null) {
+                throw new RuntimeException("La empresa no está asociada al usuario COMPANY.");
+            }
+            companyId = credential.getCompany().getId();
+        }
+
+        ActivityResponseDTO response = activityService.createFromCompanyService(dto, companyId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -178,6 +193,29 @@ public class ActivityController {
         PagedModel model = pagedResourcesAssembler.toModel(activities, assembler);
         return ResponseEntity.ok(model);
     }
+
+    @Operation(
+            summary = "Get all inactive activities",
+            description = "Retrieves a paginated list of all inactive activities in the system. Requires the 'VER_TODAS_ACTIVIDADES' authority."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Activities retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ActivityResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authenticated"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
+    })
+
+    @PreAuthorize("hasAuthority('VER_TODAS_ACTIVIDADES')")
+    @GetMapping("/inactive")
+    public ResponseEntity<PagedModel<EntityModel<ActivityResponseDTO>>> getAllActivitiesInactive(
+            Pageable pageable) {
+
+        Page<ActivityResponseDTO> activities = activityService.findAllInactive(pageable);
+        PagedModel model = pagedResourcesAssembler.toModel(activities, assembler);
+        return ResponseEntity.ok(model);
+    }
+
 
 
     @Operation(

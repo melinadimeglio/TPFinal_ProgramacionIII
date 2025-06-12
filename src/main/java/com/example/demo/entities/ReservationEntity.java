@@ -35,6 +35,8 @@ public class ReservationEntity {
     @Enumerated(EnumType.STRING)
     private ReservationStatus status;
 
+    private String urlPayment;
+
     @Builder.Default
     private boolean active = true;
 }
