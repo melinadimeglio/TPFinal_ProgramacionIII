@@ -52,6 +52,11 @@ public class RecommendationService {
         ResponseEntity<PlacesResponse> response = restTemplate.exchange(url, HttpMethod.GET, null, PlacesResponse.class);
         List<Feature> features = response.getBody().getFeatures();
 
+        if (features == null || features.isEmpty()) {
+            System.out.println("No recommendations received from OpenTripMap for destination: " + trip.getDestination());
+            return Page.empty(pageable);
+        }
+
         List<RecommendationEntity> entities = features.stream()
                 .map(feature -> {
                     RecommendationEntity entity = recommendationMapper.toEntity(feature);
@@ -70,6 +75,9 @@ public class RecommendationService {
 
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), dtos.size());
+        if (start >= dtos.size()) {
+            return new PageImpl<>(Collections.emptyList(), pageable, dtos.size());
+        }
 
         List<RecommendationDTO> paged = dtos.subList(start, end);
         return new PageImpl<>(paged, pageable, dtos.size());

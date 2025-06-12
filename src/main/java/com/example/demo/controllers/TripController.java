@@ -296,8 +296,11 @@ public class TripController {
 
     @PreAuthorize("hasAuthority('OBTENER_RECOMENDACIONES_FILTRADAS')")
     @GetMapping("/{tripId}/recommendations/filtered")
-    public ResponseEntity<PagedModel<EntityModel<RecommendationDTO>>> getFilteredRecommendations(@PathVariable Long tripId, Pageable pageable){
+    public ResponseEntity<?> getFilteredRecommendations(@PathVariable Long tripId, Pageable pageable){
         Page<RecommendationDTO> recomendations = recommendationService.getRecommendationsForTrip(tripId, pageable);
+        if (recomendations.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No recommendations found.");
+        }
         TripEntity trip = tripService.getTripById(tripId);
 
         Set<UserEntity> users = trip.getUsers();
@@ -307,6 +310,11 @@ public class TripController {
                 .map(pref -> pref.getKindApi().toLowerCase())
                 .collect(Collectors.toSet());
 
+        if (allPreferences.isEmpty()) {
+            System.out.println("No preferences found for any users in tripId=" + tripId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No preferences defined for any user.");
+        }
+
         System.out.println("Usuarios del viaje: " + users.size());
         users.forEach(u -> System.out.println(u.getPreferencias()));
 
@@ -315,6 +323,11 @@ public class TripController {
                         .map(cat -> cat.getName().toLowerCase())
                         .anyMatch(allPreferences::contains))
                 .collect(Collectors.toList());
+
+        if (filteredRecommendations.isEmpty()) {
+            System.out.println("Recommendations found but none match preferences for tripId=" + tripId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No recommendations matched user preferences.");
+        }
 
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), filteredRecommendations.size());
