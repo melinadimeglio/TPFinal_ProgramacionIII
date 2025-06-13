@@ -18,6 +18,7 @@ import com.example.demo.repositories.ItineraryRepository;
 import com.example.demo.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -140,6 +141,20 @@ public class ActivityService {
                 .map(activityMapper::toDTO);
     }
 
+    public Page<ActivityResponseDTO> findAllCompany (Pageable pageable){
+        Page<ActivityEntity> activities = activityRepository.findAllByAvailableTrue(pageable);
+        List<ActivityEntity> activitiesList = activities.stream()
+                .toList();
+
+        List<ActivityEntity> activitiesFiltered = activitiesList.stream()
+                .filter(activityEntity -> activityEntity.getCompany() != null)
+                .toList();
+
+        Page<ActivityEntity> page = new PageImpl<>(activitiesFiltered, pageable, activitiesFiltered.size());
+
+        return page.map(activityMapper::toDTO);
+    }
+
     public Page<ActivityResponseDTO> findAllInactive(Pageable pageable) {
         return activityRepository.findAllByAvailableFalse(pageable)
                 .map(activityMapper::toDTO);
@@ -232,7 +247,6 @@ public class ActivityService {
         activityRepository.save(activity);
     }
 
-
     public ActivityResponseDTO updateActivityByCompany(Long companyId, Long activityId, CompanyActivityUpdateDTO dto) {
         ActivityEntity activity = activityRepository.findById(activityId)
                 .orElseThrow(() -> new NoSuchElementException("La actividad no existe"));
@@ -246,7 +260,6 @@ public class ActivityService {
 
         return activityMapper.toDTO(activity);
     }
-
 
     public void deleteActivityByCompany(Long companyId, Long activityId) {
         ActivityEntity activity = activityRepository.findById(activityId)

@@ -177,9 +177,11 @@ public class ActivityController {
             @AuthenticationPrincipal CredentialEntity credential,
             Pageable pageable) {
 
-        Long myCompanyId = credential.getCompany().getId();
+        Optional <Long> myCompanyId = Optional.ofNullable(credential.getCompany().getId());
+        boolean isAdmin = credential.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-        if (!myCompanyId.equals(companyId)) {
+        if (myCompanyId.isEmpty() && !isAdmin || !myCompanyId.get().equals(companyId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -187,8 +189,6 @@ public class ActivityController {
         PagedModel<EntityModel<CompanyResponseDTO>> model = pagedResourcesAssemblerCompany.toModel(activities);
         return ResponseEntity.ok(model);
     }
-
-
 
     @Operation(
             summary = "Get all activities with optional filters",
@@ -217,6 +217,21 @@ public class ActivityController {
         return ResponseEntity.ok(model);
     }
 
+    @PreAuthorize("hasAuthority('VER_TODAS_ACTIVIDADES_EMPRESA')")
+    @GetMapping("/company")
+    public ResponseEntity<PagedModel<EntityModel<ActivityResponseDTO>>> getAllActivitiesCompany(
+            Pageable pageable,
+            @RequestParam(required = false) ActivityCategory category,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+        Page<ActivityResponseDTO> activities = activityService.findAllCompany(pageable);
+
+
+        PagedModel model = pagedResourcesAssembler.toModel(activities, assembler);
+        return ResponseEntity.ok(model);
+    }
+
     @Operation(
             summary = "Get all inactive activities",
             description = "Retrieves a paginated list of all inactive activities in the system. Requires the 'VER_TODAS_ACTIVIDADES' authority."
@@ -238,8 +253,6 @@ public class ActivityController {
         PagedModel model = pagedResourcesAssembler.toModel(activities, assembler);
         return ResponseEntity.ok(model);
     }
-
-
 
     @Operation(
             summary = "Get an activity by ID",
