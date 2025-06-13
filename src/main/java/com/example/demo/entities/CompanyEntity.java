@@ -1,4 +1,5 @@
 package com.example.demo.entities;
+import com.example.demo.security.entities.CredentialEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -36,5 +37,8 @@ public class CompanyEntity {
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
     private List<ActivityEntity> activities;
+
+    @OneToOne(mappedBy = "company", cascade = CascadeType.ALL)
+    private CredentialEntity credential;
 
 }

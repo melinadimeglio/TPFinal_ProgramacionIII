@@ -3,6 +3,7 @@ package com.example.demo.controllers;
 import com.example.demo.DTOs.Company.CompanyUpdateDTO;
 import com.example.demo.DTOs.Company.Request.CompanyCreateDTO;
 import com.example.demo.DTOs.Company.Response.CompanyResponseDTO;
+import com.example.demo.DTOs.User.Response.UserResponseDTO;
 import com.example.demo.controllers.hateoas.CompanyModelAssembler;
 import com.example.demo.entities.CompanyEntity;
 import com.example.demo.security.entities.CredentialEntity;
@@ -24,6 +25,7 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -125,6 +127,13 @@ public class CompanyController {
         return ResponseEntity.ok(assembler.toModel(company));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<EntityModel<CompanyResponseDTO>> getProfile(Authentication authentication) {
+        String username = authentication.getName();
+        CompanyResponseDTO profile = companyService.getProfile(username);
+        return ResponseEntity.ok(assembler.toModel(profile));
+    }
+
 
     @Operation(summary = "Create a new company", description = "Creates a new company.")
     @ApiResponses(value = {
@@ -166,6 +175,14 @@ public class CompanyController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCompany(@PathVariable Long id) {
         companyService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasAuthority('ELIMINAR_EMPRESA')")
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteOwnCompany(Authentication authentication) {
+        String username = authentication.getName();
+        companyService.deleteOwn(username);
         return ResponseEntity.noContent().build();
     }
 

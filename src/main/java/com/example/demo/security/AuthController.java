@@ -97,8 +97,9 @@ public class AuthController {
         if(auth != null && auth.startsWith("Bearer")){
             String token = auth.substring(7);
             tokenBlacklistService.blacklist(token);
+            return ResponseEntity.ok("Logged out successfully.");
         }
-        return ResponseEntity.ok("Sesion cerrada correctamente.");
+        return ResponseEntity.badRequest().body("No valid token provided.");
     }
 
 
