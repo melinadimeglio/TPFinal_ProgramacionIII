@@ -109,7 +109,7 @@ public class ActivityService {
         }
     }
 
-    public ActivityResponseDTO createFromCompanyService(CompanyActivityCreateDTO dto, Long companyId) {
+    public CompanyResponseDTO createFromCompanyService(CompanyActivityCreateDTO dto, Long companyId) {
 
         System.out.println("ID DE COMPANY DENTRO DE CREATE FROM COMPANY: " + companyId);
 
@@ -121,7 +121,7 @@ public class ActivityService {
         entity.setAvailable(true);
 
         ActivityEntity saved = activityRepository.save(entity);
-        return activityMapper.toDTO(saved);
+        return activityMapper.toCompanyResponseDTO(saved);
     }
 
     public ActivityResponseDTO findById(Long id) {

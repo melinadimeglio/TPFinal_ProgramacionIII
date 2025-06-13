@@ -15,8 +15,6 @@ import java.util.Set;
 public class RecommendationDTO {
 
     private String name;
-    private Set<CategoryEntity> categories;
-    private Double lat;
-    private Double lon;
+    private Set<CategoryDTO> categories;
 
 }
