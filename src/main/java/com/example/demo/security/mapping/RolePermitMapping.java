@@ -42,6 +42,10 @@ public class RolePermitMapping {
                 Permit.ELIMINAR_ACTIVIDAD_USUARIO,
                 Permit.RESTAURAR_ACTIVIDAD_USUARIO,
 
+                //ACTIVITY (empresa)
+
+                Permit.VER_TODAS_ACTIVIDADES_EMPRESA,
+
                 // CHECKLIST
                 Permit.CREAR_CHECKLIST,
                 Permit.MODIFICAR_CHECKLIST,
@@ -90,6 +94,7 @@ public class RolePermitMapping {
                 Permit.CANCELAR_RESERVA,
                 Permit.VER_RESERVAS_USUARIO,
                 Permit.PAGAR_RESERVA
+
         ));
 
         // COMPANY
@@ -100,6 +105,7 @@ public class RolePermitMapping {
                 Permit.MODIFICAR_ACTIVIDADES_EMPRESA,
                 Permit.ELIMINAR_ACTIVIDAD_EMPRESA,
                 Permit.RESTAURAR_ACTIVIDAD_EMPRESA,
+                Permit.VER_TODAS_ACTIVIDADES_EMPRESA,
 
                 // USER (básicos)
                 Permit.INICIAR_SESION,
