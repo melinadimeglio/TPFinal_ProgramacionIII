@@ -2,6 +2,7 @@ package com.example.demo.controllers;
 
 import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
 import com.example.demo.DTOs.Activity.CompanyActivityUpdateDTO;
+import com.example.demo.DTOs.Activity.Filter.ActivityFilterDTO;
 import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
@@ -207,15 +208,14 @@ public class ActivityController {
     @PreAuthorize("hasAuthority('VER_TODAS_ACTIVIDADES')")
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<ActivityResponseDTO>>> getAllActivities(
-            Pageable pageable,
-            @RequestParam(required = false) ActivityCategory category,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+            Pageable pageable) {
 
-        Page<ActivityResponseDTO> activities = activityService.findWithFilters(category, startDate, endDate, pageable);
-        PagedModel model = pagedResourcesAssembler.toModel(activities, assembler);
+        Page<ActivityResponseDTO> activities = activityService.findAll(pageable);
+        PagedModel<EntityModel<ActivityResponseDTO>> model = pagedResourcesAssembler.toModel(activities, assembler);
         return ResponseEntity.ok(model);
     }
+
+
 
     @PreAuthorize("hasAuthority('VER_TODAS_ACTIVIDADES_EMPRESA')")
     @GetMapping("/company")
@@ -323,16 +323,18 @@ public class ActivityController {
     public ResponseEntity<PagedModel<EntityModel<ActivityResponseDTO>>> getActivitiesByUserId(
             @PathVariable Long userId,
             @AuthenticationPrincipal CredentialEntity credential,
+            ActivityFilterDTO filters,
             Pageable pageable) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Page<ActivityResponseDTO> activities = activityService.findByUserId(userId, pageable);
+        Page<ActivityResponseDTO> activities = activityService.findByUserIdWithFilters(userId, filters, pageable);
         PagedModel<EntityModel<ActivityResponseDTO>> model = pagedResourcesAssembler.toModel(activities, assembler);
         return ResponseEntity.ok(model);
     }
+
 
     @Operation(
             summary = "Update an existing activity",
