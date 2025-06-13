@@ -14,7 +14,6 @@ public class CompanyResponseDTO {
 
     private Long id;
     private Double price;
-    private boolean available;
     private String name;
     private String description;
     private ActivityCategory category;

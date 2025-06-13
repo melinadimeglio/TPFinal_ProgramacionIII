@@ -15,9 +15,6 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring", uses = GeometryHelper.class)
 public interface RecommendationMapper {
 
-
-    @Mapping(target = "lat", source = "geometry", qualifiedByName = "extractLat")
-    @Mapping(target = "lon", source = "geometry", qualifiedByName = "extractLon")
     @Mapping(source = "properties.name", target = "name")
     @Mapping(target = "categories", ignore = true)
     RecommendationDTO toDTO (Feature feature);
