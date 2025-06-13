@@ -92,6 +92,10 @@ public class TripService {
             }
         }
 
+        if (dto.getCompanions() != users.size() - 1){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "El numero de acompañantes no coincide con los usuarios que comparten el viaje.");
+        }
+
         TripEntity trip = tripMapper.toEntity(dto);
         trip.setUsers(users);
 
