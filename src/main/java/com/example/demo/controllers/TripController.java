@@ -299,7 +299,7 @@ public class TripController {
     public ResponseEntity<?> getFilteredRecommendations(@PathVariable Long tripId, Pageable pageable){
         Page<RecommendationDTO> recomendations = recommendationService.getRecommendationsForTrip(tripId, pageable);
         if (recomendations.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No recommendations found.");
+            return ResponseEntity.status(HttpStatus.OK).body("No recommendations found.");
         }
         TripEntity trip = tripService.getTripById(tripId);
 
@@ -312,7 +312,7 @@ public class TripController {
 
         if (allPreferences.isEmpty()) {
             System.out.println("No preferences found for any users in tripId=" + tripId);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No preferences defined for any user.");
+            return ResponseEntity.status(HttpStatus.OK).body("No preferences defined for any user.");
         }
 
         System.out.println("Usuarios del viaje: " + users.size());
@@ -326,7 +326,7 @@ public class TripController {
 
         if (filteredRecommendations.isEmpty()) {
             System.out.println("Recommendations found but none match preferences for tripId=" + tripId);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No recommendations matched user preferences.");
+            return ResponseEntity.status(HttpStatus.OK).body("No recommendations matched user preferences.");
         }
 
         int start = (int) pageable.getOffset();

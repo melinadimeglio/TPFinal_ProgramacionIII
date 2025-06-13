@@ -76,7 +76,7 @@ public class TripService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         users.add(owner);
 
-        if (!dto.getSharedUserIds().isEmpty() && dto.getSharedUserIds() != null) {
+        if (dto.getSharedUserIds() != null && !dto.getSharedUserIds().isEmpty()) {
             for (Long sharedId : dto.getSharedUserIds()) {
                 UserEntity sharedUser = userRepository.findById(sharedId)
                         .orElseThrow(() -> new RuntimeException("Usuario compartido no encontrado"));

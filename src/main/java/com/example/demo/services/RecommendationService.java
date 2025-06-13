@@ -89,7 +89,9 @@ public class RecommendationService {
 
         return Arrays.stream(kinds.split(","))
                 .map(String::trim)
-                .map(this::getOrCreateCategory)
+                .map(kind -> {String name = kind.contains(".")?
+                kind.substring(kind.lastIndexOf('.') + 1) : kind;
+                return getOrCreateCategory(name);})
                 .collect(Collectors.toSet());
     }
 
