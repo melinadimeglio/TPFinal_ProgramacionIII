@@ -4,10 +4,7 @@ import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.DTOs.Reservation.Request.ReservationCreateDTO;
 import com.example.demo.DTOs.Reservation.Response.ReservationResponseDTO;
 import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
-import com.example.demo.entities.ActivityEntity;
-import com.example.demo.entities.ReservationEntity;
-import com.example.demo.entities.TripEntity;
-import com.example.demo.entities.UserEntity;
+import com.example.demo.entities.*;
 import com.example.demo.enums.ReservationStatus;
 import com.example.demo.mappers.ReservationMapper;
 import com.example.demo.repositories.ActivityRepository;
@@ -57,6 +54,12 @@ public class ReservationService {
 
         ActivityEntity activity = activityRepository.findById(dto.getActivityId())
                 .orElseThrow(() -> new ResourceNotFoundException("Activity not found"));
+
+        Optional<CompanyEntity> companyId = Optional.ofNullable(activity.getCompany());
+
+        if (companyId.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No puede crear una reservacion la actividad ingresada.");
+        }
 
         ReservationEntity reservation = reservationMapper.toEntity(dto, user, activity);
         reservation.setStatus(ReservationStatus.PENDING);
