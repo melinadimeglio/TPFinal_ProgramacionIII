@@ -2,6 +2,7 @@ package com.example.demo.SpecificationAPI;
 
 import com.example.demo.entities.ActivityEntity;
 import com.example.demo.enums.ActivityCategory;
+import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
@@ -26,8 +27,10 @@ public class ActivitySpecification {
     public static Specification<ActivityEntity> belongsToUser(Long userId) {
         return (root, query, cb) -> {
             if (userId == null) return null;
-            return cb.isMember(userId, root.join("users").get("id"));
+            Join<Object, Object> join = root.join("users");
+            return cb.equal(join.get("id"), userId);
         };
     }
 }
+
 
