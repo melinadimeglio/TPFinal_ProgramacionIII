@@ -10,7 +10,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CompanyResponseDTO {
+public class ActivityCompanyResponseDTO {
 
     private Long id;
     private Double price;
