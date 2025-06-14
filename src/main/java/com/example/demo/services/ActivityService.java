@@ -4,10 +4,10 @@ import com.example.demo.DTOs.Activity.CompanyActivityUpdateDTO;
 import com.example.demo.DTOs.Activity.Filter.ActivityFilterDTO;
 import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
+import com.example.demo.DTOs.Activity.Response.ActivityCompanyResponseDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
-import com.example.demo.DTOs.Activity.Response.CompanyResponseDTO;
-import com.example.demo.SpecificationAPI.ActivitySpecification;
+
 import com.example.demo.entities.ActivityEntity;
 import com.example.demo.entities.CompanyEntity;
 import com.example.demo.entities.ItineraryEntity;
@@ -29,12 +29,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class ActivityService {
@@ -112,7 +110,7 @@ public class ActivityService {
         }
     }
 
-    public CompanyResponseDTO createFromCompanyService(CompanyActivityCreateDTO dto, Long companyId) {
+    public ActivityCompanyResponseDTO createFromCompanyService(CompanyActivityCreateDTO dto, Long companyId) {
 
         System.out.println("ID DE COMPANY DENTRO DE CREATE FROM COMPANY: " + companyId);
 
@@ -133,7 +131,7 @@ public class ActivityService {
         return activityMapper.toDTO(entity);
     }
 
-    public Page<CompanyResponseDTO> findByCompanyId(Long companyId, Pageable pageable) {
+    public Page<ActivityCompanyResponseDTO> findByCompanyId(Long companyId, Pageable pageable) {
         return activityRepository.findByCompanyId(companyId, pageable)
                 .map(activityMapper::toCompanyResponseDTO);
     }

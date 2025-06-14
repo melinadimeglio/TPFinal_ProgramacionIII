@@ -4,8 +4,8 @@ import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
 import com.example.demo.DTOs.Activity.CompanyActivityUpdateDTO;
 import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
+import com.example.demo.DTOs.Activity.Response.ActivityCompanyResponseDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
-import com.example.demo.DTOs.Activity.Response.CompanyResponseDTO;
 import com.example.demo.entities.ActivityEntity;
 import com.example.demo.entities.CompanyEntity;
 import com.example.demo.entities.UserEntity;
@@ -45,7 +45,7 @@ public interface ActivityMapper {
 
         List<ActivityResponseDTO> toDTOList(List<ActivityEntity> entities);
 
-        CompanyResponseDTO toCompanyResponseDTO(ActivityEntity entity);
+        ActivityCompanyResponseDTO toCompanyResponseDTO(ActivityEntity entity);
 
         @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
         void updateEntityFromDTO(ActivityUpdateDTO dto, @MappingTarget ActivityEntity entity);

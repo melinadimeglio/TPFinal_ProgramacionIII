@@ -38,13 +38,11 @@ public class ReservationController {
 
     private final ReservationService reservationService;
     private final PagedResourcesAssembler<ReservationResponseDTO> pagedResourcesAssembler;
-    private final MPService mpService;
 
     @Autowired
-    public ReservationController(ReservationService reservationService, PagedResourcesAssembler<ReservationResponseDTO> pagedResourcesAssembler, MPService mpService) {
+    public ReservationController(ReservationService reservationService, PagedResourcesAssembler<ReservationResponseDTO> pagedResourcesAssembler) {
         this.reservationService = reservationService;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
-        this.mpService = mpService;
     }
 
     @Operation(
@@ -76,14 +74,6 @@ public class ReservationController {
             throw new RuntimeException("La actividad no cuenta con la disponibilidad necesaria.");
         }
 
-        try {
-            String link = mpService.mercado(reservation);
-            reservation.setUrlPayment(link);
-        } catch (MPException e) {
-            throw new RuntimeException("Error al generar reserva o link de pago.");
-        } catch (MPApiException e) {
-            throw new RuntimeException("Error al generar reserva o link de pago.");
-        }
         return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
     }
 
