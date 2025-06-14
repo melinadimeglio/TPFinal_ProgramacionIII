@@ -1,8 +1,10 @@
 package com.example.demo.services;
 
+import com.example.demo.DTOs.Filter.TripFilterDTO;
 import com.example.demo.DTOs.Trip.Request.TripCreateDTO;
 import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
 import com.example.demo.DTOs.Trip.TripUpdateDTO;
+import com.example.demo.SpecificationAPI.TripSpecification;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.mappers.TripMapper;
@@ -12,6 +14,7 @@ import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -180,12 +183,21 @@ public class TripService {
         return tripEntity.map(tripMapper::toDTO);
     }
 
-    //necesario para la api
     public TripEntity getTripById(Long id) {
         return tripRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Trip not found"));
     }
 
+    public Page<TripResponseDTO> findByUserIdWithFilters(Long userId, TripFilterDTO filters, Pageable pageable) {
+        Specification<TripEntity> spec = Specification
+                .where(TripSpecification.belongsToUser(userId))
+                .and(TripSpecification.hasDestination(filters.getDestination()))
+                .and(TripSpecification.startDateAfterOrEqual(filters.getStartDate()))
+                .and(TripSpecification.endDateBeforeOrEqual(filters.getEndDate()));
+
+        Page<TripEntity> result = tripRepository.findAll(spec, pageable);
+        return result.map(tripMapper::toDTO);
+    }
 }
 
 

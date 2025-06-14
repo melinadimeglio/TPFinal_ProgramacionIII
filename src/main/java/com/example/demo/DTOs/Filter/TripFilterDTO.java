@@ -1,6 +1,5 @@
-package com.example.demo.DTOs.Activity.Filter;
+package com.example.demo.DTOs.Filter;
 
-import com.example.demo.enums.ActivityCategory;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -10,9 +9,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
-public class ActivityFilterDTO {
-    private ActivityCategory category;
+public class TripFilterDTO {
+    private String destination;
     private LocalDate startDate;
     private LocalDate endDate;
 }

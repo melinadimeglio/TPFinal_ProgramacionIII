@@ -1,6 +1,6 @@
 package com.example.demo.controllers;
 
-import com.example.demo.DTOs.Activity.Filter.ExpenseFilterDTO;
+import com.example.demo.DTOs.Filter.ExpenseFilterDTO;
 import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
 import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
 import com.example.demo.DTOs.Expense.ExpenseUpdateDTO;
@@ -17,13 +17,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.ServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
@@ -31,8 +29,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "Expenses", description = "Operations related to user expenses")
 @RestController
@@ -148,7 +144,7 @@ public class ExpenseController {
     public ResponseEntity<PagedModel<EntityModel<ExpenseResumeDTO>>> findByUserId(
             @PathVariable Long userId,
             @AuthenticationPrincipal CredentialEntity credential,
-            ExpenseFilterDTO filters,  // 👈 Aceptás los filtros como parámetro
+            ExpenseFilterDTO filters,
             Pageable pageable) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {

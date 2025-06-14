@@ -1,4 +1,4 @@
-package com.example.demo.DTOs.Activity.Filter;
+package com.example.demo.DTOs.Filter;
 
 import com.example.demo.enums.ExpenseCategory;
 import lombok.*;

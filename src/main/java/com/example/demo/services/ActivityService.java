@@ -1,7 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.DTOs.Activity.CompanyActivityUpdateDTO;
-import com.example.demo.DTOs.Activity.Filter.ActivityFilterDTO;
+import com.example.demo.DTOs.Filter.ActivityFilterDTO;
 import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityCompanyResponseDTO;

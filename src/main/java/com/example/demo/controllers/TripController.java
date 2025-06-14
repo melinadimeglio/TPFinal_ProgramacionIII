@@ -1,6 +1,7 @@
 package com.example.demo.controllers;
 
 
+import com.example.demo.DTOs.Filter.TripFilterDTO;
 import com.example.demo.DTOs.RecommendationDTO;
 import com.example.demo.DTOs.Trip.Request.TripCreateDTO;
 import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
@@ -126,8 +127,6 @@ public class TripController {
         return ResponseEntity.ok(assembler.toModel(trip));
     }
 
-
-
     @Operation(
             summary = "Create a new trip",
             description = "Creates a new trip and returns the created trip.",
@@ -155,7 +154,6 @@ public class TripController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
-
     @Operation(
             summary = "Get trips by user ID",
             description = "Returns all trips associated with a specific user ID."
@@ -182,8 +180,7 @@ public class TripController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<PagedModel<EntityModel<TripResponseDTO>>> getTripsByUserId(
             @PathVariable Long userId,
-            @RequestParam(required = false) String destination,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate date,
+            TripFilterDTO filters,
             @AuthenticationPrincipal CredentialEntity credential,
             Pageable pageable) {
 
@@ -191,10 +188,11 @@ public class TripController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Page<TripResponseDTO> trips = tripService.findByUserId(userId, destination, date, pageable);
+        Page<TripResponseDTO> trips = tripService.findByUserIdWithFilters(userId, filters, pageable);
         PagedModel<EntityModel<TripResponseDTO>> model = pagedResourcesAssembler.toModel(trips, assembler);
         return ResponseEntity.ok(model);
     }
+
 
     @Operation(summary = "Update a trip by ID", description = "Updates a trip by its ID only if it belongs to the authenticated user.")
     @ApiResponses(value = {
@@ -236,7 +234,6 @@ public class TripController {
 
         return ResponseEntity.noContent().build();
     }
-
 
 
     @Operation(

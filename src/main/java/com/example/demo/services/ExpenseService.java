@@ -1,6 +1,6 @@
 package com.example.demo.services;
 
-import com.example.demo.DTOs.Activity.Filter.ExpenseFilterDTO;
+import com.example.demo.DTOs.Filter.ExpenseFilterDTO;
 import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
 import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
 import com.example.demo.DTOs.Expense.ExpenseUpdateDTO;
@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class ExpenseService{
