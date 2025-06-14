@@ -4,15 +4,13 @@ import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
 import com.example.demo.DTOs.Activity.CompanyActivityUpdateDTO;
 import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
+import com.example.demo.DTOs.Activity.Response.ActivityCompanyResponseDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
-import com.example.demo.DTOs.Activity.Response.CompanyResponseDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.controllers.hateoas.ActivityModelAssembler;
-import com.example.demo.entities.ItineraryEntity;
 import com.example.demo.enums.ActivityCategory;
 import com.example.demo.repositories.ItineraryRepository;
 import com.example.demo.security.entities.CredentialEntity;
-import com.example.demo.security.enums.Role;
 import com.example.demo.services.ActivityService;
 import com.example.demo.services.ItineraryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,16 +19,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.persistence.SecondaryTable;
 import jakarta.validation.Valid;
-import org.springdoc.ui.SpringDocUIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,12 +49,12 @@ public class ActivityController {
     private final ActivityService activityService;
     private final ActivityModelAssembler assembler;
     private final PagedResourcesAssembler<ActivityResponseDTO> pagedResourcesAssembler;
-    private final PagedResourcesAssembler<CompanyResponseDTO> pagedResourcesAssemblerCompany;
+    private final PagedResourcesAssembler<ActivityCompanyResponseDTO> pagedResourcesAssemblerCompany;
     private final ItineraryService itineraryService;
     private final ItineraryRepository itineraryRepository;
 
     @Autowired
-    public ActivityController(ActivityService activityService, ActivityModelAssembler assembler, PagedResourcesAssembler<ActivityResponseDTO> pagedResourcesAssembler, PagedResourcesAssembler<CompanyResponseDTO> pagedResourcesAssemblerCompany, ItineraryService itineraryService, ItineraryRepository itineraryRepository) {
+    public ActivityController(ActivityService activityService, ActivityModelAssembler assembler, PagedResourcesAssembler<ActivityResponseDTO> pagedResourcesAssembler, PagedResourcesAssembler<ActivityCompanyResponseDTO> pagedResourcesAssemblerCompany, ItineraryService itineraryService, ItineraryRepository itineraryRepository) {
         this.activityService = activityService;
         this.assembler = assembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
@@ -137,7 +132,7 @@ public class ActivityController {
     })
     @PreAuthorize("hasAuthority('CREAR_ACTIVIDAD_EMPRESA')")
     @PostMapping("/company")
-    public ResponseEntity<CompanyResponseDTO> createActivityFromCompany(
+    public ResponseEntity<ActivityCompanyResponseDTO> createActivityFromCompany(
             @RequestBody @Valid CompanyActivityCreateDTO dto,
             @AuthenticationPrincipal CredentialEntity credential) {
 
@@ -157,7 +152,7 @@ public class ActivityController {
             companyId = credential.getCompany().getId();
         }
 
-        CompanyResponseDTO response = activityService.createFromCompanyService(dto, companyId);
+        ActivityCompanyResponseDTO response = activityService.createFromCompanyService(dto, companyId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -172,7 +167,7 @@ public class ActivityController {
     })
     @PreAuthorize("hasAuthority('VER_ACTIVIDAD_EMPRESA')")
     @GetMapping("/company/{companyId}")
-    public ResponseEntity<PagedModel<EntityModel<CompanyResponseDTO>>> getByCompanyId(
+    public ResponseEntity<PagedModel<EntityModel<ActivityCompanyResponseDTO>>> getByCompanyId(
             @PathVariable Long companyId,
             @AuthenticationPrincipal CredentialEntity credential,
             Pageable pageable) {
@@ -185,8 +180,8 @@ public class ActivityController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Page<CompanyResponseDTO> activities = activityService.findByCompanyId(companyId, pageable);
-        PagedModel<EntityModel<CompanyResponseDTO>> model = pagedResourcesAssemblerCompany.toModel(activities);
+        Page<ActivityCompanyResponseDTO> activities = activityService.findByCompanyId(companyId, pageable);
+        PagedModel<EntityModel<ActivityCompanyResponseDTO>> model = pagedResourcesAssemblerCompany.toModel(activities);
         return ResponseEntity.ok(model);
     }
 
