@@ -30,12 +30,11 @@ public class GeocodingService {
         } else if (result == null || result.length == 0) {
             switch (destino.toLowerCase()) {
                 case "argentina":
-                    return new Coordinates(-38.4161, -63.6167); // Coordenadas del centro del país
+                    return new Coordinates(-38.4161, -63.6167);
                 case "mar del plata":
                     return new Coordinates(-38.0055, -57.5426);
                 case "buenos aires":
                     return new Coordinates(-34.6037, -58.3816);
-                // agregá otros destinos conocidos si querés
             }
             throw new RuntimeException("No se encontraron coordenadas para el destino ingresado.");
         }
