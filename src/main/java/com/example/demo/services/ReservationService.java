@@ -10,6 +10,8 @@ import com.example.demo.mappers.ReservationMapper;
 import com.example.demo.repositories.ActivityRepository;
 import com.example.demo.repositories.ReservationRepository;
 import com.example.demo.repositories.UserRepository;
+import com.mercadopago.exceptions.MPApiException;
+import com.mercadopago.exceptions.MPException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,12 +34,13 @@ public class ReservationService {
     private final ItineraryService itineraryService;
     private final TripService tripService;
     private final ActivityService activityService;
+    private final MPService mpService;
 
     @Autowired
     public ReservationService(ReservationRepository reservationRepository,
                               UserRepository userRepository,
                               ActivityRepository activityRepository,
-                              ReservationMapper reservationMapper, ItineraryService itineraryService, TripService tripService, ActivityService activityService) {
+                              ReservationMapper reservationMapper, ItineraryService itineraryService, TripService tripService, ActivityService activityService, MPService mpService) {
         this.reservationRepository = reservationRepository;
         this.userRepository = userRepository;
         this.activityRepository = activityRepository;
@@ -45,6 +48,7 @@ public class ReservationService {
         this.itineraryService = itineraryService;
         this.tripService = tripService;
         this.activityService = activityService;
+        this.mpService = mpService;
     }
 
     public ReservationResponseDTO createReservation(ReservationCreateDTO dto, Long userId) {
@@ -64,7 +68,20 @@ public class ReservationService {
         ReservationEntity reservation = reservationMapper.toEntity(dto, user, activity);
         reservation.setStatus(ReservationStatus.PENDING);
         reservation.setPaid(false);
+        reservation.setAmount(activity.getPrice());
+
         ReservationEntity saved = reservationRepository.save(reservation);
+
+        try {
+            String link = mpService.mercado(saved);
+            saved.setUrlPayment(link);
+        } catch (MPException e) {
+            throw new RuntimeException("Error al generar reserva o link de pago.");
+        } catch (MPApiException e) {
+            throw new RuntimeException("Error al generar reserva o link de pago.");
+        }
+
+        reservationRepository.save(saved);
 
         return reservationMapper.toDTO(saved);
     }
@@ -78,7 +95,7 @@ public class ReservationService {
 
         int cant = reservation.getActivity().getUsers().size();
 
-        System.out.println("CANT USERS: " + cant);
+        //System.out.println("CANT USERS: " + cant);
 
         if (activity.getAvailable_quantity() - cant >= 0) {
             activity.setAvailable_quantity(activity.getAvailable_quantity() - cant);

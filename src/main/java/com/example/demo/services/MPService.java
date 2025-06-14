@@ -2,6 +2,7 @@ package com.example.demo.services;
 
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.DTOs.Reservation.Response.ReservationResponseDTO;
+import com.example.demo.entities.ReservationEntity;
 import com.mercadopago.MercadoPagoConfig;
 import com.mercadopago.client.preference.PreferenceBackUrlsRequest;
 import com.mercadopago.client.preference.PreferenceClient;
@@ -30,11 +31,11 @@ public class MPService {
         this.activityService = activityService;
     }
 
-    public String mercado(ReservationResponseDTO reservation) throws MPException, MPApiException {
+    public String mercado(ReservationEntity reservation) throws MPException, MPApiException {
 
         MercadoPagoConfig.setAccessToken(mercadoPagoAccessToken);
 
-        ActivityResponseDTO activity = activityService.findById(reservation.getActivityId());
+        ActivityResponseDTO activity = activityService.findById(reservation.getActivity().getId());
 
         PreferenceBackUrlsRequest backUrls =
                 PreferenceBackUrlsRequest.builder()
