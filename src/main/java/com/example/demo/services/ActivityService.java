@@ -8,6 +8,7 @@ import com.example.demo.DTOs.Activity.Response.ActivityCompanyResponseDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
 
+import com.example.demo.SpecificationAPI.ActivitySpecification;
 import com.example.demo.entities.ActivityEntity;
 import com.example.demo.entities.CompanyEntity;
 import com.example.demo.entities.ItineraryEntity;
@@ -296,6 +297,27 @@ public class ActivityService {
         Page<ActivityEntity> result = activityRepository.findAll(spec, pageable);
         return result.map(activityMapper::toDTO);
     }
+
+    public Page<ActivityCompanyResponseDTO> findAllCompany(
+            ActivityCategory category,
+            LocalDate startDate,
+            LocalDate endDate,
+            Double minPrice,
+            Double maxPrice,
+            Long availableQuantity,
+            Pageable pageable) {
+
+        Specification<ActivityEntity> spec = Specification
+                .where(ActivitySpecification.hasCategory(category))
+                .and(ActivitySpecification.dateBetween(startDate, endDate))
+                .and(ActivitySpecification.priceBetween(minPrice, maxPrice))
+                .and(ActivitySpecification.availableQuantityEquals(availableQuantity))
+                .and(ActivitySpecification.hasCompany());  // solo trae las de empresas
+
+        Page<ActivityEntity> result = activityRepository.findAll(spec, pageable);
+        return result.map(activityMapper::toCompanyResponseDTO);
+    }
+
 
 
 }

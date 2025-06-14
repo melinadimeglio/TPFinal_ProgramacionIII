@@ -24,6 +24,27 @@ public class ActivitySpecification {
         };
     }
 
+    public static Specification<ActivityEntity> priceBetween(Double minPrice, Double maxPrice) {
+        return (root, query, cb) -> {
+            if (minPrice == null && maxPrice == null) return null;
+            if (minPrice == null) return cb.le(root.get("price"), maxPrice);
+            if (maxPrice == null) return cb.ge(root.get("price"), minPrice);
+            return cb.between(root.get("price"), minPrice, maxPrice);
+        };
+    }
+
+    public static Specification<ActivityEntity> availableQuantityEquals(Long availableQuantity) {
+        return (root, query, cb) -> {
+            if (availableQuantity == null) return null;
+            return cb.equal(root.get("available_quantity"), availableQuantity);
+        };
+    }
+
+    public static Specification<ActivityEntity> hasCompany() {
+        return (root, query, cb) -> cb.isNotNull(root.get("company"));
+    }
+
+
     public static Specification<ActivityEntity> belongsToUser(Long userId) {
         return (root, query, cb) -> {
             if (userId == null) return null;
