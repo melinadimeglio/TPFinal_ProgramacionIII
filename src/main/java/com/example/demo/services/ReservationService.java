@@ -1,10 +1,12 @@
 package com.example.demo.services;
 
+import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.DTOs.Reservation.Request.ReservationCreateDTO;
 import com.example.demo.DTOs.Reservation.Response.ReservationResponseDTO;
 import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
 import com.example.demo.entities.*;
+import com.example.demo.enums.ExpenseCategory;
 import com.example.demo.enums.ReservationStatus;
 import com.example.demo.mappers.ReservationMapper;
 import com.example.demo.repositories.ActivityRepository;
@@ -35,12 +37,13 @@ public class ReservationService {
     private final TripService tripService;
     private final ActivityService activityService;
     private final MPService mpService;
+    private final ExpenseService expenseService;
 
     @Autowired
     public ReservationService(ReservationRepository reservationRepository,
                               UserRepository userRepository,
                               ActivityRepository activityRepository,
-                              ReservationMapper reservationMapper, ItineraryService itineraryService, TripService tripService, ActivityService activityService, MPService mpService) {
+                              ReservationMapper reservationMapper, ItineraryService itineraryService, TripService tripService, ActivityService activityService, MPService mpService, ExpenseService expenseService) {
         this.reservationRepository = reservationRepository;
         this.userRepository = userRepository;
         this.activityRepository = activityRepository;
@@ -49,6 +52,7 @@ public class ReservationService {
         this.tripService = tripService;
         this.activityService = activityService;
         this.mpService = mpService;
+        this.expenseService = expenseService;
     }
 
     public ReservationResponseDTO createReservation(ReservationCreateDTO dto, Long userId) {
@@ -138,6 +142,19 @@ public class ReservationService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "No se pudo agregar la actividad al itinerario.");
         }
 
+        ExpenseCreateDTO expense;
+        Set<Long> users = trip.getUsers().stream()
+                        .map(UserEntity::getId)
+                        .collect(Collectors.toSet());
+
+        expenseService.save(expense = ExpenseCreateDTO.builder()
+                .amount(activity.getPrice())
+                .description(activity.getDescription())
+                .date(activity.getDate())
+                .tripId(trip.getId())
+                .category(ExpenseCategory.ACTIVIDADES)
+                .sharedUserIds(users)
+                .build(), userId);
 
         reservation.setStatus(ReservationStatus.ACTIVE);
         reservation.setPaid(true);
