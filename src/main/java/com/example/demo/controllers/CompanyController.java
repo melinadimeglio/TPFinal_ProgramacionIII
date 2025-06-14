@@ -171,7 +171,7 @@ public class CompanyController {
             @ApiResponse(responseCode = "204", description = "Company deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Company not found")
     })
-    @PreAuthorize("hasAuthority('ELIMINAR_EMPRESA')")
+    @PreAuthorize("hasAuthority('ELIMINAR_EMPRESA_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCompany(@PathVariable Long id) {
         companyService.delete(id);
