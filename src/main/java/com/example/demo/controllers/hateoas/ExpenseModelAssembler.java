@@ -66,7 +66,9 @@ public class ExpenseModelAssembler implements RepresentationModelAssembler<Expen
         Set<String> permisos = getAuthorities();
 
         if (permisos.contains("VER_GASTO_USUARIO")) {
-            collection.add(linkTo(methodOn(ExpenseController.class).findByUserId(userId, null, PageRequest.of(0, 10))).withSelfRel());
+            collection.add(linkTo(methodOn(ExpenseController.class)
+                    .findByUserId(userId, null, null, PageRequest.of(0, 10)))
+                    .withSelfRel());
         }
 
         if (permisos.contains("VER_TODOS_GASTOS")) {

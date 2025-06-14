@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTOs.Activity.Filter.ExpenseFilterDTO;
 import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
 import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
 import com.example.demo.DTOs.Expense.ExpenseUpdateDTO;
@@ -147,16 +148,18 @@ public class ExpenseController {
     public ResponseEntity<PagedModel<EntityModel<ExpenseResumeDTO>>> findByUserId(
             @PathVariable Long userId,
             @AuthenticationPrincipal CredentialEntity credential,
+            ExpenseFilterDTO filters,  // 👈 Aceptás los filtros como parámetro
             Pageable pageable) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Page<ExpenseResumeDTO> expenses = expenseService.findByUserId(userId, pageable);
+        Page<ExpenseResumeDTO> expenses = expenseService.findByUserIdWithFilters(userId, filters, pageable);
         PagedModel<EntityModel<ExpenseResumeDTO>> model = pagedResourcesAssemblerResume.toModel(expenses, resumeAssembler);
         return ResponseEntity.ok(model);
     }
+
 
     @Operation(
             summary = "Create a new expense",
