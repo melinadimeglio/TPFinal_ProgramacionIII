@@ -46,7 +46,7 @@ public class RecommendationService {
         String url = String.format(
                 Locale.US,
                 "https://api.opentripmap.com/0.1/en/places/radius?radius=%d&lon=%.6f&lat=%.6f&format=geojson&apikey=%s",
-                5000, coords.getLon(), coords.getLat(), apiKey
+                3000, coords.getLon(), coords.getLat(), apiKey
         );
 
         ResponseEntity<PlacesResponse> response = restTemplate.exchange(url, HttpMethod.GET, null, PlacesResponse.class);
