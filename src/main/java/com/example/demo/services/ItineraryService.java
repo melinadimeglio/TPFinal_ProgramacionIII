@@ -107,6 +107,11 @@ public class ItineraryService {
         boolean belongsToUser = trip.getUsers().stream()
                 .anyMatch(u -> u.getId().equals(myUserId));
 
+        if(dto.getItineraryDate().isBefore(trip.getStartDate()) || dto.getItineraryDate().isAfter(trip.getEndDate())){
+            throw new IllegalArgumentException("La fecha del itinerario no corresponda a el rango de fechas del viaje.");
+        }
+
+
         if (!belongsToUser) {
             throw new AccessDeniedException("No tenés permiso para agregar itinerarios a este viaje");
         }
