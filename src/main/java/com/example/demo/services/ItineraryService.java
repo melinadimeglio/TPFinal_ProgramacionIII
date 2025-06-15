@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
+import com.example.demo.DTOs.Filter.ItineraryFilterDTO;
 import com.example.demo.DTOs.Itinerary.Request.ItineraryCreateDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
@@ -17,9 +18,11 @@ import com.example.demo.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -154,6 +157,25 @@ public class ItineraryService {
         entity.setActive(true);
         itineraryRepository.save(entity);
     }
+
+    public Page<ItineraryResponseDTO> findByUserIdWithFilters(Long userId, ItineraryFilterDTO filters, Pageable pageable) {
+        Specification<ItineraryEntity> spec = Specification.where(
+                (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("user").get("id"), userId)
+        );
+
+        if (filters.getDateFrom() != null) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("itineraryDate"), LocalDate.parse(filters.getDateFrom())));
+        }
+        if (filters.getDateTo() != null) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.lessThanOrEqualTo(root.get("itineraryDate"), LocalDate.parse(filters.getDateTo())));
+        }
+
+        Page<ItineraryEntity> page = itineraryRepository.findAll(spec, pageable);
+        return page.map(itineraryMapper::toDTO);
+    }
+
 
 }
 
