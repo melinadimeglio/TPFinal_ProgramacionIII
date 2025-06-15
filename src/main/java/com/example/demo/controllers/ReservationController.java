@@ -2,6 +2,7 @@ package com.example.demo.controllers;
 
 import com.example.demo.DTOs.Reservation.Request.ReservationCreateDTO;
 import com.example.demo.DTOs.Reservation.Response.ReservationResponseDTO;
+import com.example.demo.exceptions.ReservationException;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.MPService;
 import com.example.demo.services.ReservationService;
@@ -64,14 +65,14 @@ public class ReservationController {
     @PostMapping
     public ResponseEntity<ReservationResponseDTO> createReservation(
             @RequestBody @Valid ReservationCreateDTO dto,
-            @AuthenticationPrincipal CredentialEntity credential) {
+            @AuthenticationPrincipal CredentialEntity credential) throws MPException, MPApiException {
 
         Long myUserId = credential.getUser().getId();
         ReservationResponseDTO reservation = reservationService.createReservation(dto, myUserId);
 
         if (!reservationService.activityDisponible(reservation.getId())){
             reservationService.cancelReservation(reservation.getId());
-            throw new RuntimeException("La actividad no cuenta con la disponibilidad necesaria.");
+            throw new ReservationException("La actividad no cuenta con la disponibilidad necesaria.");
         }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
@@ -81,7 +82,7 @@ public class ReservationController {
     @GetMapping("/confirmar-pago")
     public ResponseEntity<String> confirmarPago(@RequestParam Long external_reference,
                                                 @RequestParam Long payment_id,
-                                                @AuthenticationPrincipal CredentialEntity credential, Pageable pageable){
+                                                @AuthenticationPrincipal CredentialEntity credential, Pageable pageable) throws MPException, MPApiException {
 
         Long myUserId = credential.getUser().getId();
         Set<ReservationResponseDTO> reservas = reservationService.findByUserId(myUserId, pageable).toSet();
@@ -90,7 +91,6 @@ public class ReservationController {
                 .toList();
 
         if (idReservas.contains(external_reference)){
-            try {
                 PaymentClient paymentClient = new PaymentClient();
                 Payment payment = paymentClient.get(payment_id);
 
@@ -102,13 +102,6 @@ public class ReservationController {
                             .body("El pago no fue aprobado.");
                 }
 
-            } catch (MPException e) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("\"Error al procesar el pago.");
-            } catch (MPApiException e) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("\"Error al procesar el pago.");
-            }
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Su user no tiene una reserva correspondiente al pago.");

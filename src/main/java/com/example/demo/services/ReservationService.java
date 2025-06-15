@@ -8,6 +8,7 @@ import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
 import com.example.demo.entities.*;
 import com.example.demo.enums.ExpenseCategory;
 import com.example.demo.enums.ReservationStatus;
+import com.example.demo.exceptions.ReservationException;
 import com.example.demo.mappers.ReservationMapper;
 import com.example.demo.repositories.ActivityRepository;
 import com.example.demo.repositories.ReservationRepository;
@@ -55,7 +56,7 @@ public class ReservationService {
         this.expenseService = expenseService;
     }
 
-    public ReservationResponseDTO createReservation(ReservationCreateDTO dto, Long userId) {
+    public ReservationResponseDTO createReservation(ReservationCreateDTO dto, Long userId) throws MPException, MPApiException {
 
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -66,7 +67,7 @@ public class ReservationService {
         Optional<CompanyEntity> companyId = Optional.ofNullable(activity.getCompany());
 
         if (companyId.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No puede crear una reservacion la actividad ingresada.");
+            throw new ReservationException("No puede crear una reservacion la actividad ingresada.");
         }
 
         ReservationEntity reservation = reservationMapper.toEntity(dto, user, activity);
@@ -76,14 +77,8 @@ public class ReservationService {
 
         ReservationEntity saved = reservationRepository.save(reservation);
 
-        try {
             String link = mpService.mercado(saved);
             saved.setUrlPayment(link);
-        } catch (MPException e) {
-            throw new RuntimeException("Error al generar reserva o link de pago.");
-        } catch (MPApiException e) {
-            throw new RuntimeException("Error al generar reserva o link de pago.");
-        }
 
         reservationRepository.save(saved);
 
@@ -126,20 +121,20 @@ public class ReservationService {
                         .findFirst();
 
         if (itineraryOptional.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No hay itinerario para la fecha de la actividad. Por favor cree uno.");
+            throw new ReservationException("No hay itinerario para la fecha de la actividad. Por favor cree uno.");
         }
 
         TripEntity trip = tripService.getTripById(itineraryOptional.get().getTripId());
         int cant = trip.getCompanions() + 1 ;
 
         if (!activityService.updateCapacity(activity.getId(), cant)){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "No se puede guardar la actividad ya que no cuenta con la disponibilidad suficiente.");
+            throw new ReservationException("No se puede guardar la actividad ya que no cuenta con la disponibilidad suficiente.");
         }
 
         Long itineraryId = itineraryOptional.get().getId();
 
         if (!itineraryService.addActivity(itineraryId, userId, activity.getId())){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "No se pudo agregar la actividad al itinerario.");
+            throw new ReservationException("No se pudo agregar la actividad al itinerario.");
         }
 
         ExpenseCreateDTO expense;
