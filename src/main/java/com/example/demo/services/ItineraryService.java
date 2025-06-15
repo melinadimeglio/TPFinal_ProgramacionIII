@@ -108,7 +108,7 @@ public class ItineraryService {
                 .anyMatch(u -> u.getId().equals(myUserId));
 
         if(dto.getItineraryDate().isBefore(trip.getStartDate()) || dto.getItineraryDate().isAfter(trip.getEndDate())){
-            throw new IllegalArgumentException("La fecha del itinerario no corresponda a el rango de fechas del viaje.");
+            throw new IllegalArgumentException("La fecha del itinerario no corresponda al rango de fechas del viaje.");
         }
 
 
