@@ -1,6 +1,7 @@
 package com.example.demo.controllers;
 
 import com.example.demo.DTOs.Filter.ItineraryFilterDTO;
+import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
 import com.example.demo.DTOs.Itinerary.Request.ItineraryCreateDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
@@ -10,6 +11,7 @@ import com.example.demo.mappers.ItineraryMapper;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.ItineraryService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -49,7 +51,7 @@ public class ItineraryController {
 
     @Operation(
             summary = "Create a new itinerary",
-            description = "This endpoint allows a user to create a new itinerary by providing the itinerary date, optional notes, user ID, and trip ID.",
+            description = "Creates a new itinerary by providing the itinerary date, optional notes, and trip ID.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Itinerary details to be created",
                     required = true,
@@ -70,7 +72,35 @@ public class ItineraryController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Invalid input data"
+                    description = "Invalid input data",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Trip not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
             )
     })
     @PostMapping
@@ -93,7 +123,40 @@ public class ItineraryController {
                     responseCode = "200",
                     description = "List of itineraries retrieved successfully",
                     content = @Content(
-                            mediaType = "application/json"
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ItineraryResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request parameters",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - insufficient permissions",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
                     )
             )
     })
@@ -107,14 +170,49 @@ public class ItineraryController {
 
     @Operation(
             summary = "Get all inactive itineraries",
-            description = "Retrieves a paginated list of all inactive itineraries. Requires the 'VER_ITINERARIOS' authority."
+            description = "Retrieves a paginated list of all inactive itineraries."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Itineraries retrieved successfully",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ItineraryResponseDTO.class))),
-            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authenticated"),
-            @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Itineraries retrieved successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ItineraryResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - insufficient permissions",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request parameters",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
     })
     @PreAuthorize("hasAuthority('VER_ITINERARIOS')")
     @GetMapping("/inactive")
@@ -124,8 +222,7 @@ public class ItineraryController {
         return ResponseEntity.ok(model);
     }
 
-    @PreAuthorize("hasAuthority('VER_ITINERARIO')")
-    @GetMapping("/{id}")
+
     @Operation(
             summary = "Get itinerary by ID",
             description = "Retrieves a specific itinerary by its unique identifier, only if it belongs to the authenticated user."
@@ -141,13 +238,31 @@ public class ItineraryController {
             ),
             @ApiResponse(
                     responseCode = "403",
-                    description = "Access denied"
+                    description = "Access denied",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Itinerary not found"
+                    description = "Itinerary not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
             )
     })
+    @PreAuthorize("hasAuthority('VER_ITINERARIO')")
+    @GetMapping("/{id}")
     public ResponseEntity<EntityModel<ItineraryResponseDTO>> getItineraryById(
             @PathVariable Long id,
             @AuthenticationPrincipal CredentialEntity credential) {
@@ -162,14 +277,9 @@ public class ItineraryController {
 
     @Operation(
             summary = "Get itineraries by user ID",
-            description = "Retrieves all itineraries associated with a specific user. Returns an empty list if the user has no itineraries.",
+            description = "Retrieves all itineraries associated with a specific user. Allows filtering by date and destination.",
             parameters = {
-                    @io.swagger.v3.oas.annotations.Parameter(
-                            name = "userId",
-                            description = "ID of the user whose itineraries are to be retrieved",
-                            required = true,
-                            example = "1"
-                    )
+                    @Parameter(name = "userId", description = "ID of the user whose itineraries are to be retrieved", required = true, example = "1")
             }
     )
     @ApiResponses(value = {
@@ -177,16 +287,29 @@ public class ItineraryController {
                     responseCode = "200",
                     description = "Itineraries retrieved successfully",
                     content = @Content(
-                            mediaType = "application/json"
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ItineraryResponseDTO.class)
                     )
             ),
             @ApiResponse(
                     responseCode = "403",
-                    description = "Forbidden - User not authorized to access this resource"
+                    description = "Forbidden - User not authorized to access this resource",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "User not found"
+                    description = "User not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request parameters",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
             )
     })
     @PreAuthorize("hasAuthority('VER_ITINERARIO_USUARIO')")
@@ -206,9 +329,6 @@ public class ItineraryController {
         return ResponseEntity.ok(model);
     }
 
-
-    @PreAuthorize("hasAuthority('MODIFICAR_ITINERARIO')")
-    @PutMapping("/{id}")
     @Operation(
             summary = "Update an existing itinerary",
             description = "Updates the details of an itinerary by its ID. Only the owner can update it."
@@ -222,9 +342,41 @@ public class ItineraryController {
                             schema = @Schema(implementation = ItineraryResponseDTO.class)
                     )
             ),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Itinerary not found")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input data",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Itinerary not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
     })
+    @PreAuthorize("hasAuthority('MODIFICAR_ITINERARIO')")
+    @PutMapping("/{id}")
     public ResponseEntity<ItineraryResponseDTO> updateItinerary(
             @PathVariable Long id,
             @RequestBody @Valid ItineraryUpdateDTO dto,
@@ -241,9 +393,42 @@ public class ItineraryController {
             description = "Deletes (soft delete) an itinerary by its ID, only if it belongs to the authenticated user."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Itinerary deleted successfully"),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Itinerary not found")
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Itinerary deleted successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request data",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Itinerary not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
     })
     @PreAuthorize("hasAuthority('ELIMINAR_ITINERARIO')")
     @DeleteMapping("/{id}")
@@ -261,9 +446,42 @@ public class ItineraryController {
             description = "Reactivates a previously deleted itinerary (soft-deleted) only if it belongs to the authenticated user."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Itinerary restored successfully"),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Itinerary not found")
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Itinerary restored successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request data",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Itinerary not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
     })
     @PreAuthorize("hasAuthority('RESTAURAR_ITINERARIO')")
     @PutMapping("/restore/{id}")
