@@ -10,6 +10,7 @@ import com.example.demo.entities.ExpenseEntity;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.enums.ExpenseCategory;
+import com.example.demo.exceptions.ReservationException;
 import com.example.demo.mappers.ExpenseMapper;
 import com.example.demo.repositories.ExpenseRepository;
 import com.example.demo.repositories.TripRepository;
@@ -82,6 +83,13 @@ public class ExpenseService{
             throw new NoSuchElementException("Some of the shared users do not exist.");
         }
 
+        for (UserEntity sharedUser : foundUsers) {
+            if (sharedUser.getCredential().getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+                throw new ReservationException("You cannot add Admin type users.");
+            }
+        }
+
         ExpenseEntity expense = expenseMapper.toEntity(dto);
         expense.setTrip(trip);
         expense.setUsers(new HashSet<>(foundUsers));
@@ -129,9 +137,29 @@ public class ExpenseService{
             throw new AccessDeniedException("You do not have permission to modify this expense.");
         }
 
+        if (dto.getUserIds() != null && !dto.getUserIds().isEmpty()) {
+            List<Long> invalidUserIds = dto.getUserIds().stream()
+                    .filter(userId -> !userRepository.existsById(userId))
+                    .toList();
+
+            if (!invalidUserIds.isEmpty()) {
+                throw new IllegalArgumentException("The following userIds do not exist: " + invalidUserIds);
+            }
+
+            List<UserEntity> foundUsers = userRepository.findAllById(dto.getUserIds());
+
+            for (UserEntity sharedUser : foundUsers) {
+                if (sharedUser.getCredential().getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+                    throw new ReservationException("You cannot add Admin type users.");
+                }
+            }
+        }
+
         expenseMapper.updateEntityFromDTO(dto, entity);
         expenseRepository.save(entity);
     }
+
 
     public void deleteIfOwned(Long id, Long myUserId) {
         ExpenseEntity entity = expenseRepository.findById(id)
@@ -182,7 +210,7 @@ public class ExpenseService{
     }
 
     public Double getRealAverageExpenseByUser(Long userId) {
-        List<ExpenseEntity> expenses = expenseRepository.findAll(); // o buscás los que incluyan al user
+        List<ExpenseEntity> expenses = expenseRepository.findAll();
 
         double total = 0.0;
         int count = 0;
