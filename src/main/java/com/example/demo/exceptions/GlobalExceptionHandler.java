@@ -99,6 +99,11 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.FORBIDDEN, "No tiene permisos para acceder a este recurso." + ex.getMessage());
     }
 
+    @ExceptionHandler(OwnershipException.class)
+    public ResponseEntity<Object> handleOwnershipException(OwnershipException ex) {
+        return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage());
+    }
+
     @ExceptionHandler(MPApiException.class)
     public ResponseEntity<Object> handleMPApiException(MPApiException ex) {
         return buildResponse(HttpStatus.BAD_REQUEST, "Error al procesar el pago. " + ex.getMessage());

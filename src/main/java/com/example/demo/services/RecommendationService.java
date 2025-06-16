@@ -7,6 +7,7 @@ import com.example.demo.api.PlacesResponse;
 import com.example.demo.entities.CategoryEntity;
 import com.example.demo.entities.RecommendationEntity;
 import com.example.demo.entities.TripEntity;
+import com.example.demo.exceptions.OwnershipException;
 import com.example.demo.mappers.RecommendationMapper;
 import com.example.demo.repositories.CategoryRepository;
 import com.example.demo.repositories.RecommendationRepository;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.nio.file.AccessDeniedException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,8 +39,14 @@ public class RecommendationService {
     private final CategoryRepository categoryRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public Page<RecommendationDTO> getRecommendationsForTrip(Long tripId, Pageable pageable) {
+    public Page<RecommendationDTO> getRecommendationsForTrip(Long tripId, Long userId, Pageable pageable){
         TripEntity trip = tripService.getTripById(tripId);
+        boolean isUserInTrip = trip.getUsers()
+                .stream()
+                .anyMatch(user -> user.getId().equals(userId));
+        if(!isUserInTrip){
+            throw new OwnershipException("No tienes permiso para ver este viaje.");
+        }
         Coordinates coords = geocodingService.getCoordinates(trip.getDestination());
 
         System.out.println("Lon: " + coords.getLon() + ", Lat: " + coords.getLat());
