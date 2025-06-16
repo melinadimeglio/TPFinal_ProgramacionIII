@@ -70,11 +70,6 @@ public class ReservationController {
         Long myUserId = credential.getUser().getId();
         ReservationResponseDTO reservation = reservationService.createReservation(dto, myUserId);
 
-        if (!reservationService.activityDisponible(reservation.getId())){
-            reservationService.cancelReservation(reservation.getId());
-            throw new ReservationException("La actividad no cuenta con la disponibilidad necesaria.");
-        }
-
         return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
     }
 
