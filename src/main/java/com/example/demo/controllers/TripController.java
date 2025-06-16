@@ -2,6 +2,7 @@ package com.example.demo.controllers;
 
 
 import com.example.demo.DTOs.Filter.TripFilterDTO;
+import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
 import com.example.demo.DTOs.RecommendationDTO;
 import com.example.demo.DTOs.Trip.Request.TripCreateDTO;
 import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
@@ -70,11 +71,34 @@ public class TripController {
         this.pagedResourcesAssemblerRec = pagedResourcesAssemblerRec;
     }
 
-    @Operation(summary = "Get all trips", description = "Returns a list of all trips.")
+    @Operation(
+            summary = "Get all trips",
+            description = "Returns a list of all trips."
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "List of trips retrieved successfully",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TripResponseDTO.class)))
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "List of trips retrieved successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = TripResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - User not authenticated",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('VER_VIAJES')")
     @GetMapping
@@ -86,18 +110,31 @@ public class TripController {
 
     @Operation(
             summary = "Retrieve all inactive trips",
-            description = "This endpoint returns a paginated list of all trips that have been logically deleted (inactive). "
-                    + "Only users with the 'VER_VIAJES' authority can access this information."
+            description = "Returns a paginated list of all trips that have been logically deleted (inactive). "
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
                     description = "Successfully retrieved the list of inactive trips",
-                    content = @Content(mediaType = "application/json")
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = TripResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - User not authenticated",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
             ),
             @ApiResponse(
                     responseCode = "403",
-                    description = "Access denied: the user does not have permission to view trips"
+                    description = "Access denied: the user does not have permission to view trips",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
             )
     })
     @PreAuthorize("hasAuthority('VER_VIAJES')")
@@ -108,13 +145,39 @@ public class TripController {
         return ResponseEntity.ok(model);
     }
 
-    @Operation(summary = "Get a trip by ID", description = "Returns a specific trip by its ID, only if it belongs to the authenticated user.")
+    @Operation(
+            summary = "Get a trip by ID",
+            description = "Returns a specific trip by its ID, only if it belongs to the authenticated user."
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Trip found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TripResponseDTO.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Trip not found")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Trip found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = TripResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request data",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Trip not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('VER_VIAJE')")
     @GetMapping("/{id}")
@@ -131,7 +194,7 @@ public class TripController {
 
     @Operation(
             summary = "Create a new trip",
-            description = "Creates a new trip and returns the created trip.",
+            description = "Creates a new trip.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Trip data to create",
                     required = true,
@@ -139,10 +202,32 @@ public class TripController {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Trip created successfully",
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Trip created successfully",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TripResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid input data")
+                            schema = @Schema(implementation = TripResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input data",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Related resource not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('CREAR_VIAJE')")
     @PostMapping
@@ -156,9 +241,10 @@ public class TripController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
+
     @Operation(
             summary = "Get trips by user ID",
-            description = "Returns all trips associated with a specific user ID."
+            description = "Returns all trips associated with a specific user ID, with optional filters."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -170,12 +256,24 @@ public class TripController {
                     )
             ),
             @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request parameters",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
                     responseCode = "403",
-                    description = "Forbidden - User not authorized to access this resource"
+                    description = "Forbidden - User not authorized to access this resource",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "User not found"
+                    description = "User not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
             )
     })
     @PreAuthorize("hasAuthority('VER_VIAJE_USUARIO')")
@@ -196,14 +294,37 @@ public class TripController {
     }
 
 
-    @Operation(summary = "Update a trip by ID", description = "Updates a trip by its ID only if it belongs to the authenticated user.")
+    @Operation(
+            summary = "Update a trip by ID",
+            description = "Updates a trip by its ID only if it belongs to the authenticated user."
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Trip updated successfully",
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Trip updated successfully",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TripResponseDTO.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Trip not found"),
-            @ApiResponse(responseCode = "400", description = "Invalid input data")
+                            schema = @Schema(implementation = TripResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input data",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Trip not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('MODIFICAR_VIAJE')")
     @PutMapping("/{id}")
@@ -218,11 +339,27 @@ public class TripController {
         return ResponseEntity.ok(updatedTrip);
     }
 
-    @Operation(summary = "Delete a trip by ID", description = "Performs a soft delete of a trip by its ID, only if it belongs to the authenticated user.")
+    @Operation(
+            summary = "Delete a trip by ID",
+            description = "Performs a soft delete of a trip by its ID, only if it belongs to the authenticated user."
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Trip deleted successfully"),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Trip not found")
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Trip not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('ELIMINAR_VIAJE')")
     @DeleteMapping("/{id}")
@@ -249,11 +386,18 @@ public class TripController {
             ),
             @ApiResponse(
                     responseCode = "403",
-                    description = "Access denied"
+                    description = "Access denied",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Trip not found"
+                    description = "Trip not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
             )
     })
     @PreAuthorize("hasAuthority('RESTAURAR_VIAJE')")
@@ -269,13 +413,13 @@ public class TripController {
 
 
     @Operation(
-            summary = "Obtener recomendaciones de actividades para un viaje",
-            description = "Devuelve una lista de actividades sugeridas en base al destino, fechas u otros datos del viaje especificado."
+            summary = "Get activity recommendations for a trip",
+            description = "Returns a list of suggested activities based on the destination, dates, or other trip-related information."
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Lista de recomendaciones generada exitosamente",
+                    description = "Recommendations successfully generated",
                     content = @Content(
                             mediaType = "application/json",
                             array = @ArraySchema(schema = @Schema(implementation = RecommendationDTO.class))
@@ -283,7 +427,18 @@ public class TripController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Viaje no encontrado"
+                    description = "Trip not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request parameters",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
             )
     })
     @PreAuthorize("hasAuthority('OBTENER_RECOMENDACIONES_VIAJE')")
@@ -298,6 +453,44 @@ public class TripController {
         return ResponseEntity.ok(pagedResourcesAssemblerRec.toModel(recomemendations));
     }
 
+    @Operation(
+            summary = "Get filtered activity recommendations for a trip",
+            description = "Returns a filtered list of activity recommendations for a given trip based on user preferences. Only the trip owner can access this resource.",
+            parameters = {
+                    @Parameter(name = "id", description = "ID of the authenticated user", required = true),
+                    @Parameter(name = "tripId", description = "ID of the trip", required = true)
+            }
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Filtered recommendations successfully retrieved",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = PagedModel.class) // para representar que es paginado
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Trip not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request parameters",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
+    })
     @PreAuthorize("hasAuthority('OBTENER_RECOMENDACIONES_FILTRADAS')")
     @GetMapping("/{id}/{tripId}/recommendations/filtered")
     public ResponseEntity<?> getFilteredRecommendations(@PathVariable Long tripId, @PathVariable Long id,
