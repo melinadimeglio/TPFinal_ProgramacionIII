@@ -5,6 +5,7 @@ import com.example.demo.DTOs.CheckList.Response.CheckListResponseDTO;
 import com.example.demo.DTOs.CheckList.CheckListUpdateDTO;
 import com.example.demo.DTOs.Filter.CheckListFilterDTO;
 import com.example.demo.controllers.hateoas.CheckListModelAssembler;
+import com.example.demo.exceptions.OwnershipException;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.CheckListService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -179,7 +180,7 @@ public class CheckListController {
             Pageable pageable) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
         }
 
         Page<CheckListResponseDTO> checklists = checkListService.findByUserIdWithFilters(userId, filters, pageable);

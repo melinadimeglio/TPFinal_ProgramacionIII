@@ -5,6 +5,7 @@ import com.example.demo.DTOs.Itinerary.Request.ItineraryCreateDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
 import com.example.demo.controllers.hateoas.ItineraryModelAssembler;
+import com.example.demo.exceptions.OwnershipException;
 import com.example.demo.mappers.ItineraryMapper;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.ItineraryService;
@@ -197,7 +198,7 @@ public class ItineraryController {
             @AuthenticationPrincipal CredentialEntity credential) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
         }
 
         Page<ItineraryResponseDTO> itineraries = itineraryService.findByUserIdWithFilters(userId, filters, pageable);

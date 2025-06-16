@@ -6,6 +6,7 @@ import com.example.demo.DTOs.Company.Response.CompanyResponseDTO;
 import com.example.demo.DTOs.User.Response.UserResponseDTO;
 import com.example.demo.controllers.hateoas.CompanyModelAssembler;
 import com.example.demo.entities.CompanyEntity;
+import com.example.demo.exceptions.OwnershipException;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.CompanyService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -120,7 +121,7 @@ public class CompanyController {
         Long myCompanyId = credential.getCompany().getId();
 
         if (!myCompanyId.equals(id)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
         }
 
         CompanyResponseDTO company = companyService.findById(id);

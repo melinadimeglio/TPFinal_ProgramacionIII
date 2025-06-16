@@ -5,6 +5,7 @@ import com.example.demo.DTOs.User.Response.UserResponseDTO;
 import com.example.demo.DTOs.User.UserUpdateDTO;
 import com.example.demo.controllers.hateoas.UserModelAssembler;
 import com.example.demo.entities.UserEntity;
+import com.example.demo.exceptions.OwnershipException;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -85,7 +86,7 @@ public class UserController {
             @AuthenticationPrincipal CredentialEntity credential) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(id)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
         }
 
         UserResponseDTO user = userService.findById(id);
