@@ -72,10 +72,10 @@ public class ActivityService {
 
         if (itineraryId != null) {
             itinerary = itineraryRepository.findById(itineraryId)
-                    .orElseThrow(() -> new NoSuchElementException("Itinerario no encontrado"));
+                    .orElseThrow(() -> new NoSuchElementException("Itinerary not found."));
 
             if (!itinerary.getUser().getId().equals(myUserId)) {
-                throw new AccessDeniedException("No tienes permiso para agregar actividades a este itinerario");
+                throw new AccessDeniedException("You are not allowed to add activities to this itinerary.");
             }
 
             entity.setItinerary(itinerary);
@@ -114,7 +114,7 @@ public class ActivityService {
 
         ActivityEntity saved = activityRepository.save(entity);
         if (!itineraryService.addActivity(itineraryId, myUserId, saved.getId())){
-            throw new ReservationException("No se pudo crear la actividad.");
+            throw new ReservationException("The activity could not be created.");
         }
 
         Set<Long> usersIds = users.stream()
@@ -136,7 +136,7 @@ public class ActivityService {
     public boolean updateCapacity (Long activityId, int quantity){
 
         ActivityEntity activity = activityRepository.findById(activityId)
-                .orElseThrow(() -> new NoSuchElementException("No se encontro la actividad."));
+                .orElseThrow(() -> new NoSuchElementException("Activity not found."));
 
         if (activity.getAvailable_quantity() != null && activity.getAvailable_quantity()-quantity >= 0){
             activity.setAvailable_quantity(activity.getAvailable_quantity() - quantity);
@@ -152,7 +152,7 @@ public class ActivityService {
         System.out.println("ID DE COMPANY DENTRO DE CREATE FROM COMPANY: " + companyId);
 
         CompanyEntity company = companyRepository.findById(companyId)
-                .orElseThrow(() -> new NoSuchElementException("Empresa no encontrada"));
+                .orElseThrow(() -> new NoSuchElementException("Company not found"));
 
         ActivityEntity entity = activityMapper.toEntity(dto, company);
 
@@ -164,7 +164,7 @@ public class ActivityService {
 
     public ActivityResponseDTO findById(Long id) {
         ActivityEntity entity = activityRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Actividad no encontrada"));
+                .orElseThrow(() -> new NoSuchElementException("Activity not found."));
         return activityMapper.toDTO(entity);
     }
 
@@ -205,27 +205,27 @@ public class ActivityService {
 
     public ActivityResponseDTO updateAndReturnIfOwned(Long id, ActivityUpdateDTO dto, Long myUserId) {
         ActivityEntity entity = activityRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Actividad no encontrada"));
+                .orElseThrow(() -> new NoSuchElementException("Activity not found."));
 
         if (dto.getItineraryId() == null || dto.getItineraryId().equals(entity.getItinerary() != null ? entity.getItinerary().getId() : null)) {
             if (entity.getItinerary() != null) {
                 if (!entity.getItinerary().getUser().getId().equals(myUserId)) {
-                    throw new AccessDeniedException("No tienes permiso para modificar actividades de este itinerario");
+                    throw new AccessDeniedException("You do not have permission to modify activities in this itinerary.");
                 }
             } else {
                 boolean belongsToUser = entity.getUsers().stream()
                         .anyMatch(user -> user.getId().equals(myUserId));
                 if (!belongsToUser) {
-                    throw new AccessDeniedException("No tienes permiso para modificar esta actividad");
+                    throw new AccessDeniedException("You do not have permission to modify this activity.");
                 }
             }
         }
 
         if (dto.getItineraryId() != null && (entity.getItinerary() == null || !dto.getItineraryId().equals(entity.getItinerary().getId()))) {
             ItineraryEntity newItinerary = itineraryRepository.findById(dto.getItineraryId())
-                    .orElseThrow(() -> new NoSuchElementException("Itinerario no encontrado"));
+                    .orElseThrow(() -> new NoSuchElementException("Itinerary not found."));
             if (!newItinerary.getUser().getId().equals(myUserId)) {
-                throw new AccessDeniedException("No tienes permiso para mover la actividad a ese itinerario");
+                throw new AccessDeniedException("You do not have permission to move the activity to that itinerary.");
             }
             entity.setItinerary(newItinerary);
         }
@@ -234,7 +234,7 @@ public class ActivityService {
 
         if (entity.getStartTime() != null && entity.getEndTime() != null &&
                 entity.getEndTime().isBefore(entity.getStartTime())) {
-            throw new IllegalArgumentException("La hora de fin debe ser posterior a la de inicio.");
+            throw new IllegalArgumentException("The end time must be after the start time.");
         }
 
         ActivityEntity saved = activityRepository.save(entity);
@@ -244,18 +244,18 @@ public class ActivityService {
 
     public void deleteIfOwned(Long id, Long myUserId) {
         ActivityEntity activity = activityRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Actividad no encontrada"));
+                .orElseThrow(() -> new NoSuchElementException("Activity not found."));
 
         if (activity.getItinerary() != null) {
             ItineraryEntity itinerary = activity.getItinerary();
             if (!itinerary.getUser().getId().equals(myUserId)) {
-                throw new AccessDeniedException("No tienes permiso para eliminar esta actividad");
+                throw new AccessDeniedException("You do not have permission to delete this activity.");
             }
         } else {
             boolean belongsToUser = activity.getUsers().stream()
                     .anyMatch(user -> user.getId().equals(myUserId));
             if (!belongsToUser) {
-                throw new AccessDeniedException("No tienes permiso para eliminar esta actividad");
+                throw new AccessDeniedException("You do not have permission to delete this activity.");
             }
         }
 
@@ -265,19 +265,19 @@ public class ActivityService {
 
     public void restoreIfOwned(Long id, Long myUserId) {
         ActivityEntity activity = activityRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Actividad no encontrada"));
+                .orElseThrow(() -> new NoSuchElementException("Activity not found."));
 
         if (activity.getItinerary() != null) {
             ItineraryEntity itinerary = activity.getItinerary();
             if (!itinerary.getUser().getId().equals(myUserId)) {
-                throw new AccessDeniedException("No tienes permiso para restaurar esta actividad (no eres dueño del itinerario)");
+                throw new AccessDeniedException("You do not have permission to restore this activity (you do not own the itinerary).");
             }
         }
         else {
             boolean belongsToUser = activity.getUsers().stream()
                     .anyMatch(user -> user.getId().equals(myUserId));
             if (!belongsToUser) {
-                throw new AccessDeniedException("No tienes permiso para restaurar esta actividad");
+                throw new AccessDeniedException("You do not have permission to restore this activity.");
             }
         }
 
@@ -287,10 +287,10 @@ public class ActivityService {
 
     public ActivityResponseDTO updateActivityByCompany(Long companyId, Long activityId, CompanyActivityUpdateDTO dto) {
         ActivityEntity activity = activityRepository.findById(activityId)
-                .orElseThrow(() -> new NoSuchElementException("La actividad no existe"));
+                .orElseThrow(() -> new NoSuchElementException("Activity not found."));
 
         if (activity.getCompany() == null || !activity.getCompany().getId().equals(companyId)) {
-            throw new AccessDeniedException("No tienes permiso para modificar esta actividad");
+            throw new AccessDeniedException("You do not have permission to modify this activity.");
         }
 
         activityMapper.updateEntityFromCompanyDTO(dto, activity);
@@ -301,10 +301,10 @@ public class ActivityService {
 
     public void deleteActivityByCompany(Long companyId, Long activityId) {
         ActivityEntity activity = activityRepository.findById(activityId)
-                .orElseThrow(() -> new NoSuchElementException("Actividad no encontrada"));
+                .orElseThrow(() -> new NoSuchElementException("Activity not found."));
 
         if (activity.getCompany() == null || !activity.getCompany().getId().equals(companyId)) {
-            throw new AccessDeniedException("No tienes permiso para eliminar esta actividad");
+            throw new AccessDeniedException("You do not have permission to delete this activity.");
         }
 
         activity.setAvailable(false);
@@ -313,10 +313,10 @@ public class ActivityService {
 
     public void restoreActivityByCompany(Long companyId, Long activityId) {
         ActivityEntity activity = activityRepository.findById(activityId)
-                .orElseThrow(() -> new NoSuchElementException("La actividad no existe"));
+                .orElseThrow(() -> new NoSuchElementException("Activity not found."));
 
         if (activity.getCompany() == null || !activity.getCompany().getId().equals(companyId)) {
-            throw new AccessDeniedException("No tienes permiso para restaurar esta actividad");
+            throw new AccessDeniedException("You do not have permission to restore this activity.");
         }
 
         activity.setAvailable(true);
