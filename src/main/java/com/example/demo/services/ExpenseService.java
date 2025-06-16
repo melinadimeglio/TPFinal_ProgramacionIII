@@ -1,9 +1,11 @@
 package com.example.demo.services;
 
+import com.example.demo.DTOs.Filter.ExpenseFilterDTO;
 import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
 import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
 import com.example.demo.DTOs.Expense.ExpenseUpdateDTO;
 import com.example.demo.DTOs.Expense.Response.ExpenseResumeDTO;
+import com.example.demo.SpecificationAPI.ExpenseSpecification;
 import com.example.demo.entities.ExpenseEntity;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
@@ -15,6 +17,7 @@ import com.example.demo.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class ExpenseService{
@@ -272,5 +274,18 @@ public class ExpenseService{
                 .orElseThrow(() -> new NoSuchElementException("No se encontró el gasto"));
         return expenseMapper.toResumeDTO(entity);
     }
+
+    public Page<ExpenseResumeDTO> findByUserIdWithFilters(Long userId, ExpenseFilterDTO filters, Pageable pageable) {
+
+        Specification<ExpenseEntity> spec = Specification
+                .where(ExpenseSpecification.belongsToUser(userId))
+                .and(ExpenseSpecification.hasCategory(filters.getCategory()))
+                .and(ExpenseSpecification.amountBetween(filters.getMinAmount(), filters.getMaxAmount()))
+                .and(ExpenseSpecification.dateBetween(filters.getStartDate(), filters.getEndDate()));
+
+        Page<ExpenseEntity> result = expenseRepository.findAll(spec, pageable);
+        return result.map(expenseMapper::toResumeDTO);
+    }
+
 
 }

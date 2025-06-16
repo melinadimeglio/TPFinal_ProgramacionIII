@@ -1,11 +1,14 @@
 package com.example.demo.services;
 
 import com.example.demo.DTOs.Activity.CompanyActivityUpdateDTO;
+import com.example.demo.DTOs.Filter.ActivityFilterDTO;
 import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityCompanyResponseDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
+
+import com.example.demo.SpecificationAPI.ActivitySpecification;
 import com.example.demo.entities.ActivityEntity;
 import com.example.demo.entities.CompanyEntity;
 import com.example.demo.entities.ItineraryEntity;
@@ -20,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -283,20 +287,37 @@ public class ActivityService {
         activityRepository.save(activity);
     }
 
-    public Page<ActivityResponseDTO> findWithFilters(ActivityCategory category, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+    public Page<ActivityResponseDTO> findByUserIdWithFilters(Long userId, ActivityFilterDTO filters, Pageable pageable) {
 
-        LocalDate start = (startDate != null) ? startDate : LocalDate.MIN;
-        LocalDate end = (endDate != null) ? endDate : LocalDate.MAX;
+        Specification<ActivityEntity> spec = Specification
+                .where(ActivitySpecification.belongsToUser(userId))
+                .and(ActivitySpecification.hasCategory(filters.getCategory()))
+                .and(ActivitySpecification.dateBetween(filters.getStartDate(), filters.getEndDate()));
 
-        Page<ActivityEntity> entities;
-
-        if (category != null) {
-            entities = activityRepository.findByCategoryAndDateBetween(category, start, end, pageable);
-        } else {
-            entities = activityRepository.findByDateBetween(start, end, pageable);
-        }
-
-        return entities.map(activityMapper::toDTO);
+        Page<ActivityEntity> result = activityRepository.findAll(spec, pageable);
+        return result.map(activityMapper::toDTO);
     }
+
+    public Page<ActivityCompanyResponseDTO> findAllCompany(
+            ActivityCategory category,
+            LocalDate startDate,
+            LocalDate endDate,
+            Double minPrice,
+            Double maxPrice,
+            Long availableQuantity,
+            Pageable pageable) {
+
+        Specification<ActivityEntity> spec = Specification
+                .where(ActivitySpecification.hasCategory(category))
+                .and(ActivitySpecification.dateBetween(startDate, endDate))
+                .and(ActivitySpecification.priceBetween(minPrice, maxPrice))
+                .and(ActivitySpecification.availableQuantityEquals(availableQuantity))
+                .and(ActivitySpecification.hasCompany());  // solo trae las de empresas
+
+        Page<ActivityEntity> result = activityRepository.findAll(spec, pageable);
+        return result.map(activityMapper::toCompanyResponseDTO);
+    }
+
+
 
 }

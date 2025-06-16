@@ -1,6 +1,7 @@
 package com.example.demo.controllers;
 
 
+import com.example.demo.DTOs.Filter.TripFilterDTO;
 import com.example.demo.DTOs.RecommendationDTO;
 import com.example.demo.DTOs.Trip.Request.TripCreateDTO;
 import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
@@ -153,7 +154,6 @@ public class TripController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
-
     @Operation(
             summary = "Get trips by user ID",
             description = "Returns all trips associated with a specific user ID."
@@ -180,8 +180,7 @@ public class TripController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<PagedModel<EntityModel<TripResponseDTO>>> getTripsByUserId(
             @PathVariable Long userId,
-            @RequestParam(required = false) String destination,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate date,
+            TripFilterDTO filters,
             @AuthenticationPrincipal CredentialEntity credential,
             Pageable pageable) {
 
@@ -189,10 +188,11 @@ public class TripController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Page<TripResponseDTO> trips = tripService.findByUserId(userId, destination, date, pageable);
+        Page<TripResponseDTO> trips = tripService.findByUserIdWithFilters(userId, filters, pageable);
         PagedModel<EntityModel<TripResponseDTO>> model = pagedResourcesAssembler.toModel(trips, assembler);
         return ResponseEntity.ok(model);
     }
+
 
     @Operation(summary = "Update a trip by ID", description = "Updates a trip by its ID only if it belongs to the authenticated user.")
     @ApiResponses(value = {
@@ -234,7 +234,6 @@ public class TripController {
 
         return ResponseEntity.noContent().build();
     }
-
 
 
     @Operation(
@@ -294,8 +293,11 @@ public class TripController {
 
     @PreAuthorize("hasAuthority('OBTENER_RECOMENDACIONES_FILTRADAS')")
     @GetMapping("/{tripId}/recommendations/filtered")
-    public ResponseEntity<PagedModel<EntityModel<RecommendationDTO>>> getFilteredRecommendations(@PathVariable Long tripId, Pageable pageable){
+    public ResponseEntity<?> getFilteredRecommendations(@PathVariable Long tripId, Pageable pageable){
         Page<RecommendationDTO> recomendations = recommendationService.getRecommendationsForTrip(tripId, pageable);
+        if (recomendations.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.OK).body("No recommendations found.");
+        }
         TripEntity trip = tripService.getTripById(tripId);
 
         Set<UserEntity> users = trip.getUsers();
@@ -305,6 +307,11 @@ public class TripController {
                 .map(pref -> pref.getKindApi().toLowerCase())
                 .collect(Collectors.toSet());
 
+        if (allPreferences.isEmpty()) {
+            System.out.println("No preferences found for any users in tripId=" + tripId);
+            return ResponseEntity.status(HttpStatus.OK).body("No preferences defined for any user.");
+        }
+
         System.out.println("Usuarios del viaje: " + users.size());
         users.forEach(u -> System.out.println(u.getPreferencias()));
 
@@ -313,6 +320,11 @@ public class TripController {
                         .map(cat -> cat.getName().toLowerCase())
                         .anyMatch(allPreferences::contains))
                 .collect(Collectors.toList());
+
+        if (filteredRecommendations.isEmpty()) {
+            System.out.println("Recommendations found but none match preferences for tripId=" + tripId);
+            return ResponseEntity.status(HttpStatus.OK).body("No recommendations matched user preferences.");
+        }
 
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), filteredRecommendations.size());

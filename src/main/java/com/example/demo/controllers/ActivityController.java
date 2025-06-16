@@ -2,11 +2,13 @@ package com.example.demo.controllers;
 
 import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
 import com.example.demo.DTOs.Activity.CompanyActivityUpdateDTO;
+import com.example.demo.DTOs.Filter.ActivityFilterDTO;
 import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityCompanyResponseDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
+import com.example.demo.controllers.hateoas.ActivityCompanyModelAssembler;
 import com.example.demo.controllers.hateoas.ActivityModelAssembler;
 import com.example.demo.enums.ActivityCategory;
 import com.example.demo.repositories.ItineraryRepository;
@@ -52,15 +54,18 @@ public class ActivityController {
     private final PagedResourcesAssembler<ActivityCompanyResponseDTO> pagedResourcesAssemblerCompany;
     private final ItineraryService itineraryService;
     private final ItineraryRepository itineraryRepository;
+    private final ActivityCompanyModelAssembler activityCompanyAssembler;
 
     @Autowired
-    public ActivityController(ActivityService activityService, ActivityModelAssembler assembler, PagedResourcesAssembler<ActivityResponseDTO> pagedResourcesAssembler, PagedResourcesAssembler<ActivityCompanyResponseDTO> pagedResourcesAssemblerCompany, ItineraryService itineraryService, ItineraryRepository itineraryRepository) {
+    public ActivityController(ActivityService activityService, ActivityModelAssembler assembler, PagedResourcesAssembler<ActivityResponseDTO> pagedResourcesAssembler, PagedResourcesAssembler<ActivityCompanyResponseDTO> pagedResourcesAssemblerCompany, ItineraryService itineraryService, ItineraryRepository itineraryRepository,
+                              ActivityCompanyModelAssembler activityCompanyAssembler) {
         this.activityService = activityService;
         this.assembler = assembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
         this.pagedResourcesAssemblerCompany = pagedResourcesAssemblerCompany;
         this.itineraryService = itineraryService;
         this.itineraryRepository = itineraryRepository;
+        this.activityCompanyAssembler = activityCompanyAssembler ;
     }
 
     @Operation(
@@ -202,30 +207,35 @@ public class ActivityController {
     @PreAuthorize("hasAuthority('VER_TODAS_ACTIVIDADES')")
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<ActivityResponseDTO>>> getAllActivities(
-            Pageable pageable,
-            @RequestParam(required = false) ActivityCategory category,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+            Pageable pageable) {
 
-        Page<ActivityResponseDTO> activities = activityService.findWithFilters(category, startDate, endDate, pageable);
-        PagedModel model = pagedResourcesAssembler.toModel(activities, assembler);
+        Page<ActivityResponseDTO> activities = activityService.findAll(pageable);
+        PagedModel<EntityModel<ActivityResponseDTO>> model = pagedResourcesAssembler.toModel(activities, assembler);
         return ResponseEntity.ok(model);
     }
+
 
     @PreAuthorize("hasAuthority('VER_TODAS_ACTIVIDADES_EMPRESA')")
     @GetMapping("/company")
-    public ResponseEntity<PagedModel<EntityModel<ActivityResponseDTO>>> getAllActivitiesCompany(
+    public ResponseEntity<PagedModel<EntityModel<ActivityCompanyResponseDTO>>> getAllActivitiesCompany(
             Pageable pageable,
             @RequestParam(required = false) ActivityCategory category,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) Long availableQuantity
+    ) {
+        Page<ActivityCompanyResponseDTO> activities = activityService.findAllCompany(
+                category, startDate, endDate, minPrice, maxPrice, availableQuantity, pageable
+        );
 
-        Page<ActivityResponseDTO> activities = activityService.findAllCompany(pageable);
+        PagedModel<EntityModel<ActivityCompanyResponseDTO>> model =
+                pagedResourcesAssemblerCompany.toModel(activities, activityCompanyAssembler);
 
-
-        PagedModel model = pagedResourcesAssembler.toModel(activities, assembler);
         return ResponseEntity.ok(model);
     }
+
 
     @Operation(
             summary = "Get all inactive activities",
@@ -318,16 +328,18 @@ public class ActivityController {
     public ResponseEntity<PagedModel<EntityModel<ActivityResponseDTO>>> getActivitiesByUserId(
             @PathVariable Long userId,
             @AuthenticationPrincipal CredentialEntity credential,
+            ActivityFilterDTO filters,
             Pageable pageable) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Page<ActivityResponseDTO> activities = activityService.findByUserId(userId, pageable);
+        Page<ActivityResponseDTO> activities = activityService.findByUserIdWithFilters(userId, filters, pageable);
         PagedModel<EntityModel<ActivityResponseDTO>> model = pagedResourcesAssembler.toModel(activities, assembler);
         return ResponseEntity.ok(model);
     }
+
 
     @Operation(
             summary = "Update an existing activity",

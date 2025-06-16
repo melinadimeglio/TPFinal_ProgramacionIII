@@ -31,7 +31,7 @@ public class CompanyActivityCreateDTO {
     @NotBlank(message = "La descripción es obligatoria.")
     private String description;
 
-    @Schema(description = "Categoría de la actividad", example = "CULTURAL")
+    @Schema(description = "Categoría de la actividad", example = "AVENTURA")
     @NotNull(message = "La categoría es obligatoria.")
     private ActivityCategory category;
 

@@ -6,13 +6,14 @@ import com.example.demo.enums.ExpenseCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface ExpenseRepository extends JpaRepository <ExpenseEntity, Long> {
+public interface ExpenseRepository extends JpaRepository <ExpenseEntity, Long>, JpaSpecificationExecutor<ExpenseEntity> {
     @Query("SELECT e FROM ExpenseEntity e JOIN e.users u WHERE u.id = :userId")
     Page<ExpenseEntity> findByUserId(Long userId, Pageable pageable);
     @Query("SELECT e FROM ExpenseEntity e JOIN e.users u WHERE u.id = :userId")

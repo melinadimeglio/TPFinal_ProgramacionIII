@@ -1,5 +1,6 @@
 package com.example.demo.controllers.hateoas;
 
+import com.example.demo.DTOs.Filter.ActivityFilterDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.controllers.ActivityController;
 import org.springframework.data.domain.PageRequest;
@@ -31,7 +32,7 @@ public class ActivityModelAssembler implements RepresentationModelAssembler<Acti
         }
 
         if (permisos.contains("VER_TODAS_ACTIVIDADES")) {
-            model.add(linkTo(methodOn(ActivityController.class).getAllActivities(PageRequest.of(0, 10), null, null, null)).withRel("all-activities"));
+            model.add(linkTo(methodOn(ActivityController.class).getAllActivities(PageRequest.of(0, 10))).withRel("all-activities"));
         }
 
         return model;
@@ -47,7 +48,7 @@ public class ActivityModelAssembler implements RepresentationModelAssembler<Acti
         Set<String> permisos = getAuthorities();
 
         if (permisos.contains("VER_TODAS_ACTIVIDADES")) {
-            collection.add(linkTo(methodOn(ActivityController.class).getAllActivities(PageRequest.of(0, 10), null, null, null)).withSelfRel());
+            collection.add(linkTo(methodOn(ActivityController.class).getAllActivities(PageRequest.of(0, 10))).withSelfRel());
         }
 
         return collection;
@@ -61,12 +62,18 @@ public class ActivityModelAssembler implements RepresentationModelAssembler<Acti
         CollectionModel<EntityModel<ActivityResponseDTO>> collection = CollectionModel.of(activityModels);
         Set<String> permisos = getAuthorities();
 
+        ActivityFilterDTO filters = new ActivityFilterDTO();
+
         if (permisos.contains("VER_ACTIVIDAD_USUARIO")) {
-            collection.add(linkTo(methodOn(ActivityController.class).getActivitiesByUserId(userId, null, PageRequest.of(0, 10))).withSelfRel());
+            collection.add(
+                    linkTo(methodOn(ActivityController.class)
+                            .getActivitiesByUserId(userId, null, null, PageRequest.of(0, 10)))
+                            .withSelfRel()
+            );
         }
 
         if (permisos.contains("VER_TODAS_ACTIVIDADES")) {
-            collection.add(linkTo(methodOn(ActivityController.class).getAllActivities(PageRequest.of(0, 10), null, null, null)).withRel("all-activities"));
+            collection.add(linkTo(methodOn(ActivityController.class).getAllActivities(PageRequest.of(0, 10))).withRel("all-activities"));
         }
 
         return collection;
@@ -85,7 +92,7 @@ public class ActivityModelAssembler implements RepresentationModelAssembler<Acti
         }
 
         if (permisos.contains("VER_TODAS_ACTIVIDADES")) {
-            collection.add(linkTo(methodOn(ActivityController.class).getAllActivities(PageRequest.of(0, 10), null, null, null)).withRel("all-activities"));
+            collection.add(linkTo(methodOn(ActivityController.class).getAllActivities(PageRequest.of(0, 10))).withRel("all-activities"));
         }
 
         return collection;

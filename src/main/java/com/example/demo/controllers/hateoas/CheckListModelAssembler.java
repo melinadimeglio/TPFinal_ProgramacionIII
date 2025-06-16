@@ -64,8 +64,8 @@ public class CheckListModelAssembler implements RepresentationModelAssembler<Che
         Set<String> permisos = getAuthorities();
 
         if (permisos.contains("VER_CHECKLIST_USER")) {
-            collection.add(linkTo(methodOn(CheckListController.class).getByUser(userId, null, PageRequest.of(0,10))).withSelfRel());
-        }
+            collection.add(
+                    linkTo(methodOn(CheckListController.class).getByUser(userId, null, null, PageRequest.of(0, 10))).withSelfRel());        }
 
         if (permisos.contains("VER_TODOS_CHECKLIST")) {
             collection.add(linkTo(methodOn(CheckListController.class).getAll(PageRequest.of(0, 10))).withRel("all-checklists")

@@ -43,6 +43,6 @@ public class UserCreateDTO {
     @Pattern(regexp = "^[0-9]{7,8}$", message = "El DNI debe tener entre 7 y 8 dígitos")
     private String dni;
 
-    @Schema(description = "Preferencias de viaje del usuario", example = "[\"PLAYA\", \"AVENTURA\", \"CULTURA\"]")
+    @Schema(description = "Preferencias de viaje del usuario", example = "[\"BEACHES\", \"SPORT\", \"FOODS\"]")
     private Set<UserPreferences> preferencias;
 }

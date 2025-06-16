@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTOs.Filter.ItineraryFilterDTO;
 import com.example.demo.DTOs.Itinerary.Request.ItineraryCreateDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
@@ -192,13 +193,14 @@ public class ItineraryController {
     public ResponseEntity<PagedModel<EntityModel<ItineraryResponseDTO>>> getItinerariesByUserId(
             Pageable pageable,
             @PathVariable Long userId,
+            @ModelAttribute ItineraryFilterDTO filters,
             @AuthenticationPrincipal CredentialEntity credential) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Page<ItineraryResponseDTO> itineraries = itineraryService.findByUserId(userId, pageable);
+        Page<ItineraryResponseDTO> itineraries = itineraryService.findByUserIdWithFilters(userId, filters, pageable);
         PagedModel<EntityModel<ItineraryResponseDTO>> model = pagedResourcesAssembler.toModel(itineraries, assembler);
         return ResponseEntity.ok(model);
     }
@@ -272,6 +274,4 @@ public class ItineraryController {
         itineraryService.restoreIfOwned(id, userId);
         return ResponseEntity.noContent().build();
     }
-
-
 }

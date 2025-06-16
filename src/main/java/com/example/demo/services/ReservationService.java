@@ -1,15 +1,21 @@
 package com.example.demo.services;
 
+import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.DTOs.Reservation.Request.ReservationCreateDTO;
 import com.example.demo.DTOs.Reservation.Response.ReservationResponseDTO;
 import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
 import com.example.demo.entities.*;
+import com.example.demo.enums.ExpenseCategory;
 import com.example.demo.enums.ReservationStatus;
+import com.example.demo.exceptions.ReservationException;
 import com.example.demo.mappers.ReservationMapper;
 import com.example.demo.repositories.ActivityRepository;
+import com.example.demo.repositories.ItineraryRepository;
 import com.example.demo.repositories.ReservationRepository;
 import com.example.demo.repositories.UserRepository;
+import com.mercadopago.exceptions.MPApiException;
+import com.mercadopago.exceptions.MPException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,12 +38,15 @@ public class ReservationService {
     private final ItineraryService itineraryService;
     private final TripService tripService;
     private final ActivityService activityService;
+    private final MPService mpService;
+    private final ExpenseService expenseService;
+    private final ItineraryRepository itineraryRepository;
 
     @Autowired
     public ReservationService(ReservationRepository reservationRepository,
                               UserRepository userRepository,
                               ActivityRepository activityRepository,
-                              ReservationMapper reservationMapper, ItineraryService itineraryService, TripService tripService, ActivityService activityService) {
+                              ReservationMapper reservationMapper, ItineraryService itineraryService, TripService tripService, ActivityService activityService, MPService mpService, ExpenseService expenseService, ItineraryRepository itineraryRepository) {
         this.reservationRepository = reservationRepository;
         this.userRepository = userRepository;
         this.activityRepository = activityRepository;
@@ -45,9 +54,12 @@ public class ReservationService {
         this.itineraryService = itineraryService;
         this.tripService = tripService;
         this.activityService = activityService;
+        this.mpService = mpService;
+        this.expenseService = expenseService;
+        this.itineraryRepository = itineraryRepository;
     }
 
-    public ReservationResponseDTO createReservation(ReservationCreateDTO dto, Long userId) {
+    public ReservationResponseDTO createReservation(ReservationCreateDTO dto, Long userId) throws MPException, MPApiException {
 
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -58,33 +70,47 @@ public class ReservationService {
         Optional<CompanyEntity> companyId = Optional.ofNullable(activity.getCompany());
 
         if (companyId.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No puede crear una reservacion la actividad ingresada.");
+            throw new ReservationException("No puede crear una reservacion la actividad ingresada.");
+        }
+
+        Set<ItineraryResponseDTO> itinerariosUser = itineraryService.findByUserId(userId, Pageable.unpaged()).toSet();
+
+        Optional<ItineraryResponseDTO> itineraryOptional = itinerariosUser.stream()
+                .filter(itinerary -> itinerary.getItineraryDate().equals(activity.getDate()))
+                .findFirst();
+
+        if (itineraryOptional.isEmpty()){
+            throw new ReservationException("No hay itinerario para la fecha de la actividad. Por favor cree uno.");
+        }
+
+        if (!activityDisponible(itineraryOptional.get().getId(), dto.getActivityId())){
+            throw new ReservationException("No se puede guardar la actividad ya que no cuenta con la disponibilidad suficiente.");
         }
 
         ReservationEntity reservation = reservationMapper.toEntity(dto, user, activity);
         reservation.setStatus(ReservationStatus.PENDING);
         reservation.setPaid(false);
+        reservation.setAmount(activity.getPrice());
+
         ReservationEntity saved = reservationRepository.save(reservation);
+
+            String link = mpService.mercado(saved);
+            saved.setUrlPayment(link);
+
+        reservationRepository.save(saved);
 
         return reservationMapper.toDTO(saved);
     }
 
-    public boolean activityDisponible (Long reservationId) {
-        ReservationEntity reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
+    public boolean activityDisponible (Long tripId, Long activityId) {
 
-        ActivityEntity activity = activityRepository.findById(reservation.getActivity().getId())
+        ActivityEntity activity = activityRepository.findById(activityId)
                 .orElseThrow(() -> new ResourceNotFoundException("Activity not found"));
 
-        int cant = reservation.getActivity().getUsers().size();
+        TripEntity trip = tripService.getTripById(tripId);
+        int cant = trip.getCompanions() + 1 ;
 
-        System.out.println("CANT USERS: " + cant);
-
-        if (activity.getAvailable_quantity() - cant >= 0) {
-            activity.setAvailable_quantity(activity.getAvailable_quantity() - cant);
-            reservation.setStatus(ReservationStatus.PENDING);
-            reservationRepository.save(reservation);
-        } else {
+        if (activity.getAvailable_quantity() - cant < 0) {
             return false;
         }
 
@@ -93,7 +119,7 @@ public class ReservationService {
 
     public void paidReservation(Long reservationId, Long userId, Pageable pageable){
         ReservationEntity reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
+                .orElseThrow(() -> new ReservationException("Reservation not found"));
 
         ActivityEntity activity = activityRepository.findById(reservation.getActivity().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Activity not found"));
@@ -105,22 +131,34 @@ public class ReservationService {
                         .findFirst();
 
         if (itineraryOptional.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No hay itinerario para la fecha de la actividad. Por favor cree uno.");
+            throw new ReservationException("No hay itinerario para la fecha de la actividad. Por favor cree uno.");
         }
 
         TripEntity trip = tripService.getTripById(itineraryOptional.get().getTripId());
         int cant = trip.getCompanions() + 1 ;
 
         if (!activityService.updateCapacity(activity.getId(), cant)){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "No se puede guardar la actividad ya que no cuenta con la disponibilidad suficiente.");
+            throw new ReservationException("No se puede guardar la actividad ya que no cuenta con la disponibilidad suficiente.");
         }
 
         Long itineraryId = itineraryOptional.get().getId();
 
         if (!itineraryService.addActivity(itineraryId, userId, activity.getId())){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "No se pudo agregar la actividad al itinerario.");
+            throw new ReservationException("No se pudo agregar la actividad al itinerario.");
         }
 
+        Set<Long> users = trip.getUsers().stream()
+                        .map(UserEntity::getId)
+                        .collect(Collectors.toSet());
+
+        expenseService.save(ExpenseCreateDTO.builder()
+                .amount(activity.getPrice())
+                .description(activity.getDescription())
+                .date(activity.getDate())
+                .tripId(trip.getId())
+                .category(ExpenseCategory.ACTIVIDADES)
+                .sharedUserIds(users)
+                .build(), userId);
 
         reservation.setStatus(ReservationStatus.ACTIVE);
         reservation.setPaid(true);

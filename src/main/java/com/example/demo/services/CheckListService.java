@@ -3,6 +3,8 @@ package com.example.demo.services;
 import com.example.demo.DTOs.CheckList.Request.CheckListCreateDTO;
 import com.example.demo.DTOs.CheckList.Response.CheckListResponseDTO;
 import com.example.demo.DTOs.CheckList.CheckListUpdateDTO;
+import com.example.demo.DTOs.Filter.CheckListFilterDTO;
+import com.example.demo.SpecificationAPI.CheckListSpecification;
 import com.example.demo.entities.CheckListEntity;
 import com.example.demo.entities.CheckListItemEntity;
 import com.example.demo.entities.TripEntity;
@@ -15,6 +17,7 @@ import com.example.demo.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -159,5 +162,16 @@ public class CheckListService {
     public Page<CheckListResponseDTO> findByUserId(Long userId, Pageable pageable) {
         return checkListRepository.findByUserId(userId, pageable)
                 .map(checkListMapper::toDTO);
+    }
+
+    public Page<CheckListResponseDTO> findByUserIdWithFilters(Long userId, CheckListFilterDTO filters, Pageable pageable) {
+        Specification<CheckListEntity> spec = Specification.where(CheckListSpecification.hasUserId(userId));
+
+        if (filters.getCompleted() != null) {
+            spec = spec.and(CheckListSpecification.hasCompleted(filters.getCompleted()));
+        }
+
+        Page<CheckListEntity> page = checkListRepository.findAll(spec, pageable);
+        return page.map(checkListMapper::toDTO);
     }
 }

@@ -3,6 +3,7 @@ package com.example.demo.controllers;
 import com.example.demo.DTOs.CheckList.Request.CheckListCreateDTO;
 import com.example.demo.DTOs.CheckList.Response.CheckListResponseDTO;
 import com.example.demo.DTOs.CheckList.CheckListUpdateDTO;
+import com.example.demo.DTOs.Filter.CheckListFilterDTO;
 import com.example.demo.controllers.hateoas.CheckListModelAssembler;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.CheckListService;
@@ -173,6 +174,7 @@ public class CheckListController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<PagedModel<EntityModel<CheckListResponseDTO>>> getByUser(
             @PathVariable Long userId,
+            @ModelAttribute CheckListFilterDTO filters,
             @AuthenticationPrincipal CredentialEntity credential,
             Pageable pageable) {
 
@@ -180,10 +182,11 @@ public class CheckListController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Page<CheckListResponseDTO> checklists = checkListService.findByUserId(userId, pageable);
+        Page<CheckListResponseDTO> checklists = checkListService.findByUserIdWithFilters(userId, filters, pageable);
         PagedModel<EntityModel<CheckListResponseDTO>> model = pagedResourcesAssembler.toModel(checklists, assembler);
         return ResponseEntity.ok(model);
     }
+
 
     @Operation(summary = "Delete a checklist by ID", description = "Deletes the specified checklist and all its items.")
     @ApiResponses(value = {

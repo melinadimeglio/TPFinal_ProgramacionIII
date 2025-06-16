@@ -3,6 +3,7 @@ package com.example.demo.services;
 import com.example.demo.DTOs.Company.Request.CompanyCreateDTO;
 import com.example.demo.DTOs.Company.Response.CompanyResponseDTO;
 import com.example.demo.DTOs.Company.CompanyUpdateDTO;
+import com.example.demo.DTOs.User.Response.UserResponseDTO;
 import com.example.demo.entities.*;
 import com.example.demo.mappers.CompanyMapper;
 import com.example.demo.repositories.CompanyRepository;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -105,18 +107,39 @@ public class CompanyService {
         return companyMapper.toDTO(updated);
     }
 
+    public CompanyResponseDTO getProfile(String username){
+        CredentialEntity credential = credentialRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username: " + username));
+        CompanyEntity company = credential.getCompany();
+        return companyMapper.toDTO(company);
+    }
+
     public void delete(Long id) {
         CompanyEntity entity = companyRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Item no encontrado"));
+        CredentialEntity credential = entity.getCredential();
         entity.setActive(false);
+        credential.setActive(false);
         entity.getActivities().forEach(activityEntity -> activityEntity.setAvailable(false));
         companyRepository.save(entity);
+    }
+
+    public void deleteOwn(String username) {
+        CredentialEntity credential = credentialRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username: " + username));
+        CompanyEntity company = credential.getCompany();
+        company.setActive(false);
+        company.getCredential().setActive(false);
+        company.getActivities().forEach(activityEntity -> activityEntity.setAvailable(false));
+        companyRepository.save(company);
+        credentialRepository.save(credential);
     }
 
     public void restore(Long id) {
         CompanyEntity entity = companyRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Item no encontrado"));
         entity.setActive(true);
+        entity.getCredential().setActive(true);
         entity.getActivities().forEach(activityEntity -> activityEntity.setAvailable(true));
         companyRepository.save(entity);
     }
