@@ -126,8 +126,6 @@ public class TripController {
         return ResponseEntity.ok(assembler.toModel(trip));
     }
 
-
-
     @Operation(
             summary = "Create a new trip",
             description = "Creates a new trip and returns the created trip.",

@@ -96,6 +96,10 @@ public class TripService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "El numero de acompañantes no coincide con los usuarios que comparten el viaje.");
         }
 
+        if (dto.getEndDate().isBefore(dto.getStartDate())){
+            throw new IllegalArgumentException("La fecha de finalizacion no puede ser anterior a la fecha de comienzo.");
+        }
+
         TripEntity trip = tripMapper.toEntity(dto);
         trip.setUsers(users);
 
