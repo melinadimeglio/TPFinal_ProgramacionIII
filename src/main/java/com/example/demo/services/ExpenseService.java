@@ -15,6 +15,7 @@ import com.example.demo.mappers.ExpenseMapper;
 import com.example.demo.repositories.ExpenseRepository;
 import com.example.demo.repositories.TripRepository;
 import com.example.demo.repositories.UserRepository;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ExpenseService{
@@ -74,27 +76,37 @@ public class ExpenseService{
             throw new AccessDeniedException("You are not allowed to record expenses on this trip.");
         }
 
-        Set<Long> userIds = dto.getSharedUserIds() != null ? dto.getSharedUserIds() : new HashSet<>();
-        userIds.add(myUserId);
+        Set<UserEntity> users = new HashSet<>();
 
-        List<UserEntity> foundUsers = userRepository.findAllById(userIds);
+        UserEntity owner = userRepository.findById(myUserId)
+                .orElseThrow(() -> new RuntimeException("User not found."));
+        users.add(owner);
 
-        if (foundUsers.size() != userIds.size()) {
-            throw new NoSuchElementException("Some of the shared users do not exist.");
-        }
+        if (dto.getSharedUserIds() != null && !dto.getSharedUserIds().isEmpty()) {
+            for (Long sharedId : dto.getSharedUserIds()) {
+                UserEntity sharedUser = userRepository.findById(sharedId)
+                        .orElseThrow(() -> new RuntimeException("Shared user not found."));
 
-        for (UserEntity sharedUser : foundUsers) {
-            if (sharedUser.getCredential().getAuthorities().stream()
-                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-                throw new ReservationException("You cannot add Admin type users.");
+                if (sharedUser.getCredential().getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))){
+                    throw new ReservationException("You cannot add Admin type users.");
+                }
+                users.add(sharedUser);
             }
         }
 
+        Set<UserEntity> usersTrip = trip.getUsers();
+
+        if (!usersTrip.equals(users)){
+            throw new ReservationException("The shared users must exactly match the users in the trip.");
+        }
+
+
         ExpenseEntity expense = expenseMapper.toEntity(dto);
         expense.setTrip(trip);
-        expense.setUsers(new HashSet<>(foundUsers));
+        expense.setUsers(users);
 
-        if (foundUsers.isEmpty()) {
+        if (users.isEmpty()) {
             throw new IllegalStateException("Cannot split expense: no users assigned.");
         }
 
