@@ -107,8 +107,8 @@ public class ExpenseController {
 
 
     @Operation(
-            summary = "Get an expense by ID",
-            description = "Returns a specific expense by its ID if it exists.",
+            summary = "Get an expense by ID for a specific user",
+            description = "Returns a specific expense by its ID if it exists and belongs to the authenticated user.",
             parameters = {
                     @Parameter(name = "id", description = "ID of the expense to retrieve", required = true)
             }
@@ -116,16 +116,27 @@ public class ExpenseController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Expense found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExpenseResponseDTO.class))),
+                            schema = @Schema(implementation = ExpenseResumeDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - User not authorized to access this resource"),
             @ApiResponse(responseCode = "404", description = "Expense not found")
     })
     @PreAuthorize("hasAuthority('VER_GASTO')")
     @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<ExpenseResponseDTO>> getExpenseById(@PathVariable Long id) {
-        ExpenseResponseDTO expense = expenseService.findById(id);
+    public ResponseEntity<EntityModel<ExpenseResumeDTO>> getExpenseById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CredentialEntity credential) {
 
-        return ResponseEntity.ok(assembler.toModel(expense));
+        ExpenseResumeDTO expense = expenseService.findResumeById(id);
+
+        boolean hasAccess = expense.getUserIds().contains(credential.getUser().getId());
+
+        if (!hasAccess) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        return ResponseEntity.ok(resumeAssembler.toModel(expense));
     }
+
 
     @Operation(
             summary = "Get expenses by user ID",

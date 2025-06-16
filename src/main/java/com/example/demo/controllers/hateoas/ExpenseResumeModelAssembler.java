@@ -25,7 +25,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
             Set<String> permisos = getAuthorities();
 
             if (permisos.contains("VER_GASTO")) {
-                model.add(linkTo(methodOn(ExpenseController.class).getExpenseById(expense.getId())).withSelfRel());
+                model.add(linkTo(methodOn(ExpenseController.class).getExpenseById(expense.getId(), null)).withSelfRel());
             }
 
             return model;
