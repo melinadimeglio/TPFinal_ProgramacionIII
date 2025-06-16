@@ -180,7 +180,7 @@ public class CheckListController {
             Pageable pageable) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
-            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
+            throw new OwnershipException("You do not have permission to access this resource.");
         }
 
         Page<CheckListResponseDTO> checklists = checkListService.findByUserIdWithFilters(userId, filters, pageable);

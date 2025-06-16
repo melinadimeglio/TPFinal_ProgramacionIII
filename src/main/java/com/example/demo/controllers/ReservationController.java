@@ -91,15 +91,15 @@ public class ReservationController {
 
                 if(payment.getStatus().equalsIgnoreCase("approved")){
                     reservationService.paidReservation(external_reference, myUserId, pageable);
-                    return ResponseEntity.ok("Reserva marcada como paga.");
+                    return ResponseEntity.ok("Reservation marked as paid.");
                 }else{
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("El pago no fue aprobado.");
+                            .body("The payment was not approved.");
                 }
 
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Su user no tiene una reserva correspondiente al pago.");
+                    .body("Your user does not have a reservation corresponding to the payment.");
         }
     }
 

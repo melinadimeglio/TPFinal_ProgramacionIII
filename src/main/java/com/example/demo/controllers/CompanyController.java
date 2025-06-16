@@ -121,7 +121,7 @@ public class CompanyController {
         Long myCompanyId = credential.getCompany().getId();
 
         if (!myCompanyId.equals(id)) {
-            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
+            throw new OwnershipException("You do not have permission to access this resource.");
         }
 
         CompanyResponseDTO company = companyService.findById(id);

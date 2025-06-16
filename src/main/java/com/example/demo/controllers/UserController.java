@@ -86,7 +86,7 @@ public class UserController {
             @AuthenticationPrincipal CredentialEntity credential) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(id)) {
-            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
+            throw new OwnershipException("You do not have permission to access this resource.");
         }
 
         UserResponseDTO user = userService.findById(id);
@@ -156,7 +156,7 @@ public class UserController {
     public ResponseEntity<String> deleteAccount(Authentication authentication) {
         String username = authentication.getName();
         userService.deleteAccount(username);
-        return ResponseEntity.ok("Cuenta eliminada correctamente");
+        return ResponseEntity.ok("Account deleted successfully.");
     }
 
     @Operation(
@@ -182,7 +182,7 @@ public class UserController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteAccountAdmin(@PathVariable Long id) {
         userService.delete(id);
-        return ResponseEntity.ok("Cuenta eliminada correctamente");
+        return ResponseEntity.ok("Account deleted successfully.");
     }
 
     @Operation(
@@ -208,7 +208,7 @@ public class UserController {
     @PutMapping("/restore/{id}")
     public ResponseEntity<String> restoreAccount(@PathVariable Long id) {
         userService.restore(id);
-        return ResponseEntity.ok("Cuenta restaurada correctamente");
+        return ResponseEntity.ok("Account restored successfully.");
     }
 
     @Operation(summary = "Get own profile", description = "Retrieves the authenticated user's profile.")

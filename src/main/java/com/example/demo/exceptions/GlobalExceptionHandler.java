@@ -58,30 +58,30 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RepitedElementException.class)
     public ResponseEntity<Object> handleRepitedElementExceptions (RepitedElementException e){
-        String message = e.getMessage() != null ? e.getMessage() : "El elemento ya existe y debe ser único.";
+        String message = e.getMessage() != null ? e.getMessage() : "The element already exists and must be unique.";
         return buildResponse(HttpStatus.CONFLICT, message);
     }
 
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<Object> handleNoSuchElementException(NoSuchElementException e) {
-        String error = e.getMessage() != null ? e.getMessage() : "El recurso no fue encontrado.";
+        String error = e.getMessage() != null ? e.getMessage() : "The resource was not found.";
 
         return buildResponse(HttpStatus.NOT_FOUND, error);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException e) {
-        return buildResponse(HttpStatus.BAD_REQUEST, "Violación de restricción: " + e.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, "Violation of restriction: " + e.getMessage());
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<Object> handleMissingParameter(MissingServletRequestParameterException e) {
-        return buildResponse(HttpStatus.BAD_REQUEST, "Falta el parámetro requerido: " + e.getParameterName());
+        return buildResponse(HttpStatus.BAD_REQUEST, "The required parameter is missing: " + e.getParameterName());
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<Object> handleMethodNotSupported(HttpRequestMethodNotSupportedException e) {
-        return buildResponse(HttpStatus.METHOD_NOT_ALLOWED, "Método HTTP no permitido para este endpoint.");
+        return buildResponse(HttpStatus.METHOD_NOT_ALLOWED, "HTTP method not allowed for this endpoint.");
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -91,12 +91,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<Object> handleUsernameNotFoundException(UsernameNotFoundException e) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, "Usuario no encontrado: " + e.getMessage());
+        return buildResponse(HttpStatus.UNAUTHORIZED, "User not found: " + e.getMessage());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex) {
-        return buildResponse(HttpStatus.FORBIDDEN, "No tiene permisos para acceder a este recurso." + ex.getMessage());
+        return buildResponse(HttpStatus.FORBIDDEN, "Access Denied." + ex.getMessage());
     }
 
     @ExceptionHandler(OwnershipException.class)
@@ -106,7 +106,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MPApiException.class)
     public ResponseEntity<Object> handleMPApiException(MPApiException ex) {
-        return buildResponse(HttpStatus.BAD_REQUEST, "Error al procesar el pago. " + ex.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, "Error processing payment. " + ex.getMessage());
     }
 
     @ExceptionHandler(ReservationException.class)
@@ -116,7 +116,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MPException.class)
     public ResponseEntity<Object> handleMPException(MPException ex) {
-        return buildResponse(HttpStatus.BAD_REQUEST, "Error al procesar el pago. " + ex.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, "Error processing payment. " + ex.getMessage());
     }
 
     @ExceptionHandler(RuntimeException.class)
@@ -131,12 +131,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     public ResponseEntity<Object> handleMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex) {
-        return buildResponse(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Tipo de contenido no soportado: " + ex.getContentType());
+        return buildResponse(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported content type: " + ex.getContentType());
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGeneric(Exception ex) {
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor: " + ex.getMessage());
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error: " + ex.getMessage());
     }
 
     private ResponseEntity<Object> buildResponse(HttpStatus status, String message) {
@@ -149,6 +149,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<Object> handleExpiredToken(Exception ex) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, "Token expirado. Por favor vuelva a iniciar sesion. Error: " + ex.getMessage());
+        return buildResponse(HttpStatus.UNAUTHORIZED, "Token expired. Please log in again. Error: " + ex.getMessage());
     }
 }

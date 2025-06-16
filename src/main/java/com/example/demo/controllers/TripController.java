@@ -187,7 +187,7 @@ public class TripController {
             Pageable pageable) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
-            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
+            throw new OwnershipException("You do not have permission to access this resource.");
         }
 
         Page<TripResponseDTO> trips = tripService.findByUserIdWithFilters(userId, filters, pageable);
@@ -292,7 +292,7 @@ public class TripController {
                                                                                          @AuthenticationPrincipal CredentialEntity credential,
                                                                                          Pageable pageable){
         if (credential.getUser() == null || !credential.getUser().getId().equals(id)) {
-            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
+            throw new OwnershipException("You do not have permission to access this resource.");
         }
         Page<RecommendationDTO> recomemendations = recommendationService.getRecommendationsForTrip(tripId, id, pageable);
         return ResponseEntity.ok(pagedResourcesAssemblerRec.toModel(recomemendations));
@@ -304,7 +304,7 @@ public class TripController {
                                                         @AuthenticationPrincipal CredentialEntity credential,
                                                         Pageable pageable){
         if (credential.getUser() == null || !credential.getUser().getId().equals(id)) {
-            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
+            throw new OwnershipException("You do not have permission to access this resource.");
         }
         Page<RecommendationDTO> recomendations = recommendationService.getRecommendationsForTrip(tripId, id, pageable);
         if (recomendations.isEmpty()) {

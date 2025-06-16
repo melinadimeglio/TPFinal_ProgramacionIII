@@ -198,7 +198,7 @@ public class ItineraryController {
             @AuthenticationPrincipal CredentialEntity credential) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
-            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
+            throw new OwnershipException("You do not have permission to access this resource.");
         }
 
         Page<ItineraryResponseDTO> itineraries = itineraryService.findByUserIdWithFilters(userId, filters, pageable);

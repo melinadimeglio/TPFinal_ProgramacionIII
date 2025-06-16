@@ -160,7 +160,7 @@ public class ExpenseController {
             Pageable pageable) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
-            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
+            throw new OwnershipException("You do not have permission to access this resource.");
         }
 
         Page<ExpenseResumeDTO> expenses = expenseService.findByUserIdWithFilters(userId, filters, pageable);
@@ -303,7 +303,7 @@ public class ExpenseController {
             @AuthenticationPrincipal CredentialEntity credential) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
-            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
+            throw new OwnershipException("You do not have permission to access this resource.");
         }
 
         return ResponseEntity.ok(expenseService.getAverageExpenseByUserId(userId));
@@ -354,7 +354,7 @@ public class ExpenseController {
             @AuthenticationPrincipal CredentialEntity credential) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
-            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
+            throw new OwnershipException("You do not have permission to access this resource.");
         }
 
         return ResponseEntity.ok(expenseService.getRealAverageExpenseByUser(userId));
@@ -421,7 +421,7 @@ public class ExpenseController {
             @AuthenticationPrincipal CredentialEntity credential) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
-            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
+            throw new OwnershipException("You do not have permission to access this resource.");
         }
 
         return ResponseEntity.ok(expenseService.getTotalRealExpenseByUser(userId));

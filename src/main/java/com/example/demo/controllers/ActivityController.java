@@ -107,7 +107,7 @@ public class ActivityController {
                 .findFirst();
 
         if (itinerario.isEmpty()){
-            throw new ReservationException("No existe un itinerario para la fecha de la actividad. Por favor primero cree un itinerario.");
+            throw new ReservationException("There is no itinerary for the activity date. Please create one first..");
         }
 
         ActivityResponseDTO createdActivity = activityService.createFromUser(dto, myUserId, itinerario.get().getId());
@@ -154,7 +154,7 @@ public class ActivityController {
             companyId = dto.getCompanyId();
         }else if (authorities.contains("ROLE_COMPANY")){
             if (credential.getCompany() == null) {
-                throw new RuntimeException("La empresa no está asociada al usuario COMPANY.");
+                throw new RuntimeException("The company is not associated with the user COMPANY.");
             }
             companyId = credential.getCompany().getId();
         }
@@ -184,7 +184,7 @@ public class ActivityController {
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
         if (myCompanyId.isEmpty() && !isAdmin || !myCompanyId.get().equals(companyId)) {
-            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
+            throw new OwnershipException("You do not have permission to access this resource.");
         }
 
         Page<ActivityCompanyResponseDTO> activities = activityService.findByCompanyId(companyId, pageable);
@@ -300,7 +300,7 @@ public class ActivityController {
                 activity.getCompanyId().equals(credential.getCompany().getId());
 
         if (!isUserAuthorized && !isCompanyAuthorized) {
-            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
+            throw new OwnershipException("You do not have permission to access this resource.");
         }
 
         return ResponseEntity.ok(assembler.toModel(activity));
@@ -334,7 +334,7 @@ public class ActivityController {
             Pageable pageable) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
-            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
+            throw new OwnershipException("You do not have permission to access this resource.");
         }
 
         Page<ActivityResponseDTO> activities = activityService.findByUserIdWithFilters(userId, filters, pageable);
@@ -428,7 +428,7 @@ public class ActivityController {
         Long myCompanyId = credential.getCompany().getId();
 
         if (!myCompanyId.equals(companyId)) {
-            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
+            throw new OwnershipException("You do not have permission to access this resource.");
         }
 
         ActivityResponseDTO updated = activityService.updateActivityByCompany(myCompanyId, activityId, dto);
@@ -455,7 +455,7 @@ public class ActivityController {
         Long myCompanyId = credential.getCompany().getId();
 
         if (!myCompanyId.equals(companyId)) {
-            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
+            throw new OwnershipException("You do not have permission to access this resource.");
         }
 
         activityService.deleteActivityByCompany(myCompanyId, activityId);
@@ -482,7 +482,7 @@ public class ActivityController {
         Long myCompanyId = credential.getCompany().getId();
 
         if (!myCompanyId.equals(companyId)) {
-            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
+            throw new OwnershipException("You do not have permission to access this resource.");
         }
 
         activityService.restoreActivityByCompany(myCompanyId, activityId);
