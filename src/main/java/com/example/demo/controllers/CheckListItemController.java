@@ -4,6 +4,7 @@ import com.example.demo.DTOs.CheckList.Request.CheckListItemCreateDTO;
 import com.example.demo.DTOs.CheckList.Response.CheckListItemResponseDTO;
 import com.example.demo.DTOs.CheckList.CheckListItemUpdateDTO;
 import com.example.demo.DTOs.Filter.CheckListItemFilterDTO;
+import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
 import com.example.demo.controllers.hateoas.CheckListItemModelAssembler;
 import com.example.demo.exceptions.OwnershipException;
 import com.example.demo.security.entities.CredentialEntity;
@@ -57,7 +58,42 @@ public class CheckListItemController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Items successfully retrieved",
-                    content = @Content(schema = @Schema(implementation = CheckListItemResponseDTO.class))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CheckListItemResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
             )
     })
     @PreAuthorize("hasAuthority('VER_TODOS_CHECKLISTITEM')")
@@ -81,12 +117,51 @@ public class CheckListItemController {
     }
 
 
-    @Operation(summary = "Get an item by ID", description = "Retrieves a checklist item by its unique ID.")
+    @Operation(
+            summary = "Get an item by ID",
+            description = "Retrieves a checklist item by its unique ID."
+    )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Item found",
-                    content = @Content(schema = @Schema(implementation = CheckListItemResponseDTO.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Item not found")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Item found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CheckListItemResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request parameters",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Item not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
     })
     @PreAuthorize("hasAuthority('VER_CHECKLISTITEM')")
     @GetMapping("/{id}")
@@ -101,12 +176,47 @@ public class CheckListItemController {
     }
 
 
-    @Operation(summary = "Get all checklist items by user ID", description = "Returns all checklist items for the authenticated user.")
+    @Operation(
+            summary = "Get all checklist items by user ID",
+            description = "Returns all checklist items for the authenticated user. Supports optional filters."
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Items retrieved successfully",
-                    content = @Content(schema = @Schema(implementation = CheckListItemResponseDTO.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "User not found or no items")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Items retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CheckListItemResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request parameters",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found or no items",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('VER_CHECKLISTITEM_USER')")
     @GetMapping("/user/{userId}")
@@ -136,10 +246,46 @@ public class CheckListItemController {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Item successfully created",
-                    content = @Content(schema = @Schema(implementation = CheckListItemResponseDTO.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "400", description = "Invalid data provided")
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Item successfully created",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CheckListItemResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid data provided",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
     })
     @PreAuthorize("hasAuthority('CREAR_CHECKLISTITEM')")
     @PostMapping
@@ -159,11 +305,46 @@ public class CheckListItemController {
             description = "Updates an existing checklist item using its ID and the provided updated data."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Item successfully updated",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CheckListItemResponseDTO.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Item or checklist not found")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Item successfully updated",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CheckListItemResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input data",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Item or checklist not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
     })
     @PreAuthorize("hasAuthority('MODIFICAR_CHECKLISTITEM')")
     @PutMapping("/{id}")
@@ -179,9 +360,42 @@ public class CheckListItemController {
 
     @Operation(summary = "Delete an item", description = "Deletes a checklist item by its ID.")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Item successfully deleted"),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Item not found")
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Item successfully deleted"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Item not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
     })
     @PreAuthorize("hasAuthority('ELIMINAR_CHECKLISTITEM')")
     @DeleteMapping("/{id}")
