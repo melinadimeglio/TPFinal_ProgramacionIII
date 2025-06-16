@@ -119,7 +119,7 @@ public class ReservationService {
 
     public void paidReservation(Long reservationId, Long userId, Pageable pageable){
         ReservationEntity reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
+                .orElseThrow(() -> new ReservationException("Reservation not found"));
 
         ActivityEntity activity = activityRepository.findById(reservation.getActivity().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Activity not found"));
