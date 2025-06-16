@@ -50,7 +50,7 @@ public class DataInitializer {
         }
 
         private void initAdmin() {
-            if (credentialRepository.findByEmail("admin@example.com").isEmpty()) {
+            if (credentialRepository.findByEmail("administrador@gmail.com").isEmpty()) {
                 UserEntity adminUser = UserEntity.builder()
                         .username("admin")
                         .dni("00000001")
@@ -62,8 +62,8 @@ public class DataInitializer {
                 RoleEntity adminRole = roleRepository.findByRole(Role.ROLE_ADMIN).orElseThrow();
 
                 CredentialEntity credential = CredentialEntity.builder()
-                        .email("admin@example.com")
-                        .password(passwordEncoder.encode("admin123"))
+                        .email("administrador@gmail.com")
+                        .password(passwordEncoder.encode("Contra123_"))
                         .roles(Set.of(adminRole))
                         .user(adminUser)
                         .active(true)
@@ -75,9 +75,9 @@ public class DataInitializer {
         }
 
         private void initUser() {
-            if (credentialRepository.findByEmail("user@example.com").isEmpty()) {
+            if (credentialRepository.findByEmail("user@gmail.com").isEmpty()) {
                 UserEntity normalUser = UserEntity.builder()
-                        .username("user")
+                        .username("usuario")
                         .dni("00000002")
                         .active(true)
                         .build();
@@ -87,8 +87,8 @@ public class DataInitializer {
                 RoleEntity userRole = roleRepository.findByRole(Role.ROLE_USER).orElseThrow();
 
                 CredentialEntity credential = CredentialEntity.builder()
-                        .email("user@example.com")
-                        .password(passwordEncoder.encode("user123"))
+                        .email("user@gmail.com")
+                        .password(passwordEncoder.encode("Contra123_"))
                         .roles(Set.of(userRole))
                         .user(normalUser)
                         .active(true)
@@ -100,12 +100,12 @@ public class DataInitializer {
         }
 
         private void initCompany() {
-            if (credentialRepository.findByEmail("company@example.com").isEmpty()) {
+            if (credentialRepository.findByEmail("company@gmail.com").isEmpty()) {
                 CompanyEntity company = CompanyEntity.builder()
                         .username("company")
                         .taxId("30-00000001-9")
                         .description("Empresa demo")
-                        .phone("123456789")
+                        .phone("+542231111111")
                         .location("Buenos Aires")
                         .active(true)
                         .build();
@@ -115,8 +115,8 @@ public class DataInitializer {
                 RoleEntity companyRole = roleRepository.findByRole(Role.ROLE_COMPANY).orElseThrow();
 
                 CredentialEntity credential = CredentialEntity.builder()
-                        .email("company@example.com")
-                        .password(passwordEncoder.encode("company123"))
+                        .email("company@gmail.com")
+                        .password(passwordEncoder.encode("Contra123_"))
                         .roles(Set.of(companyRole))
                         .company(company)
                         .active(true)
