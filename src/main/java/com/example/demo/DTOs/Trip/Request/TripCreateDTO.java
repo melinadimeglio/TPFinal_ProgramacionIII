@@ -1,10 +1,7 @@
 package com.example.demo.DTOs.Trip.Request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -42,8 +39,9 @@ public class TripCreateDTO {
     private Double estimatedBudget;
 
     @Schema(description = "Cantidad de acompañantes", example = "2")
+    @Min(value = 0, message = "La cantidad de acompañantes no puede ser negativa.")
     private int companions;
 
-    @Schema(description = "Lista de IDs de los usuarios acompañantes", example = "[2, 5]")
+    @Schema(description = "Lista de IDs de los usuarios acompañantes (opcional)", example = "[2, 5]", nullable = true)
     private Set<Long> sharedUserIds;
 }

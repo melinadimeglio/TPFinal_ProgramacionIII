@@ -14,17 +14,17 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
 public class UserActivityCreateDTO {
 
-    @Schema(description = "Precio de la actividad", example = "150.0")
+    @Schema(description = "Precio de la actividad (no puede ser negativo)", example = "150.0")
+    @DecimalMin(value = "0.0", inclusive = true, message = "El precio no puede ser negativo.")
     private Double price;
 
     @Schema(description = "Nombre de la actividad", example = "Tour por el centro histórico")
-    @NotBlank(message = "El nombre es obligatorio")
+    @NotBlank(message = "El nombre es obligatorio.")
     private String name;
 
-    @Schema(description = "Descripción detallada de la actividad", example = "Un recorrido guiado por los principales puntos turísticos")
+    @Schema(description = "Descripción detallada de la actividad", example = "Un recorrido guiado por los principales puntos turísticos.")
     @NotBlank(message = "La descripción es obligatoria.")
     private String description;
 
@@ -32,17 +32,19 @@ public class UserActivityCreateDTO {
     @NotNull(message = "La categoría es obligatoria.")
     private ActivityCategory category;
 
-    @Schema(description = "Fecha de la actividad", example = "2025-07-10")
+    @Schema(description = "Fecha de la actividad (hoy o en el futuro)", example = "2025-07-10")
     @NotNull(message = "La fecha es obligatoria.")
     @FutureOrPresent(message = "La fecha debe ser hoy o en el futuro.")
     private LocalDate date;
 
-    @Schema(description = "Hora de inicio", example = "10:00:00")
+    @Schema(description = "Hora de inicio de la actividad", example = "10:00:00")
+    @NotNull(message = "La hora de inicio es obligatoria.")
     private LocalTime startTime;
 
-    @Schema(description = "Hora de fin", example = "12:00:00")
+    @Schema(description = "Hora de fin de la actividad", example = "12:00:00")
+    @NotNull(message = "La hora de fin es obligatoria.")
     private LocalTime endTime;
 
-    @Schema(description = "Lista de IDs de usuarios que tambien participan de la actividad", example = "[3, 5]")
+    @Schema(description = "Lista de IDs de usuarios que también participan en la actividad", example = "[3, 5]")
     private Set<Long> sharedUserIds;
 }

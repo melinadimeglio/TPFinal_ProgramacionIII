@@ -19,6 +19,7 @@ import java.time.LocalTime;
 
 public class ActivityUpdateDTO {
 
+    @Schema(description = "Precio de la actividad (no puede ser negativo)", example = "1800.0")
     @DecimalMin(value = "0.0", inclusive = true, message = "El precio no puede ser negativo.")
     private Double price;
 
@@ -45,7 +46,9 @@ public class ActivityUpdateDTO {
     @Schema(description = "Hora de fin", example = "12:00:00")
     private LocalTime endTime;
 
+    @Schema(description = "Indica si la actividad está disponible o no", example = "true")
     private Boolean available;
 
+    @Schema(description = "ID del itinerario al que se quiere asociar la actividad", example = "3")
     private Long itineraryId;
 }
