@@ -39,6 +39,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -285,16 +286,26 @@ public class TripController {
             )
     })
     @PreAuthorize("hasAuthority('OBTENER_RECOMENDACIONES_VIAJE')")
-    @GetMapping("/{tripId}/recommendations")
-    public ResponseEntity<PagedModel<EntityModel<RecommendationDTO>>> getRecommendations(@PathVariable Long tripId, Pageable pageable){
-        Page<RecommendationDTO> recomemendations = recommendationService.getRecommendationsForTrip(tripId, pageable);
+    @GetMapping("/{id}/{tripId}/recommendations")
+    public ResponseEntity<PagedModel<EntityModel<RecommendationDTO>>> getRecommendations(@PathVariable Long tripId, @PathVariable Long id,
+                                                                                         @AuthenticationPrincipal CredentialEntity credential,
+                                                                                         Pageable pageable){
+        if (credential.getUser() == null || !credential.getUser().getId().equals(id)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        Page<RecommendationDTO> recomemendations = recommendationService.getRecommendationsForTrip(tripId, id, pageable);
         return ResponseEntity.ok(pagedResourcesAssemblerRec.toModel(recomemendations));
     }
 
     @PreAuthorize("hasAuthority('OBTENER_RECOMENDACIONES_FILTRADAS')")
-    @GetMapping("/{tripId}/recommendations/filtered")
-    public ResponseEntity<?> getFilteredRecommendations(@PathVariable Long tripId, Pageable pageable){
-        Page<RecommendationDTO> recomendations = recommendationService.getRecommendationsForTrip(tripId, pageable);
+    @GetMapping("/{id}/{tripId}/recommendations/filtered")
+    public ResponseEntity<?> getFilteredRecommendations(@PathVariable Long tripId, @PathVariable Long id,
+                                                        @AuthenticationPrincipal CredentialEntity credential,
+                                                        Pageable pageable){
+        if (credential.getUser() == null || !credential.getUser().getId().equals(id)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        Page<RecommendationDTO> recomendations = recommendationService.getRecommendationsForTrip(tripId, id, pageable);
         if (recomendations.isEmpty()) {
             return ResponseEntity.status(HttpStatus.OK).body("No recommendations found.");
         }
