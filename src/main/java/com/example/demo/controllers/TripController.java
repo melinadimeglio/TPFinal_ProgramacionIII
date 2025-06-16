@@ -9,6 +9,7 @@ import com.example.demo.DTOs.Trip.TripUpdateDTO;
 import com.example.demo.controllers.hateoas.TripModelAssembler;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
+import com.example.demo.exceptions.OwnershipException;
 import com.example.demo.repositories.TripRepository;
 import com.example.demo.repositories.UserRepository;
 import com.example.demo.security.entities.CredentialEntity;
@@ -291,7 +292,7 @@ public class TripController {
                                                                                          @AuthenticationPrincipal CredentialEntity credential,
                                                                                          Pageable pageable){
         if (credential.getUser() == null || !credential.getUser().getId().equals(id)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
         }
         Page<RecommendationDTO> recomemendations = recommendationService.getRecommendationsForTrip(tripId, id, pageable);
         return ResponseEntity.ok(pagedResourcesAssemblerRec.toModel(recomemendations));
@@ -303,7 +304,7 @@ public class TripController {
                                                         @AuthenticationPrincipal CredentialEntity credential,
                                                         Pageable pageable){
         if (credential.getUser() == null || !credential.getUser().getId().equals(id)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
         }
         Page<RecommendationDTO> recomendations = recommendationService.getRecommendationsForTrip(tripId, id, pageable);
         if (recomendations.isEmpty()) {

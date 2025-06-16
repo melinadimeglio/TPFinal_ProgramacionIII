@@ -8,6 +8,7 @@ import com.example.demo.DTOs.Expense.Response.ExpenseResumeDTO;
 import com.example.demo.controllers.hateoas.ExpenseModelAssembler;
 import com.example.demo.controllers.hateoas.ExpenseResumeModelAssembler;
 import com.example.demo.enums.ExpenseCategory;
+import com.example.demo.exceptions.OwnershipException;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.ExpenseService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -159,7 +160,7 @@ public class ExpenseController {
             Pageable pageable) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
         }
 
         Page<ExpenseResumeDTO> expenses = expenseService.findByUserIdWithFilters(userId, filters, pageable);
@@ -302,7 +303,7 @@ public class ExpenseController {
             @AuthenticationPrincipal CredentialEntity credential) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
         }
 
         return ResponseEntity.ok(expenseService.getAverageExpenseByUserId(userId));
@@ -353,7 +354,7 @@ public class ExpenseController {
             @AuthenticationPrincipal CredentialEntity credential) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
         }
 
         return ResponseEntity.ok(expenseService.getRealAverageExpenseByUser(userId));
@@ -420,7 +421,7 @@ public class ExpenseController {
             @AuthenticationPrincipal CredentialEntity credential) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
         }
 
         return ResponseEntity.ok(expenseService.getTotalRealExpenseByUser(userId));

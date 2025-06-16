@@ -11,6 +11,8 @@ import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.controllers.hateoas.ActivityCompanyModelAssembler;
 import com.example.demo.controllers.hateoas.ActivityModelAssembler;
 import com.example.demo.enums.ActivityCategory;
+import com.example.demo.exceptions.OwnershipException;
+import com.example.demo.exceptions.ReservationException;
 import com.example.demo.repositories.ItineraryRepository;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.ActivityService;
@@ -105,7 +107,7 @@ public class ActivityController {
                 .findFirst();
 
         if (itinerario.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No existe un itinerario para la fecha de la actividad. Por favor primero cree un itinerario.");
+            throw new ReservationException("No existe un itinerario para la fecha de la actividad. Por favor primero cree un itinerario.");
         }
 
         ActivityResponseDTO createdActivity = activityService.createFromUser(dto, myUserId, itinerario.get().getId());
@@ -182,7 +184,7 @@ public class ActivityController {
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
         if (myCompanyId.isEmpty() && !isAdmin || !myCompanyId.get().equals(companyId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
         }
 
         Page<ActivityCompanyResponseDTO> activities = activityService.findByCompanyId(companyId, pageable);
@@ -298,7 +300,7 @@ public class ActivityController {
                 activity.getCompanyId().equals(credential.getCompany().getId());
 
         if (!isUserAuthorized && !isCompanyAuthorized) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
         }
 
         return ResponseEntity.ok(assembler.toModel(activity));
@@ -332,7 +334,7 @@ public class ActivityController {
             Pageable pageable) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
         }
 
         Page<ActivityResponseDTO> activities = activityService.findByUserIdWithFilters(userId, filters, pageable);
@@ -426,7 +428,7 @@ public class ActivityController {
         Long myCompanyId = credential.getCompany().getId();
 
         if (!myCompanyId.equals(companyId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
         }
 
         ActivityResponseDTO updated = activityService.updateActivityByCompany(myCompanyId, activityId, dto);
@@ -453,7 +455,7 @@ public class ActivityController {
         Long myCompanyId = credential.getCompany().getId();
 
         if (!myCompanyId.equals(companyId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
         }
 
         activityService.deleteActivityByCompany(myCompanyId, activityId);
@@ -480,7 +482,7 @@ public class ActivityController {
         Long myCompanyId = credential.getCompany().getId();
 
         if (!myCompanyId.equals(companyId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
         }
 
         activityService.restoreActivityByCompany(myCompanyId, activityId);
