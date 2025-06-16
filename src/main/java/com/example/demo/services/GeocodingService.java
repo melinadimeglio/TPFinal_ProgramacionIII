@@ -36,10 +36,10 @@ public class GeocodingService {
                 case "buenos aires":
                     return new Coordinates(-34.6037, -58.3816);
             }
-            throw new RuntimeException("No se encontraron coordenadas para el destino ingresado.");
+            throw new RuntimeException("No coordinates were found for the entered destination.");
         }
 
-        throw new RuntimeException("No se encontraron coordinadas para el destino ingresado.");
+        throw new RuntimeException("No coordinates were found for the entered destination.");
 
     }
 

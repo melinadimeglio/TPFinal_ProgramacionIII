@@ -45,7 +45,7 @@ public class RecommendationService {
                 .stream()
                 .anyMatch(user -> user.getId().equals(userId));
         if(!isUserInTrip){
-            throw new OwnershipException("No tienes permiso para ver este viaje.");
+            throw new OwnershipException("You do not have permission to view this trip..");
         }
         Coordinates coords = geocodingService.getCoordinates(trip.getDestination());
 

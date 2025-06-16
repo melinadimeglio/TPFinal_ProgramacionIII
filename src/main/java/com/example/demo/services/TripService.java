@@ -7,6 +7,7 @@ import com.example.demo.DTOs.Trip.TripUpdateDTO;
 import com.example.demo.SpecificationAPI.TripSpecification;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
+import com.example.demo.exceptions.ReservationException;
 import com.example.demo.mappers.TripMapper;
 import com.example.demo.repositories.TripRepository;
 import com.example.demo.repositories.UserRepository;
@@ -51,7 +52,7 @@ public class TripService {
 
     public TripResponseDTO findById(Long id) {
         TripEntity trip = tripRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el viaje con ID " + id));
+                .orElseThrow(() -> new NoSuchElementException("Trip not found: " + id));
         return tripMapper.toDTO(trip);
     }
 
@@ -76,31 +77,31 @@ public class TripService {
         Set<UserEntity> users = new HashSet<>();
 
         UserEntity owner = userRepository.findById(myUserId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new RuntimeException("User not found."));
         users.add(owner);
 
         if (dto.getSharedUserIds() != null && !dto.getSharedUserIds().isEmpty()) {
             for (Long sharedId : dto.getSharedUserIds()) {
                 UserEntity sharedUser = userRepository.findById(sharedId)
-                        .orElseThrow(() -> new RuntimeException("Usuario compartido no encontrado"));
+                        .orElseThrow(() -> new RuntimeException("Shared user not found."));
 
                 if (sharedUser.getCredential().getAuthorities().stream()
                         .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))){
-                        throw new ResponseStatusException(HttpStatus.CONFLICT, "No puede agregar usuarios de tipo administrador.");
+                        throw new ReservationException("You cannot add Admin type users.");
                 } else if (sharedUser.getCredential().getAuthorities().stream()
                         .anyMatch(a -> a.getAuthority().equals("ROLE_COMPANY"))){
-                    throw new ResponseStatusException(HttpStatus.CONFLICT, "No puede agregar usuarios de tipo empresa.");
+                    throw new ReservationException("You cannot add Company type users.");
                 }
                 users.add(sharedUser);
             }
         }
 
         if (dto.getCompanions() != users.size() - 1){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "El numero de acompañantes no coincide con los usuarios que comparten el viaje.");
+            throw new ReservationException("The number of companions does not match the number of users sharing the trip.");
         }
 
         if (dto.getEndDate().isBefore(dto.getStartDate())){
-            throw new IllegalArgumentException("La fecha de finalizacion no puede ser anterior a la fecha de comienzo.");
+            throw new IllegalArgumentException("The end date cannot be earlier than the start date.");
         }
 
         TripEntity trip = tripMapper.toEntity(dto);

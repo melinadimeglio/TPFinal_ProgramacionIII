@@ -56,10 +56,10 @@ public class CheckListService {
 
     public CheckListResponseDTO findByIdIfOwned(Long id, Long myUserId) {
         CheckListEntity entity = checkListRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Checklist no encontrada"));
+                .orElseThrow(() -> new NoSuchElementException("Checklist not found"));
 
         if (!entity.getUser().getId().equals(myUserId)) {
-            throw new AccessDeniedException("No tienes permiso para ver este checklist");
+            throw new AccessDeniedException("You do not have permission to view this checklist.");
         }
 
         return checkListMapper.toDTO(entity);
@@ -67,21 +67,21 @@ public class CheckListService {
 
     public CheckListResponseDTO create(CheckListCreateDTO dto, Long myUserId) {
         if (dto.getTripId() == null) {
-            throw new IllegalArgumentException("TripId no puede ser null.");
+            throw new IllegalArgumentException("TripId cannot be null.");
         }
 
         TripEntity trip = tripRepository.findById(dto.getTripId())
-                .orElseThrow(() -> new NoSuchElementException("Viaje no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("Trip not found"));
 
         boolean belongsToUser = trip.getUsers().stream()
                 .anyMatch(user -> user.getId().equals(myUserId));
 
         if (!belongsToUser) {
-            throw new AccessDeniedException("No tienes permiso para crear checklists en este viaje");
+            throw new AccessDeniedException("You do not have permission to create checklists on this trip.");
         }
 
         UserEntity user = userRepository.findById(myUserId)
-                .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("User not found."));
 
         CheckListEntity entity = checkListMapper.toEntity(dto);
         entity.setTrip(trip);
@@ -95,28 +95,28 @@ public class CheckListService {
     public CheckListResponseDTO update(Long id, CheckListUpdateDTO dto, Long userId) {
 
         CheckListEntity entity = checkListRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Checklist no encontrada"));
+                .orElseThrow(() -> new NoSuchElementException("Checklist not found."));
 
         if (!entity.getUser().getId().equals(userId)) {
-            throw new AccessDeniedException("No tenés permiso para modificar esta checklist.");
+            throw new AccessDeniedException("You do not have permission to edit this checklist.");
         }
 
         checkListMapper.updateEntityFromDTO(dto, entity);
 
         TripEntity trip = tripRepository.findById(dto.getTripId())
-                .orElseThrow(() -> new NoSuchElementException("Viaje no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("Trip not found."));
 
         boolean belongsToUser = trip.getUsers().stream()
                 .anyMatch(user -> user.getId().equals(userId));
 
         if (!belongsToUser) {
-            throw new AccessDeniedException("No tienes permiso para asignar esta checklist a ese viaje");
+            throw new AccessDeniedException("You do not have permission to assign this checklist to that trip.");
         }
 
         entity.setTrip(trip);
 
         UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("User not found."));
         entity.setUser(user);
 
         if (dto.getCompleted() != null) {
@@ -135,10 +135,10 @@ public class CheckListService {
 
     public void deleteIfOwned(Long id, Long userId) {
         CheckListEntity checkListEntity = checkListRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró la checklist con ID: " + id));
+                .orElseThrow(() -> new NoSuchElementException("Checklist not found: " + id));
 
         if (!checkListEntity.getUser().getId().equals(userId)) {
-            throw new AccessDeniedException("No tienes permiso para eliminar esta checklist.");
+            throw new AccessDeniedException("You do not have permission to delete this checklist.");
         }
 
         checkListEntity.setActive(false);
@@ -148,10 +148,10 @@ public class CheckListService {
 
     public void restoreIfOwned(Long id, Long userId) {
         CheckListEntity checkListEntity = checkListRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró la checklist con ID: " + id));
+                .orElseThrow(() -> new NoSuchElementException("Checklist not found: " + id));
 
         if (!checkListEntity.getUser().getId().equals(userId)) {
-            throw new AccessDeniedException("No tienes permiso para restaurar esta checklist.");
+            throw new AccessDeniedException("You do not have permission to restore this checklist.");
         }
 
         checkListEntity.setActive(true);

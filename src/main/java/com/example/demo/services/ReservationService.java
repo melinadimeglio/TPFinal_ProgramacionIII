@@ -70,7 +70,7 @@ public class ReservationService {
         Optional<CompanyEntity> companyId = Optional.ofNullable(activity.getCompany());
 
         if (companyId.isEmpty()){
-            throw new ReservationException("No puede crear una reservacion la actividad ingresada.");
+            throw new ReservationException("You cannot create a reservation for the entered activity.");
         }
 
         Set<ItineraryResponseDTO> itinerariosUser = itineraryService.findByUserId(userId, Pageable.unpaged()).toSet();
@@ -80,11 +80,11 @@ public class ReservationService {
                 .findFirst();
 
         if (itineraryOptional.isEmpty()){
-            throw new ReservationException("No hay itinerario para la fecha de la actividad. Por favor cree uno.");
+            throw new ReservationException("There is no itinerary for the activity date. Please create one.");
         }
 
         if (!activityDisponible(itineraryOptional.get().getId(), dto.getActivityId())){
-            throw new ReservationException("No se puede guardar la actividad ya que no cuenta con la disponibilidad suficiente.");
+            throw new ReservationException("The activity cannot be saved because it does not have sufficient availability.");
         }
 
         ReservationEntity reservation = reservationMapper.toEntity(dto, user, activity);
@@ -131,20 +131,20 @@ public class ReservationService {
                         .findFirst();
 
         if (itineraryOptional.isEmpty()){
-            throw new ReservationException("No hay itinerario para la fecha de la actividad. Por favor cree uno.");
+            throw new ReservationException("There is no itinerary for the activity date. Please create one..");
         }
 
         TripEntity trip = tripService.getTripById(itineraryOptional.get().getTripId());
         int cant = trip.getCompanions() + 1 ;
 
         if (!activityService.updateCapacity(activity.getId(), cant)){
-            throw new ReservationException("No se puede guardar la actividad ya que no cuenta con la disponibilidad suficiente.");
+            throw new ReservationException("The activity cannot be saved because it does not have sufficient availability..");
         }
 
         Long itineraryId = itineraryOptional.get().getId();
 
         if (!itineraryService.addActivity(itineraryId, userId, activity.getId())){
-            throw new ReservationException("No se pudo agregar la actividad al itinerario.");
+            throw new ReservationException("The activity could not be added to the itinerary.");
         }
 
         Set<Long> users = trip.getUsers().stream()

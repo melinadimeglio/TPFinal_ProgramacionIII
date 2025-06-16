@@ -22,7 +22,7 @@ public class CredentialService {
 
     public void deleteCredential(String username){
         CredentialEntity credential = credentialRepository.findByEmail(username)
-                .orElseThrow(()-> new NoSuchElementException("No se encontro la credencial"));
+                .orElseThrow(()-> new NoSuchElementException("Credential not found."));
 
         credential.setActive(false);
         credentialRepository.save(credential);
@@ -30,7 +30,7 @@ public class CredentialService {
 
     public void restore(String username){
         CredentialEntity credential = credentialRepository.findByEmail(username)
-                .orElseThrow(()-> new NoSuchElementException("No se encontro la credencial"));
+                .orElseThrow(()-> new NoSuchElementException("Credential not found."));
 
         credential.setActive(true);
         credentialRepository.save(credential);

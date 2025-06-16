@@ -16,6 +16,7 @@ import com.example.demo.entities.ItineraryEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.enums.ActivityCategory;
 import com.example.demo.enums.ExpenseCategory;
+import com.example.demo.exceptions.ReservationException;
 import com.example.demo.mappers.ActivityMapper;
 import com.example.demo.repositories.ActivityRepository;
 import com.example.demo.repositories.CompanyRepository;
@@ -98,7 +99,7 @@ public class ActivityService {
 
         ActivityEntity saved = activityRepository.save(entity);
         if (!itineraryService.addActivity(itineraryId, myUserId, saved.getId())){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "No se pudo crear la actividad.");
+            throw new ReservationException("No se pudo crear la actividad.");
         }
 
         Set<Long> usersIds = users.stream()

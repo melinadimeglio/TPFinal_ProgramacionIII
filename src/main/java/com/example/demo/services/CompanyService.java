@@ -52,13 +52,13 @@ public class CompanyService {
 
     public CompanyResponseDTO save(CompanyCreateDTO dto) {
         if (companyRepository.existsByTaxId(dto.getTaxId())){
-            throw new IllegalArgumentException("El Tax ID ya se encuentra registrado en el sistema.");
+            throw new IllegalArgumentException("The Tax ID is already registered in the system.");
         }
 
         CompanyEntity companyEntity = companyMapper.toEntity(dto);
 
         RoleEntity userRole = roleRepository.findByRole(Role.ROLE_COMPANY)
-                .orElseThrow(() -> new RuntimeException("Role COMPANY no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Role COMPANY not found."));
 
         CompanyEntity savedCompany = companyRepository.save(companyEntity);
         CredentialEntity credential = new CredentialEntity();
@@ -83,7 +83,7 @@ public class CompanyService {
 
     public CompanyResponseDTO findById(Long id) {
         CompanyEntity entity = companyRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Empresa no encontrada"));
+                .orElseThrow(() -> new NoSuchElementException("Company not found."));
         return companyMapper.toDTO(entity);
     }
 
@@ -109,14 +109,14 @@ public class CompanyService {
 
     public CompanyResponseDTO getProfile(String username){
         CredentialEntity credential = credentialRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
         CompanyEntity company = credential.getCompany();
         return companyMapper.toDTO(company);
     }
 
     public void delete(Long id) {
         CompanyEntity entity = companyRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Item no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("Item not found."));
         CredentialEntity credential = entity.getCredential();
         entity.setActive(false);
         credential.setActive(false);
@@ -126,7 +126,7 @@ public class CompanyService {
 
     public void deleteOwn(String username) {
         CredentialEntity credential = credentialRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
         CompanyEntity company = credential.getCompany();
         company.setActive(false);
         company.getCredential().setActive(false);
@@ -137,7 +137,7 @@ public class CompanyService {
 
     public void restore(Long id) {
         CompanyEntity entity = companyRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Item no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("Item not found."));
         entity.setActive(true);
         entity.getCredential().setActive(true);
         entity.getActivities().forEach(activityEntity -> activityEntity.setAvailable(true));

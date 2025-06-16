@@ -62,13 +62,13 @@ public class UserService {
 
     public UserResponseDTO findById(Long id) {
         UserEntity user = userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el usuario con ID: " + id));
+                .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
         return userMapper.toDTO(user);
     }
 
     public UserEntity findByIdAdmin(Long id) {
         UserEntity user = userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el usuario con ID: " + id));
+                .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
         return user;
     }
 
@@ -76,7 +76,7 @@ public class UserService {
         UserEntity userEntity = userMapper.toUserEntity(user);
 
         RoleEntity userRole = roleRepository.findByRole(Role.ROLE_USER)
-                .orElseThrow(() -> new RuntimeException("Role USER no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Role USER not found."));
 
         UserEntity savedUser = userRepository.save(userEntity);
         CredentialEntity credential = new CredentialEntity();
@@ -101,7 +101,7 @@ public class UserService {
 
     public UserResponseDTO update(Long id, UserUpdateDTO dto) {
         UserEntity existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el usuario con ID: " + id));
+                .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
 
         if(dto.getPassword() != null){
             existingUser.getCredential().setPassword(passwordEncoder.encode(dto.getPassword()));
@@ -117,7 +117,7 @@ public class UserService {
 
     public UserResponseDTO update(String username, UserUpdateDTO dto) {
         CredentialEntity credential = credentialRepository.findByEmail(username)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el usuario con username: " + username));
+                .orElseThrow(() -> new NoSuchElementException("User not found: " + username));
 
         UserEntity existingUser = credential.getUser();
 
@@ -139,7 +139,7 @@ public class UserService {
 
     public void delete(Long id) {
         UserEntity user = userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el usuario con ID: " + id));
+                .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
         user.setActive(false);
         user.getCredential().setActive(false);
         userRepository.save(user);
@@ -147,7 +147,7 @@ public class UserService {
 
     public void deleteAccount(String username) {
         CredentialEntity credential = credentialRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
         UserEntity user = credential.getUser();
         user.setActive(false);
         user.getCredential().setActive(false);
@@ -156,7 +156,7 @@ public class UserService {
 
     public void restore(Long id) {
         UserEntity user = userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con id: " + id));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + id));
         user.setActive(true);
         user.getCredential().setActive(true);
         userRepository.save(user);
@@ -164,7 +164,7 @@ public class UserService {
 
     public UserResponseDTO getProfileByUsername(String username){
         CredentialEntity credential = credentialRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con username: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
         UserEntity user = credential.getUser();
         return userMapper.toDTO(user);
     }
@@ -173,7 +173,7 @@ public class UserService {
         UserEntity user = findByIdAdmin(id);
         CredentialEntity credential = user.getCredential();
         RoleEntity userRole = roleRepository.findByRole(Role.ROLE_ADMIN)
-                .orElseThrow(() -> new RuntimeException("Role USER no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Role USER not found."));
 
         Set<RoleEntity> rolesUser = credential.getRoles();
         rolesUser.clear();
@@ -184,9 +184,9 @@ public class UserService {
 
 
         if (!rolesUser.contains(userRole)){
-            return "No se pudo asignar el nuevo rol.";
+            return "The new role could not be assigned.";
         }
 
-        return "Rol asignado con exito.";
+        return "Role assigned successfully.";
     }
 }

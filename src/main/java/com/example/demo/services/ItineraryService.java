@@ -56,14 +56,14 @@ public class ItineraryService {
     public boolean addActivity (Long itineraryId, Long userId, Long activityId){
 
         ItineraryEntity itinerary = itineraryRepository.findById(itineraryId)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el itinerario"));
+                .orElseThrow(() -> new NoSuchElementException("Itinerary not found."));
 
         if (!itinerary.getUser().getId().equals(userId)) {
-            throw new AccessDeniedException("No tenés permiso para acceder a este itinerario.");
+            throw new AccessDeniedException("You do not have permission to view this itinerary.");
         }
 
         ActivityEntity activity = activityRepository.findById(activityId)
-                .orElseThrow(() -> new NoSuchElementException("No fue posible encontrar la actividad para agregarla al itinerario."));
+                .orElseThrow(() -> new NoSuchElementException("It was not possible to find the activity to add to the itinerary."));
 
         activity.setItinerary(itinerary);
 
@@ -77,10 +77,10 @@ public class ItineraryService {
 
     public ItineraryResponseDTO findByIdIfBelongsToUser(Long itineraryId, Long userId) {
         ItineraryEntity itinerary = itineraryRepository.findById(itineraryId)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el itinerario"));
+                .orElseThrow(() -> new NoSuchElementException("Itinerary not found."));
 
         if (!itinerary.getUser().getId().equals(userId)) {
-            throw new AccessDeniedException("No tenés permiso para ver este itinerario");
+            throw new AccessDeniedException("You do not have permission to view this itinerary.");
         }
 
         return itineraryMapper.toDTO(itinerary);
@@ -89,7 +89,7 @@ public class ItineraryService {
 
     public ItineraryEntity getEntityById(Long id) {
         return itineraryRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el itinerario"));
+                .orElseThrow(() -> new NoSuchElementException("Itinerary not found."));
     }
 
     public Page<ItineraryResponseDTO> findByUserId(Long userId, Pageable pageable) {
@@ -99,21 +99,21 @@ public class ItineraryService {
 
     public ItineraryResponseDTO save(ItineraryCreateDTO dto, Long myUserId) {
         UserEntity user = userRepository.findById(myUserId)
-                .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("User not found."));
 
         TripEntity trip = tripRepository.findById(dto.getTripId())
-                .orElseThrow(() -> new NoSuchElementException("Viaje no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("Trip not found."));
 
         boolean belongsToUser = trip.getUsers().stream()
                 .anyMatch(u -> u.getId().equals(myUserId));
 
         if(dto.getItineraryDate().isBefore(trip.getStartDate()) || dto.getItineraryDate().isAfter(trip.getEndDate())){
-            throw new IllegalArgumentException("La fecha del itinerario no corresponda al rango de fechas del viaje.");
+            throw new IllegalArgumentException("The itinerary date does not correspond to the travel date range.");
         }
 
 
         if (!belongsToUser) {
-            throw new AccessDeniedException("No tenés permiso para agregar itinerarios a este viaje");
+            throw new AccessDeniedException("You do not have permission to use this itinerary.");
         }
 
         ItineraryEntity entity = itineraryMapper.toEntity(dto);
@@ -127,10 +127,10 @@ public class ItineraryService {
 
     public ItineraryResponseDTO updateAndReturnIfOwned(Long id, ItineraryUpdateDTO dto, Long userId) {
         ItineraryEntity entity = itineraryRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el itinerario"));
+                .orElseThrow(() -> new NoSuchElementException("Itinerary not found."));
 
         if (!entity.getUser().getId().equals(userId)) {
-            throw new AccessDeniedException("No tenés permiso para modificar este itinerario");
+            throw new AccessDeniedException("You do not have permission to update this itinerary.");
         }
 
         itineraryMapper.updateEntityFromDTO(dto, entity);
@@ -141,10 +141,10 @@ public class ItineraryService {
 
     public void softDeleteIfOwned(Long id, Long userId) {
         ItineraryEntity entity = itineraryRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el itinerario"));
+                .orElseThrow(() -> new NoSuchElementException("Itinerary not found."));
 
         if (!entity.getUser().getId().equals(userId)) {
-            throw new AccessDeniedException("No tenés permiso para eliminar este itinerario");
+            throw new AccessDeniedException("You do not have permission to delete this itinerary.");
         }
 
         entity.setActive(false);
@@ -153,10 +153,10 @@ public class ItineraryService {
 
     public void restoreIfOwned(Long id, Long userId) {
         ItineraryEntity entity = itineraryRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el itinerario"));
+                .orElseThrow(() -> new NoSuchElementException("Itinerary not found."));
 
         if (!entity.getUser().getId().equals(userId)) {
-            throw new AccessDeniedException("No tenés permiso para restaurar este itinerario");
+            throw new AccessDeniedException("You do not have permission to restore this itinerary.");
         }
 
         entity.setActive(true);

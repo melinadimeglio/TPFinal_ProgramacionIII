@@ -56,7 +56,7 @@ public class ExpenseService{
 
     public ExpenseResponseDTO findById(Long id) {
         ExpenseEntity entity = expenseRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el gasto"));
+                .orElseThrow(() -> new NoSuchElementException("Expense not found."));
         return expenseMapper.toDTO(entity);
     }
 
@@ -64,13 +64,13 @@ public class ExpenseService{
     public ExpenseResponseDTO save(ExpenseCreateDTO dto, Long myUserId) {
 
         TripEntity trip = tripRepository.findById(dto.getTripId())
-                .orElseThrow(() -> new NoSuchElementException("Viaje no encontrado con ID: " + dto.getTripId()));
+                .orElseThrow(() -> new NoSuchElementException("Trip not found: " + dto.getTripId()));
 
         boolean belongsToUser = trip.getUsers().stream()
                 .anyMatch(user -> user.getId().equals(myUserId));
 
         if (!belongsToUser) {
-            throw new AccessDeniedException("No tienes permiso para registrar gastos en este viaje");
+            throw new AccessDeniedException("You are not allowed to record expenses on this trip.");
         }
 
         Set<Long> userIds = dto.getSharedUserIds() != null ? dto.getSharedUserIds() : new HashSet<>();
@@ -79,7 +79,7 @@ public class ExpenseService{
         List<UserEntity> foundUsers = userRepository.findAllById(userIds);
 
         if (foundUsers.size() != userIds.size()) {
-            throw new NoSuchElementException("Algunos de los usuarios compartidos no existen");
+            throw new NoSuchElementException("Some of the shared users do not exist.");
         }
 
         ExpenseEntity expense = expenseMapper.toEntity(dto);
@@ -87,7 +87,7 @@ public class ExpenseService{
         expense.setUsers(new HashSet<>(foundUsers));
 
         if (foundUsers.isEmpty()) {
-            throw new IllegalStateException("No se puede dividir el gasto: no hay usuarios asignados.");
+            throw new IllegalStateException("Cannot split expense: no users assigned.");
         }
 
         ExpenseEntity saved = expenseRepository.save(expense);
@@ -100,13 +100,13 @@ public class ExpenseService{
 
         String budgetStatus;
         if (total > estimated) {
-            budgetStatus = "⚠️ Se ha superado el presupuesto estimado.";
+            budgetStatus = "⚠️ The estimated budget has been exceeded.";
         } else if (total >= estimated * 0.5) {
-            budgetStatus = "🔶 Se ha superado el 50% del presupuesto estimado.";
+            budgetStatus = "🔶 The estimated budget has been exceeded by 50%.";
         } else if (total == estimated){
-            budgetStatus = "❗ Has gastado todo el presupuesto disponible.";
+            budgetStatus = "❗ You have spent all the available budget.";
         } else {
-            budgetStatus = "✅ Presupuesto bajo control.";
+            budgetStatus = "✅ Budget under control.";
         }
 
         ExpenseResponseDTO response = expenseMapper.toDTO(saved);
@@ -118,7 +118,7 @@ public class ExpenseService{
 
     public void updateIfOwned(Long id, ExpenseUpdateDTO dto, Long myUserId) {
         ExpenseEntity entity = expenseRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el gasto"));
+                .orElseThrow(() -> new NoSuchElementException("Expense not found."));
 
         TripEntity trip = entity.getTrip();
 
@@ -126,7 +126,7 @@ public class ExpenseService{
                 .anyMatch(user -> user.getId().equals(myUserId));
 
         if (!belongsToUser) {
-            throw new AccessDeniedException("No tienes permiso para modificar este gasto");
+            throw new AccessDeniedException("You do not have permission to modify this expense.");
         }
 
         expenseMapper.updateEntityFromDTO(dto, entity);
@@ -135,7 +135,7 @@ public class ExpenseService{
 
     public void deleteIfOwned(Long id, Long myUserId) {
         ExpenseEntity entity = expenseRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el gasto"));
+                .orElseThrow(() -> new NoSuchElementException("Expense not found."));
 
         TripEntity trip = entity.getTrip();
 
@@ -143,7 +143,7 @@ public class ExpenseService{
                 .anyMatch(user -> user.getId().equals(myUserId));
 
         if (!belongsToUser) {
-            throw new AccessDeniedException("No tienes permiso para eliminar este gasto");
+            throw new AccessDeniedException("You do not have permission to delete this expense.");
         }
 
         entity.setActive(false);
@@ -153,7 +153,7 @@ public class ExpenseService{
 
     public void restoreIfOwned(Long id, Long myUserId) {
         ExpenseEntity entity = expenseRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el gasto"));
+                .orElseThrow(() -> new NoSuchElementException("Expense not found."));
 
         TripEntity trip = entity.getTrip();
 
@@ -161,7 +161,7 @@ public class ExpenseService{
                 .anyMatch(user -> user.getId().equals(myUserId));
 
         if (!belongsToUser) {
-            throw new AccessDeniedException("No tienes permiso para restaurar este gasto");
+            throw new AccessDeniedException("You do not have permission to restore this expense.");
         }
 
         entity.setActive(true);
@@ -203,13 +203,13 @@ public class ExpenseService{
     public Page<ExpenseResumeDTO> findByTripIdIfOwned(Long tripId, Long myUserId, Pageable pageable) {
 
         TripEntity trip = tripRepository.findById(tripId)
-                .orElseThrow(() -> new NoSuchElementException("Viaje no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("Trip not found."));
 
         boolean belongsToUser = trip.getUsers().stream()
                 .anyMatch(user -> user.getId().equals(myUserId));
 
         if (!belongsToUser) {
-            throw new AccessDeniedException("No tienes permiso para ver los gastos de este viaje");
+            throw new AccessDeniedException("You are not allowed to view expenses for this trip.");
         }
 
         return expenseRepository.findByTripId(tripId, pageable)
@@ -219,13 +219,13 @@ public class ExpenseService{
 
     public Double getAverageExpenseByTripIdIfOwned(Long tripId, Long myUserId) {
         TripEntity trip = tripRepository.findById(tripId)
-                .orElseThrow(() -> new NoSuchElementException("Viaje no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("Trip not found."));
 
         boolean belongsToUser = trip.getUsers().stream()
                 .anyMatch(user -> user.getId().equals(myUserId));
 
         if (!belongsToUser) {
-            throw new AccessDeniedException("No tienes permiso para ver los gastos de este viaje");
+            throw new AccessDeniedException("You are not allowed to view expenses for this trip.");
         }
 
         List<ExpenseEntity> expenses = expenseRepository.findByTripId(tripId);
@@ -238,13 +238,13 @@ public class ExpenseService{
 
     public Double getTotalExpenseByTripIdIfOwned(Long tripId, Long myUserId) {
         TripEntity trip = tripRepository.findById(tripId)
-                .orElseThrow(() -> new NoSuchElementException("Viaje no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("Trip not found."));
 
         boolean belongsToUser = trip.getUsers().stream()
                 .anyMatch(user -> user.getId().equals(myUserId));
 
         if (!belongsToUser) {
-            throw new AccessDeniedException("No tienes permiso para ver los gastos de este viaje");
+            throw new AccessDeniedException("You are not allowed to view expenses for this trip.");
         }
 
         List<ExpenseEntity> expenses = expenseRepository.findByTripId(tripId);
@@ -271,7 +271,7 @@ public class ExpenseService{
 
     public ExpenseResumeDTO findResumeById(Long id) {
         ExpenseEntity entity = expenseRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró el gasto"));
+                .orElseThrow(() -> new NoSuchElementException("Expense not found."));
         return expenseMapper.toResumeDTO(entity);
     }
 

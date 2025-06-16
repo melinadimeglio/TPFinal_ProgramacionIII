@@ -36,10 +36,10 @@ public class CheckListItemService {
 
     public CheckListItemResponseDTO findByIdIfOwned(Long id, Long userId) {
         CheckListItemEntity entity = itemRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Item no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("Item not found."));
 
         if (!entity.getChecklist().getUser().getId().equals(userId)) {
-            throw new AccessDeniedException("No tienes permiso para ver este item.");
+            throw new AccessDeniedException("You do not have permission to view this item.");
         }
 
         return itemMapper.toDTO(entity);
@@ -68,10 +68,10 @@ public class CheckListItemService {
         CheckListItemEntity entity = itemMapper.toEntity(dto);
 
         CheckListEntity checklist = checkListRepository.findById(dto.getChecklistId())
-                .orElseThrow(() -> new NoSuchElementException("Checklist no encontrada"));
+                .orElseThrow(() -> new NoSuchElementException("Checklist not found."));
 
         if (!checklist.getUser().getId().equals(userId)) {
-            throw new AccessDeniedException("No tienes permiso para agregar items en esta checklist.");
+            throw new AccessDeniedException("You do not have permission to add items at this checklist.");
         }
 
         entity.setChecklist(checklist);
@@ -83,20 +83,20 @@ public class CheckListItemService {
 
     public CheckListItemResponseDTO updateIfOwned(Long id, CheckListItemUpdateDTO dto, Long userId) {
         CheckListItemEntity entity = itemRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Item no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("Item not found."));
 
         if (!entity.getChecklist().getUser().getId().equals(userId)) {
-            throw new AccessDeniedException("No tienes permiso para modificar este item.");
+            throw new AccessDeniedException("You do not have permission to modify this item.");
         }
 
         itemMapper.updateEntityFromDTO(dto, entity);
 
         if (dto.getChecklistId() != null && !dto.getChecklistId().equals(entity.getChecklist().getId())) {
             CheckListEntity checklist = checkListRepository.findById(dto.getChecklistId())
-                    .orElseThrow(() -> new NoSuchElementException("Checklist no encontrada"));
+                    .orElseThrow(() -> new NoSuchElementException("Checklist not found"));
 
             if (!checklist.getUser().getId().equals(userId)) {
-                throw new AccessDeniedException("No tienes permiso para asignar este item a otra checklist.");
+                throw new AccessDeniedException("You do not have permission to assign this item to another checklist.");
             }
 
             entity.setChecklist(checklist);
@@ -109,10 +109,10 @@ public class CheckListItemService {
 
     public void deleteIfOwned(Long id, Long userId) {
         CheckListItemEntity entity = itemRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Item no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("Item not found."));
 
         if (!entity.getChecklist().getUser().getId().equals(userId)) {
-            throw new AccessDeniedException("No tienes permiso para eliminar este item.");
+            throw new AccessDeniedException("You do not have permission to delete this item.");
         }
 
         itemRepository.delete(entity);
