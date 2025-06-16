@@ -104,7 +104,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MPApiException.class)
     public ResponseEntity<Object> handleMPApiException(MPApiException ex) {
-        return buildResponse(HttpStatus.BAD_REQUEST, "Error al procesar el pago." + ex.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, "Error al procesar el pago. " + ex.getMessage());
     }
 
     @ExceptionHandler(ReservationException.class)
@@ -114,7 +114,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MPException.class)
     public ResponseEntity<Object> handleMPException(MPException ex) {
-        return buildResponse(HttpStatus.BAD_REQUEST, "Error al procesar el pago." + ex.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, "Error al procesar el pago. " + ex.getMessage());
     }
 
     @ExceptionHandler(RuntimeException.class)
