@@ -187,7 +187,7 @@ public class TripController {
             Pageable pageable) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new OwnershipException("No tienes permiso para acceder a este recurso.");
         }
 
         Page<TripResponseDTO> trips = tripService.findByUserIdWithFilters(userId, filters, pageable);
