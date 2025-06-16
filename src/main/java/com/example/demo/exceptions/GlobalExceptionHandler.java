@@ -33,11 +33,11 @@ public class GlobalExceptionHandler {
             if (cause.getTargetType().isEnum()){
                 String enumName = cause.getTargetType().getSimpleName();
                 String invalidValue = cause.getValue().toString();
-                return buildResponse(HttpStatus.BAD_REQUEST, "Valor invalido para " + enumName + ": " + invalidValue);
+                return buildResponse(HttpStatus.BAD_REQUEST, "Invalid value for " + enumName + ": " + invalidValue);
             }
         }
 
-        return buildResponse(HttpStatus.BAD_REQUEST, "Error en el formato del cuerpo del request." + e.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, "Error in the request body format." + e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
