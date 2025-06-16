@@ -3,6 +3,7 @@ package com.example.demo.exceptions;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.mercadopago.exceptions.MPApiException;
 import com.mercadopago.exceptions.MPException;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.apache.velocity.exception.ResourceNotFoundException;
@@ -131,8 +132,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex) {
         return buildResponse(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Tipo de contenido no soportado: " + ex.getContentType());
     }
-
-
+    
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGeneric(Exception ex) {
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor: " + ex.getMessage());
@@ -144,5 +144,10 @@ public class GlobalExceptionHandler {
         body.put("error", status.getReasonPhrase());
         body.put("message", message);
         return new ResponseEntity<>(body, status);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<Object> handleExpiredToken(Exception ex) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, "Token expirado. Por favor vuelva a iniciar sesion. Error: " + ex.getMessage());
     }
 }
