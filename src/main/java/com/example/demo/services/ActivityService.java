@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.DTOs.Activity.CompanyActivityUpdateDTO;
+import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
 import com.example.demo.DTOs.Filter.ActivityFilterDTO;
 import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
@@ -14,6 +15,7 @@ import com.example.demo.entities.CompanyEntity;
 import com.example.demo.entities.ItineraryEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.enums.ActivityCategory;
+import com.example.demo.enums.ExpenseCategory;
 import com.example.demo.mappers.ActivityMapper;
 import com.example.demo.repositories.ActivityRepository;
 import com.example.demo.repositories.CompanyRepository;
@@ -34,6 +36,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ActivityService {
@@ -43,19 +46,21 @@ public class ActivityService {
     private final CompanyRepository companyRepository;
     private final ItineraryRepository itineraryRepository;
     private final ItineraryService itineraryService;
+    private final ExpenseService expenseService;
 
     @Autowired
     public ActivityService(ActivityRepository activityRepository,
                            ActivityMapper activityMapper,
                            UserRepository userRepository,
                            CompanyRepository companyRepository,
-                           ItineraryRepository itineraryRepository, ItineraryService itineraryService) {
+                           ItineraryRepository itineraryRepository, ItineraryService itineraryService, ExpenseService expenseService) {
         this.activityRepository = activityRepository;
         this.activityMapper = activityMapper;
         this.userRepository = userRepository;
         this.companyRepository = companyRepository;
         this.itineraryRepository = itineraryRepository;
         this.itineraryService = itineraryService;
+        this.expenseService = expenseService;
     }
 
     public ActivityResponseDTO createFromUser(UserActivityCreateDTO dto, Long myUserId, Long itineraryId) {
@@ -78,8 +83,10 @@ public class ActivityService {
 
         entity.setUsers(users);
 
+        ItineraryEntity itinerary = null;
+
         if (itineraryId != null) {
-            ItineraryEntity itinerary = itineraryRepository.findById(itineraryId)
+             itinerary = itineraryRepository.findById(itineraryId)
                     .orElseThrow(() -> new NoSuchElementException("Itinerario no encontrado"));
 
             if (!itinerary.getUser().getId().equals(myUserId)) {
@@ -93,6 +100,19 @@ public class ActivityService {
         if (!itineraryService.addActivity(itineraryId, myUserId, saved.getId())){
             throw new ResponseStatusException(HttpStatus.CONFLICT, "No se pudo crear la actividad.");
         }
+
+        Set<Long> usersIds = users.stream()
+                        .map(UserEntity::getId)
+                                .collect(Collectors.toSet());
+
+        expenseService.save(ExpenseCreateDTO.builder()
+                .amount(dto.getPrice())
+                .description(dto.getDescription())
+                .date(dto.getDate())
+                .tripId(itinerary.getTrip().getId())
+                .category(ExpenseCategory.ACTIVIDADES)
+                .sharedUserIds(usersIds)
+                .build(), myUserId);
 
         return activityMapper.toDTO(saved);
     }

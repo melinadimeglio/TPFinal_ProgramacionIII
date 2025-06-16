@@ -10,6 +10,8 @@ import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.controllers.hateoas.ActivityCompanyModelAssembler;
 import com.example.demo.controllers.hateoas.ActivityModelAssembler;
+import com.example.demo.entities.CompanyEntity;
+import com.example.demo.entities.UserEntity;
 import com.example.demo.enums.ActivityCategory;
 import com.example.demo.exceptions.OwnershipException;
 import com.example.demo.exceptions.ReservationException;
@@ -179,11 +181,12 @@ public class ActivityController {
             @AuthenticationPrincipal CredentialEntity credential,
             Pageable pageable) {
 
-        Optional <Long> myCompanyId = Optional.ofNullable(credential.getCompany().getId());
+        Optional <CompanyEntity> myCompanyId = Optional.ofNullable(credential.getCompany());
         boolean isAdmin = credential.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-        if (myCompanyId.isEmpty() && !isAdmin || !myCompanyId.get().equals(companyId)) {
+        if ((!isAdmin && myCompanyId.isEmpty()) ||
+                (!isAdmin && !myCompanyId.get().getId().equals(companyId))) {
             throw new OwnershipException("You do not have permission to access this resource.");
         }
 
@@ -299,7 +302,10 @@ public class ActivityController {
                 activity.getCompanyId() != null &&
                 activity.getCompanyId().equals(credential.getCompany().getId());
 
-        if (!isUserAuthorized && !isCompanyAuthorized) {
+        boolean isAdmin = credential.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isUserAuthorized && !isCompanyAuthorized && !isAdmin) {
             throw new OwnershipException("You do not have permission to access this resource.");
         }
 
@@ -333,8 +339,14 @@ public class ActivityController {
             ActivityFilterDTO filters,
             Pageable pageable) {
 
-        if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
+        Optional <UserEntity> myUserId = Optional.ofNullable(credential.getUser());
+        boolean isAdmin = credential.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if ((!isAdmin && myUserId.isEmpty()) ||
+                (!isAdmin && !myUserId.get().getId().equals(userId))) {
             throw new OwnershipException("You do not have permission to access this resource.");
+
         }
 
         Page<ActivityResponseDTO> activities = activityService.findByUserIdWithFilters(userId, filters, pageable);
