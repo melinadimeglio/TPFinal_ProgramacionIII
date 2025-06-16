@@ -17,6 +17,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @Builder
 public class CompanyActivityCreateDTO {
+
     @Schema(description = "Precio de la actividad (no puede ser negativo)", example = "1500.50")
     @NotNull(message = "El precio es obligatorio.")
     @DecimalMin(value = "0.0", inclusive = true, message = "El precio no puede ser negativo.")
