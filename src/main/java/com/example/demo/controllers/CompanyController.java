@@ -3,6 +3,7 @@ package com.example.demo.controllers;
 import com.example.demo.DTOs.Company.CompanyUpdateDTO;
 import com.example.demo.DTOs.Company.Request.CompanyCreateDTO;
 import com.example.demo.DTOs.Company.Response.CompanyResponseDTO;
+import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
 import com.example.demo.DTOs.User.Response.UserResponseDTO;
 import com.example.demo.controllers.hateoas.CompanyModelAssembler;
 import com.example.demo.entities.CompanyEntity;
@@ -48,11 +49,37 @@ public class CompanyController {
         this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
-    @Operation(summary = "Get all companies", description = "Returns a list of all companies.")
+    @Operation(
+            summary = "Get all companies",
+            description = "Returns a list of all companies."
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Companies retrieved successfully",
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Companies retrieved successfully",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CompanyResponseDTO.class)))
+                            schema = @Schema(implementation = CompanyResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - insufficient permissions",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('VER_EMPRESAS')")
     @GetMapping
@@ -76,15 +103,35 @@ public class CompanyController {
 
     @Operation(
             summary = "Get all inactive companies",
-            description = "Retrieves a paginated list of all inactive companies in the system. " +
-                    "If the authenticated user is associated with a company, only their own company's data is returned."
+            description = "Retrieves a paginated list of all inactive companies in the system. "
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Companies retrieved successfully",
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Companies retrieved successfully",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CompanyResponseDTO.class))),
-            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authenticated"),
-            @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
+                            schema = @Schema(implementation = CompanyResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - insufficient permissions",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('VER_EMPRESAS')")
     @GetMapping("/inactive")
@@ -109,10 +156,37 @@ public class CompanyController {
 
     @Operation(summary = "Get company by ID", description = "Returns a specific company by its ID.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Company found",
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Company found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CompanyResponseDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Company not found")
+                            schema = @Schema(implementation = CompanyResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - insufficient permissions",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Company not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('VER_EMPRESA')")
     @GetMapping("/{id}")
@@ -128,6 +202,43 @@ public class CompanyController {
         return ResponseEntity.ok(assembler.toModel(company));
     }
 
+    @Operation(
+            summary = "Get own company profile",
+            description = "Returns the profile information of the authenticated company."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Profile retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CompanyResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - insufficient permissions",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Company not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
+    })
     @GetMapping("/me")
     public ResponseEntity<EntityModel<CompanyResponseDTO>> getProfile(Authentication authentication) {
         String username = authentication.getName();
@@ -138,10 +249,32 @@ public class CompanyController {
 
     @Operation(summary = "Create a new company", description = "Creates a new company.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Company created successfully",
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Company created successfully",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CompanyResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid input data")
+                            schema = @Schema(implementation = CompanyResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input data",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - insufficient permissions",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('CREAR_COMPANY')")
     @PostMapping
@@ -152,11 +285,32 @@ public class CompanyController {
 
     @Operation(summary = "Update company by ID", description = "Updates a company's information by ID.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Company updated successfully",
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Company updated successfully",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CompanyResponseDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Company not found"),
-            @ApiResponse(responseCode = "400", description = "Invalid input data")
+                            schema = @Schema(implementation = CompanyResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input data",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - insufficient permissions",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Company not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('MODIFICAR_EMPRESA')")
     @PutMapping("/{id}")
@@ -169,8 +323,25 @@ public class CompanyController {
 
     @Operation(summary = "Delete company by ID", description = "Deletes a specific company by its ID.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Company deleted successfully"),
-            @ApiResponse(responseCode = "404", description = "Company not found")
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Company deleted successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - insufficient permissions",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Company not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('ELIMINAR_EMPRESA_ADMIN')")
     @DeleteMapping("/{id}")
@@ -179,6 +350,36 @@ public class CompanyController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Delete own company account",
+            description = "Allows an authenticated company to delete its own account (soft delete)."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Company account deleted successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - insufficient permissions",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Company not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
+    })
     @PreAuthorize("hasAuthority('ELIMINAR_EMPRESA')")
     @DeleteMapping("/me")
     public ResponseEntity<Void> deleteOwnCompany(Authentication authentication) {
@@ -197,8 +398,24 @@ public class CompanyController {
                     description = "Company restored successfully. No content is returned in the response body."
             ),
             @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - insufficient permissions",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
                     responseCode = "404",
-                    description = "Company not found"
+                    description = "Company not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
             )
     })
     @PreAuthorize("hasAuthority('RESTAURAR_EMPRESA')")
@@ -207,5 +424,4 @@ public class CompanyController {
         companyService.restore(id);
         return ResponseEntity.noContent().build();
     }
-
 }
