@@ -3,6 +3,7 @@ package com.example.demo.DTOs.Filter;
 import com.example.demo.enums.ExpenseCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ParameterObject
 public class ExpenseFilterDTO {
 
     @Schema(description = "Categoría del gasto para filtrar", example = "ALOJAMIENTO")
