@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
 import com.example.demo.DTOs.User.Request.UserCreateDTO;
 import com.example.demo.DTOs.User.Response.UserResponseDTO;
 import com.example.demo.DTOs.User.UserUpdateDTO;
@@ -48,13 +49,31 @@ public class UserController {
         this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
-    @Operation(summary = "Get all users", description = "Returns a list of all registered users.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Users retrieved successfully",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserResponseDTO.class)))
-    })
 
+    @Operation(
+            summary = "Get all users",
+            description = "Returns a list of all registered users."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Users retrieved successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = UserResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request parameters",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
+    })
     @PreAuthorize("hasAuthority('VER_TODOS_USUARIOS')")
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<UserResponseDTO>>> getAllUsers(Pageable pageable) {
@@ -63,6 +82,35 @@ public class UserController {
         return ResponseEntity.ok(model);
     }
 
+    @Operation(
+            summary = "Get all inactive users",
+            description = "Retrieves a paginated list of all inactive (soft-deleted) users. Requires the 'VER_TODOS_USUARIOS' authority."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Inactive users retrieved successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = UserResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - insufficient permissions",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
+    })
     @PreAuthorize("hasAuthority('VER_TODOS_USUARIOS')")
     @GetMapping("/inactive")
     public ResponseEntity<PagedModel<EntityModel<UserResponseDTO>>> getAllUsersInactive(Pageable pageable) {
@@ -71,13 +119,34 @@ public class UserController {
         return ResponseEntity.ok(model);
     }
 
-    @Operation(summary = "Get user by ID", description = "Returns a specific user by ID if authorized.")
+    @Operation(
+            summary = "Get user by ID",
+            description = "Returns a specific user by ID if authorized."
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "User found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserResponseDTO.class))),
-            @ApiResponse(responseCode = "403", description = "Forbidden - User not authorized to access this resource"),
-            @ApiResponse(responseCode = "404", description = "User not found")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "User found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = UserResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - User not authorized to access this resource",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('VER_USUARIO')")
     @GetMapping("/{id}")
@@ -93,12 +162,29 @@ public class UserController {
         return ResponseEntity.ok(assembler.toModel(user));
     }
 
-    @Operation(summary = "Create a new user", description = "Creates a new user account.")
+    @Operation(
+            summary = "Create a new user",
+            description = "Creates a new user account."
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "User created successfully",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid input data")
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "User created successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = UserResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input data",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PostMapping
     public ResponseEntity<EntityModel<UserResponseDTO>> createUser(@RequestBody @Valid UserCreateDTO user) {
@@ -106,13 +192,34 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(responseDTO));
     }
 
-    @Operation(summary = "Update user by ID", description = "Updates the details of a user.")
+    @Operation(
+            summary = "Update user by ID",
+            description = "Updates the details of a user."
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "User updated successfully",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserResponseDTO.class))),
-            @ApiResponse(responseCode = "404", description = "User not found"),
-            @ApiResponse(responseCode = "400", description = "Invalid input data")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "User updated successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = UserResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input data",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('MODIFICAR_USUARIO_ADMIN')")
     @PutMapping("/{id}")
@@ -129,12 +236,34 @@ public class UserController {
                     "Only the fields included in the request will be updated (partial update)."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Account updated successfully",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid input data"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authenticated"),
-            @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Account updated successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = UserResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input data",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - insufficient permissions",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('MODIFICAR_USUARIO')")
     @PutMapping("/me/update")
@@ -146,10 +275,35 @@ public class UserController {
         return ResponseEntity.ok(assembler.toModel(response));
     }
 
-    @Operation(summary = "Delete own account", description = "Deletes the authenticated user's account.")
+    @Operation(
+            summary = "Delete own account",
+            description = "Deletes the authenticated user's account."
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Account deleted successfully"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Account deleted successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - insufficient permissions",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('ELIMINAR_USUARIO')")
     @DeleteMapping("/me/delete")
@@ -171,11 +325,18 @@ public class UserController {
             ),
             @ApiResponse(
                     responseCode = "403",
-                    description = "Forbidden – the user does not have the required authority"
+                    description = "Forbidden – the user does not have the required authority",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "User not found"
+                    description = "User not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
             )
     })
     @PreAuthorize("hasAuthority('ELIMINAR_USUARIO_ADMIN')")
@@ -187,7 +348,7 @@ public class UserController {
 
     @Operation(
             summary = "Restore account",
-            description = "Allow to restore account if it was previously deleted (soft-deleted)."
+            description = "Allows restoring an account if it was previously deleted (soft-deleted)."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -197,11 +358,18 @@ public class UserController {
             ),
             @ApiResponse(
                     responseCode = "401",
-                    description = "Unauthorized – user is not authenticated"
+                    description = "Unauthorized – user is not authenticated",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "User not found or account not restorable"
+                    description = "User not found or account not restorable",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
             )
     })
     @PreAuthorize("hasAuthority('RESTAURAR_USUARIO')")
@@ -211,12 +379,27 @@ public class UserController {
         return ResponseEntity.ok("Account restored successfully.");
     }
 
-    @Operation(summary = "Get own profile", description = "Retrieves the authenticated user's profile.")
+    @Operation(
+            summary = "Get own profile",
+            description = "Retrieves the authenticated user's profile."
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Profile retrieved successfully",
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Profile retrieved successfully",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserResponseDTO.class))),
-            @ApiResponse(responseCode = "401", description = "Unauthorized")
+                            schema = @Schema(implementation = UserResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @GetMapping("/me")
     public ResponseEntity<EntityModel<UserResponseDTO>> getProfile(Authentication authentication) {
@@ -235,13 +418,37 @@ public class UserController {
         return ResponseEntity.notFound().build();
     }
 
-    @Operation(summary = "Assign role to user", description = "Assigns a specific role to a user. Requires the 'ASIGNAR_ROLES' authority.")
+    @Operation(
+            summary = "Assign role to user",
+            description = "Assigns a specific role to a user."
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Role assigned successfully",
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Role assigned successfully",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserEntity.class))),
-            @ApiResponse(responseCode = "403", description = "Forbidden – User does not have permission"),
-            @ApiResponse(responseCode = "404", description = "User not found")
+                            schema = @Schema(implementation = UserResponseDTO.class)) // Usamos el DTO de respuesta, no la entidad
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden – User does not have permission",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input data",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('ASIGNAR_ROLES')")
     @PutMapping("/roles/{id}")
