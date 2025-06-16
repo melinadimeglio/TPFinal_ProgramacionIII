@@ -3,6 +3,7 @@ package com.example.demo.DTOs.Filter;
 import com.example.demo.enums.ActivityCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.springdoc.core.annotations.ParameterObject;
 
 import java.time.LocalDate;
 
@@ -11,7 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
+@ParameterObject
 public class ActivityFilterDTO {
 
     @Schema(description = "Categoría de la actividad para filtrar", example = "AVENTURA")

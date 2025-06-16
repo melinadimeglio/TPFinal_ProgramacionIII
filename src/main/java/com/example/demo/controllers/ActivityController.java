@@ -7,6 +7,7 @@ import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityCompanyResponseDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
+import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.controllers.hateoas.ActivityCompanyModelAssembler;
 import com.example.demo.controllers.hateoas.ActivityModelAssembler;
@@ -87,12 +88,34 @@ public class ActivityController {
                     )
             ),
             @ApiResponse(
-                    responseCode = "403",
-                    description = "Access denied - You are not allowed to associate activities to this itinerary"
+                    responseCode = "400",
+                    description = "Invalid input data",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
             ),
             @ApiResponse(
-                    responseCode = "400",
-                    description = "Invalid input data"
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied - You are not allowed to associate activities to this itinerary",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Itinerary or user not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
             )
     })
     @PreAuthorize("hasAuthority('CREAR_ACTIVIDAD_USUARIO')")
@@ -137,7 +160,36 @@ public class ActivityController {
                             schema = @Schema(implementation = ActivityResponseDTO.class)
                     )
             ),
-            @ApiResponse(responseCode = "400", description = "Invalid input data")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input data",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied - not authorized to create company activity",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Company not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('CREAR_ACTIVIDAD_EMPRESA')")
     @PostMapping("/company")
@@ -170,9 +222,44 @@ public class ActivityController {
             description = "Returns a paginated list of activities created by the authenticated company only."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Activities retrieved successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ActivityResponseDTO.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied - Cannot view other companies' activities")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Activities retrieved successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ActivityResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request parameters",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied - Cannot view other companies' activities",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Company not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('VER_ACTIVIDAD_EMPRESA')")
     @GetMapping("/company/{companyId}")
@@ -196,8 +283,8 @@ public class ActivityController {
     }
 
     @Operation(
-            summary = "Get all activities with optional filters",
-            description = "Returns all activities, optionally filtered by category and/or date."
+            summary = "Get all activities",
+            description = "Returns a paginated list of all activities in the system."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -206,6 +293,30 @@ public class ActivityController {
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ActivityResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied - insufficient permissions",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
                     )
             )
     })
@@ -220,6 +331,50 @@ public class ActivityController {
     }
 
 
+    @Operation(
+            summary = "Get all company activities with optional filters",
+            description = "Returns a paginated list of activities created by companies with optional filters."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Company activities retrieved successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ActivityCompanyResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request parameters",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied - insufficient permissions",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
     @PreAuthorize("hasAuthority('VER_TODAS_ACTIVIDADES_EMPRESA')")
     @GetMapping("/company")
     public ResponseEntity<PagedModel<EntityModel<ActivityCompanyResponseDTO>>> getAllActivitiesCompany(
@@ -244,16 +399,42 @@ public class ActivityController {
 
     @Operation(
             summary = "Get all inactive activities",
-            description = "Retrieves a paginated list of all inactive activities in the system. Requires the 'VER_TODAS_ACTIVIDADES' authority."
+            description = "Retrieves a paginated list of all inactive activities in the system."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Activities retrieved successfully",
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Activities retrieved successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ActivityResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request parameters",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ActivityResponseDTO.class))),
-            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authenticated"),
-            @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - insufficient permissions",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
-
     @PreAuthorize("hasAuthority('VER_TODAS_ACTIVIDADES')")
     @GetMapping("/inactive")
     public ResponseEntity<PagedModel<EntityModel<ActivityResponseDTO>>> getAllActivitiesInactive(
@@ -278,12 +459,36 @@ public class ActivityController {
                     )
             ),
             @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request parameters",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
                     responseCode = "403",
-                    description = "Forbidden: You are not allowed to view this activity"
+                    description = "Forbidden: You are not allowed to view this activity",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Activity not found"
+                    description = "Activity not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
             )
     })
     @PreAuthorize("hasAuthority('VER_ACTIVIDAD')")
@@ -327,8 +532,36 @@ public class ActivityController {
                     )
             ),
             @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request parameters",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden: You are not allowed to access these activities",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
                     responseCode = "404",
-                    description = "No activities found for the given user ID"
+                    description = "No activities found for the given user ID",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
             )
     })
     @PreAuthorize("hasAuthority('VER_ACTIVIDAD_USUARIO')")
@@ -356,15 +589,36 @@ public class ActivityController {
 
 
     @Operation(
-            summary = "Update an existing activity",
-            description = "This endpoint allows updating an existing activity only if it belongs to the authenticated user. Only the provided fields will be updated."
+            summary = "Update an existing user activity",
+            description = "Allows the authenticated user to update one of their own activities. Only the provided fields will be updated."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Activity updated successfully",
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Activity updated successfully",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ActivityResponseDTO.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Activity not found")
+                            schema = @Schema(implementation = ActivityResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request data",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Activity not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('MODIFICAR_ACTIVIDADES_USUARIO')")
     @PutMapping("/{id}")
@@ -383,9 +637,30 @@ public class ActivityController {
             description = "Deletes an activity only if it belongs to the authenticated user."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Activity deleted successfully"),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Activity not found")
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Activity deleted successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request data",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Activity not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('ELIMINAR_ACTIVIDAD_USUARIO')")
     @DeleteMapping("/{id}")
@@ -404,9 +679,30 @@ public class ActivityController {
             description = "Reactivates an activity previously soft-deleted, only if it belongs to the authenticated user."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Activity restored successfully"),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Activity not found")
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Activity restored successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request data",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Activity not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('RESTAURAR_ACTIVIDAD_USUARIO')")
     @PutMapping("/restore/{id}")
@@ -424,10 +720,32 @@ public class ActivityController {
             description = "Allows the authenticated company to update one of its own activities."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Activity updated successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ActivityResponseDTO.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Activity not found")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Activity updated successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ActivityResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input data",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Activity not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('MODIFICAR_ACTIVIDADES_EMPRESA')")
     @PutMapping("/company/{companyId}/activities/{activityId}")
@@ -453,9 +771,25 @@ public class ActivityController {
             description = "Allows the authenticated company to delete one of its own activities."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Activity deleted successfully"),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Activity not found")
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Activity deleted successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Activity not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('ELIMINAR_ACTIVIDAD_EMPRESA')")
     @DeleteMapping("/company/{companyId}/{activityId}")
@@ -474,15 +808,30 @@ public class ActivityController {
         return ResponseEntity.noContent().build();
     }
 
-
     @Operation(
             summary = "Restore a company activity",
             description = "Allows the authenticated company to restore one of its own previously deleted activities."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Activity restored successfully"),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Activity not found")
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Activity restored successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Activity not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('RESTAURAR_ACTIVIDAD_EMPRESA')")
     @PutMapping("/company/{companyId}/{activityId}/restore")
@@ -500,5 +849,4 @@ public class ActivityController {
         activityService.restoreActivityByCompany(myCompanyId, activityId);
         return ResponseEntity.noContent().build();
     }
-
 }

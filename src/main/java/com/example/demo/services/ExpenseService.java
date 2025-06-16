@@ -149,29 +149,10 @@ public class ExpenseService{
             throw new AccessDeniedException("You do not have permission to modify this expense.");
         }
 
-        if (dto.getUserIds() != null && !dto.getUserIds().isEmpty()) {
-            List<Long> invalidUserIds = dto.getUserIds().stream()
-                    .filter(userId -> !userRepository.existsById(userId))
-                    .toList();
-
-            if (!invalidUserIds.isEmpty()) {
-                throw new IllegalArgumentException("The following userIds do not exist: " + invalidUserIds);
-            }
-
-            List<UserEntity> foundUsers = userRepository.findAllById(dto.getUserIds());
-
-            for (UserEntity sharedUser : foundUsers) {
-                if (sharedUser.getCredential().getAuthorities().stream()
-                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-                    throw new ReservationException("You cannot add Admin type users.");
-                }
-            }
-        }
 
         expenseMapper.updateEntityFromDTO(dto, entity);
         expenseRepository.save(entity);
     }
-
 
     public void deleteIfOwned(Long id, Long myUserId) {
         ExpenseEntity entity = expenseRepository.findById(id)
