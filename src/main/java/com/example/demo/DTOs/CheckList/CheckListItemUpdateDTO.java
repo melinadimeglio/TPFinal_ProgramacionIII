@@ -16,8 +16,10 @@ public class CheckListItemUpdateDTO {
     @NotBlank(message = "La descripción es obligatoria.")
     private String description;
 
+    @Schema(description = "Estado del ítem (completado o no)", example = "true")
     private boolean status;
 
+    @Schema(description = "ID de la checklist a la que pertenece el ítem", example = "8")
     @NotNull(message = "El ID de la checklist es obligatorio.")
     private Long checklistId;
 }

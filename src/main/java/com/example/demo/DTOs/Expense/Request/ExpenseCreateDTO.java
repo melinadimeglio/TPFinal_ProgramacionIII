@@ -2,10 +2,7 @@ package com.example.demo.DTOs.Expense.Request;
 
 import com.example.demo.enums.ExpenseCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -33,7 +30,7 @@ public class ExpenseCreateDTO {
 
     @Schema(description = "Fecha en la que se realizó el gasto", example = "2025-06-15")
     @NotNull(message = "La fecha es obligatoria.")
-    @FutureOrPresent(message = "La fecha debe ser el día de hoy o posterior.")
+    @PastOrPresent(message = "La fecha debe ser hoy o en el pasado.")
     private LocalDate date;
 
     @Schema(description = "Lista de IDs de usuarios que tambien participan del gasto", example = "[3, 5]")

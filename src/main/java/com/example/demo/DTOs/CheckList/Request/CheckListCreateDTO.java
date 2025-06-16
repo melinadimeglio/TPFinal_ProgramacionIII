@@ -17,7 +17,7 @@ public class CheckListCreateDTO {
     @NotBlank(message = "El nombre de la checklist es obligatorio.")
     private String name;
 
-    @Schema(description = "ID del viaje asociado", example = "5")
+    @Schema(description = "ID del viaje asociado a la checklist", example = "5")
     @NotNull(message = "El ID del viaje es obligatorio.")
     private Long tripId;
     

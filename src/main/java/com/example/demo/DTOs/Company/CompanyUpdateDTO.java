@@ -21,7 +21,6 @@ public class CompanyUpdateDTO {
 
     @Schema(description = "Nombre de usuario de la empresa", example = "turismoGlobal")
     @NotBlank(message = "El nombre de usuario no debe estar vacio.")
-    @Column(unique = true)
     @Size(min = 5, max = 20, message = "El username debe tener entre 5 y 20 caracteres.")
     private String username;
 
@@ -30,11 +29,13 @@ public class CompanyUpdateDTO {
     @NotBlank(message = "El email no debe estar vacio.")
     private String email;
 
-    @Schema(description = "Contraseña para la cuenta de empresa", example = "contrasenaSegura123")
+    @Schema(description = "Contraseña para la cuenta de empresa", example = "Progra3_2025")
     @NotBlank(message = "La contraseña no debe estar vacia")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&*!()_+=\\-]).{8,20}$",
-            message = "La contraseña debe tener entre 8 y 16 caracteres, incluyendo una mayúscula, una minúscula, un número y un carácter especial.")
+            message = "La contraseña debe tener entre 8 y 20 caracteres, incluyendo una mayúscula, una minúscula, un número y un carácter especial.")
     private String password;
+
+    @Schema(description = "Ubicación principal de la empresa", example = "Buenos Aires, Argentina")
     private String location;
 
     @Schema(description = "Número de identificación tributaria (Tax ID)", example = "30567890123")
@@ -47,7 +48,13 @@ public class CompanyUpdateDTO {
     @Pattern(regexp = "^\\+?[1-9]\\d{7,14}$",
             message = "El número de teléfono debe estar en formato internacional, comenzando con '+' y contener entre 8 y 15 dígitos")
     private String phone;
+
+    @Schema(description = "Estado activo o inactivo de la empresa", example = "true")
     private Boolean active;
+
+    @Schema(description = "Descripción general de la empresa", example = "Empresa dedicada al turismo receptivo internacional.")
     private String description;
+
+    @Schema(description = "Lista de actividades resumidas asociadas a la empresa")
     private List<ActivityResumeDTO> activities;
 }

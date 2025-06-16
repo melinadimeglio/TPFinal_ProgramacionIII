@@ -32,10 +32,10 @@ public class UserCreateDTO {
     @NotBlank(message = "El email no debe estar vacio.")
     private String email;
 
-    @Schema(description = "Contraseña del usuario", example = "PasswordSegura123")
+    @Schema(description = "Contraseña del usuario", example = "Progra3_2025")
     @NotBlank(message = "La contraseña no debe estar vacia.")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&*!()_+=\\-]).{8,20}$",
-            message = "La contraseña debe tener entre 8 y 16 caracteres, incluyendo una mayúscula, una minúscula, un número y un carácter especial.")
+            message = "La contraseña debe tener entre 8 y 20 caracteres, incluyendo una mayúscula, una minúscula, un número y un carácter especial.")
     private String password;
 
     @Schema(description = "DNI del usuario", example = "40123456")
