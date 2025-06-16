@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
 import com.example.demo.DTOs.Reservation.Request.ReservationCreateDTO;
 import com.example.demo.DTOs.Reservation.Response.ReservationResponseDTO;
 import com.example.demo.exceptions.ReservationException;
@@ -59,7 +60,31 @@ public class ReservationController {
                             schema = @Schema(implementation = ReservationResponseDTO.class)
                     )
             ),
-            @ApiResponse(responseCode = "400", description = "Invalid input data")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input data",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - insufficient permissions",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Activity not found or unavailable",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('CREAR_RESERVA')")
     @PostMapping
@@ -73,6 +98,42 @@ public class ReservationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
     }
 
+    @Operation(
+            summary = "Confirm payment for a reservation",
+            description = "Validates the payment status and marks the reservation as paid if the payment was approved."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Reservation marked as paid successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request or payment not approved",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - insufficient permissions",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Reservation not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
+    })
     @PreAuthorize("hasAuthority('PAGAR_RESERVA')")
     @GetMapping("/confirmar-pago")
     public ResponseEntity<String> confirmarPago(@RequestParam Long external_reference,
@@ -108,8 +169,36 @@ public class ReservationController {
             description = "Cancels an existing reservation by its ID."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Reservation cancelled successfully"),
-            @ApiResponse(responseCode = "404", description = "Reservation not found")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Reservation cancelled successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request data",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - insufficient permissions",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Reservation not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('CANCELAR_RESERVA')")
     @PutMapping("/{id}/cancel")
@@ -118,9 +207,32 @@ public class ReservationController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "Get all reservations", description = "Retrieve all reservations (admin access).")
+    @Operation(
+            summary = "Get all reservations",
+            description = "Retrieve all reservations (admin access)."
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Reservations retrieved successfully")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Reservations retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ReservationResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - insufficient permissions",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('VER_TODAS_RESERVAS')")
     @GetMapping
@@ -130,9 +242,32 @@ public class ReservationController {
         return ResponseEntity.ok(model);
     }
 
-    @Operation(summary = "Get my reservations", description = "Retrieve reservations for the logged-in user.")
+    @Operation(
+            summary = "Get my reservations",
+            description = "Retrieve reservations for the logged-in user."
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Reservations retrieved successfully")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Reservations retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ReservationResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - insufficient permissions",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('VER_RESERVAS_USUARIO')")
     @GetMapping("/my")
@@ -143,9 +278,37 @@ public class ReservationController {
         return ResponseEntity.ok(model);
     }
 
-    @Operation(summary = "Get reservations by company", description = "Retrieve reservations for a specific company.")
+    @Operation(
+            summary = "Get reservations by company",
+            description = "Retrieve reservations for a specific company."
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Reservations retrieved successfully")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Reservations retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ReservationResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - user not authenticated",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - insufficient permissions",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Company not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PreAuthorize("hasAuthority('VER_RESERVAS_EMPRESA')")
     @GetMapping("/company/{companyId}")
@@ -154,7 +317,5 @@ public class ReservationController {
         PagedModel<EntityModel<ReservationResponseDTO>> model = pagedResourcesAssembler.toModel(reservations);
         return ResponseEntity.ok(model);
     }
-
-
 }
 
