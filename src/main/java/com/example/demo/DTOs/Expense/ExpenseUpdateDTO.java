@@ -36,9 +36,6 @@ public class ExpenseUpdateDTO {
     @NotNull(message = "La fecha es obligatoria.")
     private LocalDate date;
 
-    @Schema(description = "IDs de usuarios que participaron del gasto", example = "[3, 5]")
-    private Set<Long> userIds;
-
     @Schema(description = "ID del viaje al que pertenece el gasto", example = "7")
     @NotNull(message = "El ID del viaje es obligatorio.")
     private Long tripId;
