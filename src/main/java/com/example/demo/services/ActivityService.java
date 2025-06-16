@@ -10,10 +10,7 @@ import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
 
 import com.example.demo.SpecificationAPI.ActivitySpecification;
-import com.example.demo.entities.ActivityEntity;
-import com.example.demo.entities.CompanyEntity;
-import com.example.demo.entities.ItineraryEntity;
-import com.example.demo.entities.UserEntity;
+import com.example.demo.entities.*;
 import com.example.demo.enums.ActivityCategory;
 import com.example.demo.enums.ExpenseCategory;
 import com.example.demo.exceptions.ReservationException;
@@ -22,6 +19,7 @@ import com.example.demo.repositories.ActivityRepository;
 import com.example.demo.repositories.CompanyRepository;
 import com.example.demo.repositories.ItineraryRepository;
 import com.example.demo.repositories.UserRepository;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -48,13 +46,14 @@ public class ActivityService {
     private final ItineraryRepository itineraryRepository;
     private final ItineraryService itineraryService;
     private final ExpenseService expenseService;
+    private final TripService tripService;
 
     @Autowired
     public ActivityService(ActivityRepository activityRepository,
                            ActivityMapper activityMapper,
                            UserRepository userRepository,
                            CompanyRepository companyRepository,
-                           ItineraryRepository itineraryRepository, ItineraryService itineraryService, ExpenseService expenseService) {
+                           ItineraryRepository itineraryRepository, ItineraryService itineraryService, ExpenseService expenseService, TripService tripService) {
         this.activityRepository = activityRepository;
         this.activityMapper = activityMapper;
         this.userRepository = userRepository;
@@ -62,32 +61,17 @@ public class ActivityService {
         this.itineraryRepository = itineraryRepository;
         this.itineraryService = itineraryService;
         this.expenseService = expenseService;
+        this.tripService = tripService;
     }
 
     public ActivityResponseDTO createFromUser(UserActivityCreateDTO dto, Long myUserId, Long itineraryId) {
         ActivityEntity entity = activityMapper.toEntity(dto);
         entity.setAvailable(true);
 
-        Set<UserEntity> users = new HashSet<>();
-
-        UserEntity currentUser = userRepository.findById(myUserId)
-                .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado"));
-        users.add(currentUser);
-
-        if (dto.getSharedUserIds() != null) {
-            dto.getSharedUserIds().forEach(id -> {
-                UserEntity sharedUser = userRepository.findById(id)
-                        .orElseThrow(() -> new NoSuchElementException("Usuario compartido no encontrado"));
-                users.add(sharedUser);
-            });
-        }
-
-        entity.setUsers(users);
-
         ItineraryEntity itinerary = null;
 
         if (itineraryId != null) {
-             itinerary = itineraryRepository.findById(itineraryId)
+            itinerary = itineraryRepository.findById(itineraryId)
                     .orElseThrow(() -> new NoSuchElementException("Itinerario no encontrado"));
 
             if (!itinerary.getUser().getId().equals(myUserId)) {
@@ -96,6 +80,36 @@ public class ActivityService {
 
             entity.setItinerary(itinerary);
         }
+
+        TripEntity trip = tripService.getTripById(itinerary.getTrip().getId());
+
+        Set<UserEntity> users = new HashSet<>();
+
+        UserEntity owner = userRepository.findById(myUserId)
+                .orElseThrow(() -> new RuntimeException("User not found."));
+        users.add(owner);
+
+        if (dto.getSharedUserIds() != null && !dto.getSharedUserIds().isEmpty()) {
+            for (Long sharedId : dto.getSharedUserIds()) {
+                UserEntity sharedUser = userRepository.findById(sharedId)
+                        .orElseThrow(() -> new RuntimeException("Shared user not found."));
+
+                if (sharedUser.getCredential().getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))){
+                    throw new ReservationException("You cannot add Admin type users.");
+                }
+                users.add(sharedUser);
+            }
+        }
+
+        if (trip != null){
+            Set<UserEntity> usersTrip = trip.getUsers();
+            if (!usersTrip.equals(users)){
+                throw new ReservationException("The shared users must exactly match the users in the trip.");
+            }
+        }
+
+        entity.setUsers(users);
 
         ActivityEntity saved = activityRepository.save(entity);
         if (!itineraryService.addActivity(itineraryId, myUserId, saved.getId())){
