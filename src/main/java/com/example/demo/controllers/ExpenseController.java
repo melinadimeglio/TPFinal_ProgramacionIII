@@ -5,6 +5,7 @@ import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
 import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
 import com.example.demo.DTOs.Expense.ExpenseUpdateDTO;
 import com.example.demo.DTOs.Expense.Response.ExpenseResumeDTO;
+import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
 import com.example.demo.controllers.hateoas.ExpenseModelAssembler;
 import com.example.demo.controllers.hateoas.ExpenseResumeModelAssembler;
 import com.example.demo.enums.ExpenseCategory;
@@ -13,12 +14,14 @@ import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.ExpenseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springdoc.core.converters.models.PageableAsQueryParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -62,8 +65,25 @@ public class ExpenseController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Expense list successfully retrieved",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExpenseResponseDTO.class)))
+                            array = @ArraySchema(schema = @Schema(implementation = ExpenseResponseDTO.class)))),
+
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+
+            @ApiResponse(responseCode = "401", description = "Unauthorized - User not authenticated",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+
+            @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient permissions",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
+    @PageableAsQueryParam
     @PreAuthorize("hasAuthority('VER_TODOS_GASTOS')")
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<ExpenseResponseDTO>>> getAllExpenses(
@@ -84,15 +104,24 @@ public class ExpenseController {
 
     @Operation(
             summary = "Get all inactive expenses",
-            description = "Retrieves a paginated list of all inactive expenses in the system. " +
-                    "Requires the 'VER_TODOS_GASTOS' authority."
+            description = "Retrieves a paginated list of all inactive expenses in the system."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Expenses retrieved successfully",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ExpenseResponseDTO.class))),
-            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authenticated"),
-            @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - User not authenticated",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient permissions",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PreAuthorize("hasAuthority('VER_TODOS_GASTOS')")
     @GetMapping("/inactive")
@@ -147,16 +176,28 @@ public class ExpenseController {
             @ApiResponse(responseCode = "200", description = "Expenses retrieved successfully",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ExpenseResponseDTO.class))),
-            @ApiResponse(responseCode = "403", description = "Forbidden - User not authorized to access this resource"),
-            @ApiResponse(responseCode = "404", description = "User not found or no expenses for user"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - User not authenticated",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - User not authorized to access this resource",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "User not found or no expenses for user",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PreAuthorize("hasAuthority('VER_GASTO_USUARIO')")
     @GetMapping("/user/{userId}")
     public ResponseEntity<PagedModel<EntityModel<ExpenseResumeDTO>>> findByUserId(
             @PathVariable Long userId,
             @AuthenticationPrincipal CredentialEntity credential,
-            ExpenseFilterDTO filters,
+            @ModelAttribute ExpenseFilterDTO filters,
             Pageable pageable) {
 
         if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
@@ -182,11 +223,38 @@ public class ExpenseController {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Expense successfully created",
-                    content = @Content(schema = @Schema(implementation = ExpenseResponseDTO.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied - Cannot create expense for this trip"),
-            @ApiResponse(responseCode = "400", description = "Invalid data"),
-            @ApiResponse(responseCode = "404", description = "Trip or user not found")
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Expense successfully created",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ExpenseResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid data",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied - Cannot create expense for this trip",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Trip or user not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
     })
     @PreAuthorize("hasAuthority('CREAR_GASTO')")
     @PostMapping
@@ -217,12 +285,38 @@ public class ExpenseController {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Expense successfully updated",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExpenseResponseDTO.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Expense not found"),
-            @ApiResponse(responseCode = "400", description = "Invalid data")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Expense successfully updated",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ExpenseResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid data",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Access denied",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Expense not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
     })
     @PreAuthorize("hasAuthority('MODIFICAR_GASTO')")
     @PutMapping("/{id}")
@@ -292,9 +386,23 @@ public class ExpenseController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User average calculated",
-                    content = @Content(schema = @Schema(implementation = Double.class))),
-            @ApiResponse(responseCode = "403", description = "Forbidden - Not authorized"),
-            @ApiResponse(responseCode = "404", description = "User not found")
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Double.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - User not authenticated",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Not authorized",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PreAuthorize("hasAuthority('VER_PROMEDIO_USUARIO')")
     @GetMapping("/averageByUserId/{userId}")
@@ -319,9 +427,20 @@ public class ExpenseController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Expenses retrieved successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExpenseResponseDTO.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Trip not found")
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ExpenseResumeDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Trip not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PreAuthorize("hasAuthority('VER_GASTOS_VIAJE')")
     @GetMapping("/trip/{tripId}")
@@ -339,13 +458,23 @@ public class ExpenseController {
 
     @Operation(
             summary = "Get real average expense by user ID",
-            description = "Calcula el promedio real de lo que un usuario debe pagar considerando los gastos compartidos."
+            description = "Calculates the real average amount a user must pay, considering shared expenses."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Promedio calculado correctamente",
+            @ApiResponse(responseCode = "200", description = "Average calculated successfully",
                     content = @Content(schema = @Schema(implementation = Double.class))),
-            @ApiResponse(responseCode = "403", description = "No autorizado"),
-            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Not authorized",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PreAuthorize("hasAuthority('VER_GASTO_USUARIO')")
     @GetMapping("/realAverageByUserId/{userId}")
@@ -366,9 +495,23 @@ public class ExpenseController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Average calculated successfully",
-                    content = @Content(schema = @Schema(implementation = Double.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Trip not found")
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Double.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - User not authenticated",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Trip not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PreAuthorize("hasAuthority('VER_PROMEDIO_VIAJE')")
     @GetMapping("/averageByTripId/{tripId}")
@@ -389,8 +532,18 @@ public class ExpenseController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Total calculated successfully",
                     content = @Content(schema = @Schema(implementation = Double.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Trip not found")
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Trip not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PreAuthorize("hasAuthority('VER_TOTAL_GASTO_VIAJE')")
     @GetMapping("/totalByTripId/{tripId}")
@@ -411,8 +564,18 @@ public class ExpenseController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Total calculated successfully",
                     content = @Content(schema = @Schema(implementation = Double.class))),
-            @ApiResponse(responseCode = "403", description = "Forbidden - Not authorized"),
-            @ApiResponse(responseCode = "404", description = "User not found")
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Not authorized",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PreAuthorize("hasAuthority('VER_GASTO_USUARIO')")
     @GetMapping("/realTotalByUserId/{userId}")

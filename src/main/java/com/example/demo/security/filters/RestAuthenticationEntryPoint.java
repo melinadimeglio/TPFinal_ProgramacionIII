@@ -22,23 +22,23 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         String errorMessage = switch (authException) {
             case BadCredentialsException badCredentialsException ->
-                    "Credenciales inválidas";
+                    "Invalid credentials";
             case DisabledException disabledException ->
-                    "Cuenta deshabilitada";
+                    "Account disabled";
             case LockedException lockedException ->
-                    "Cuenta bloqueada";
+                    "Locked account";
             case AccountExpiredException accountExpiredException ->
-                    "Cuenta expirada";
+                    "Expired account";
             case CredentialsExpiredException credentialsExpiredException
                     ->
-                    "Credenciales expiradas";
+                    "Expired credentials";
             case InsufficientAuthenticationException
                          insufficientAuthenticationException ->
-                    "Autenticación insuficiente";
+                    "Insufficient authentication";
             case AuthenticationServiceException
                          authenticationServiceException ->
-                    "Error en el servicio de autenticación";
-            default -> "Error de autenticación: " +
+                    "Authentication service error";
+            default -> "Authentication error: " +
                     authException.getMessage();
         };
         String jsonResponse = String.format("{\"error\": \"%s\",\"status\": %d, \"path\": \"%s\"}",

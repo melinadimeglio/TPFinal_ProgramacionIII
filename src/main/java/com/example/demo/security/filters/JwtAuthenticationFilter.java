@@ -44,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (tokenBlacklistService.isBlacklisted(jwt)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Token revocado. Ingrese sesion nuevamente");
+            response.getWriter().write("Token revoked. Please log in again.");
             return;
         }
 

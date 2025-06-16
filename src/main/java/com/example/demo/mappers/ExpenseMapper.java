@@ -55,7 +55,7 @@ public abstract class ExpenseMapper {
                 if (sharedIds == null) return Set.of();
                 return sharedIds.stream()
                         .map(id -> userRepository.findById(id)
-                                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + id)))
+                                .orElseThrow(() -> new IllegalArgumentException("User not found: " + id)))
                         .collect(Collectors.toSet());
         }
 }
