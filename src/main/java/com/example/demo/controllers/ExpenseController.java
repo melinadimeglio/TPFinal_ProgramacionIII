@@ -35,6 +35,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.NoSuchElementException;
@@ -152,8 +153,12 @@ public class ExpenseController {
             @ApiResponse(responseCode = "200", description = "Expense found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ExpenseResumeDTO.class))),
-            @ApiResponse(responseCode = "403", description = "Forbidden - User not authorized to access this resource"),
-            @ApiResponse(responseCode = "404", description = "Expense not found")
+            @ApiResponse(responseCode = "403", description = "Forbidden - User not authorized to access this resource",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Expense not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PreAuthorize("hasAuthority('VER_GASTO')")
     @GetMapping("/{id}")
