@@ -42,6 +42,7 @@ public abstract class ExpenseMapper {
         public abstract ExpenseEntity toEntity(ExpenseCreateDTO dto);
 
         @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+        @Mapping(target = "id", ignore = true)
         public abstract void updateEntityFromDTO(ExpenseUpdateDTO dto, @MappingTarget ExpenseEntity entity);
 
         protected Set<Long> mapUsersToIds(Set<UserEntity> users) {

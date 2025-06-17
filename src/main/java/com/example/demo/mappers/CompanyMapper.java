@@ -6,6 +6,7 @@ import com.example.demo.DTOs.Company.CompanyUpdateDTO;
 import com.example.demo.entities.CompanyEntity;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public interface CompanyMapper {
 
     List<CompanyResponseDTO> toDTOList(List<CompanyEntity> companies);
 
+    @Mapping(target = "id", ignore = true)
     void updateCompanyEntityFromDTO(CompanyUpdateDTO dto, @MappingTarget CompanyEntity entity);
 
 }

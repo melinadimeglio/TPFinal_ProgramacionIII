@@ -56,6 +56,7 @@ public interface ActivityMapper {
         void updateEntityFromDTO(ActivityUpdateDTO dto, @MappingTarget ActivityEntity entity);
 
         @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+        @Mapping(target = "id", ignore = true)
         void updateEntityFromCompanyDTO(CompanyActivityUpdateDTO dto, @MappingTarget ActivityEntity entity);
 
         default Set<Long> mapUsersToIds(Set<UserEntity> users) {

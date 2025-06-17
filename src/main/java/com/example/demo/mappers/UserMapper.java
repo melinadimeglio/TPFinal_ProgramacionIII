@@ -22,6 +22,8 @@ public interface UserMapper {
     List<UserResponseDTO> toDTOList(List<UserEntity> entities);
 
     UserCreateDTO toResponseDTO(UserEntity user);
+
+    @Mapping(target = "id", ignore = true)
     void updateUserEntityFromDTO (UserUpdateDTO dto, @MappingTarget UserEntity user);
 
 }
