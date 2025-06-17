@@ -133,9 +133,17 @@ public class ItineraryService {
             throw new AccessDeniedException("You do not have permission to update this itinerary.");
         }
 
+        TripEntity trip = tripRepository.findById(entity.getTrip().getId())
+                .orElseThrow(() -> new NoSuchElementException("Trip not found."));
+
+        if(dto.getItineraryDate().isBefore(trip.getStartDate()) || dto.getItineraryDate().isAfter(trip.getEndDate())){
+            throw new IllegalArgumentException("The itinerary date does not correspond to the travel date range.");
+        }
+
         itineraryMapper.updateEntityFromDTO(dto, entity);
         ItineraryEntity saved = itineraryRepository.save(entity);
         return itineraryMapper.toDTO(saved);
+        
     }
 
 
