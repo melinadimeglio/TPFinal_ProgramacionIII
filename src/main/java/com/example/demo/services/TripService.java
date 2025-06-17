@@ -127,6 +127,34 @@ public class TripService {
             throw new AccessDeniedException("You are not allowed to modify this trip");
         }
 
+        Set<UserEntity> users = new HashSet<>();
+
+        UserEntity owner = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found."));
+        users.add(owner);
+
+        if (dto.getSharedUserIds() != null && !dto.getSharedUserIds().isEmpty()) {
+            for (Long sharedId : dto.getSharedUserIds()) {
+                UserEntity sharedUser = userRepository.findById(sharedId)
+                        .orElseThrow(() -> new RuntimeException("Shared user not found."));
+
+                if (sharedUser.getCredential().getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))){
+                    throw new ReservationException("You cannot add Admin type users.");
+                } else if (sharedUser.getCredential().getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_COMPANY"))){
+                    throw new ReservationException("You cannot add Company type users.");
+                }
+                users.add(sharedUser);
+            }
+        }
+
+        if (dto.getCompanions() != users.size() - 1){
+            throw new ReservationException("The number of companions does not match the number of users sharing the trip.");
+        }
+
+        trip.setUsers(users);
+
         tripMapper.updateEntityFromDTO(dto, trip);
 
         TripEntity updated = tripRepository.save(trip);
