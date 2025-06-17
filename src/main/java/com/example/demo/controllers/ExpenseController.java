@@ -1,5 +1,8 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTOs.CheckList.Response.CheckListItemResponseDTO;
+import com.example.demo.DTOs.CheckList.Response.CheckListResponseDTO;
+import com.example.demo.DTOs.Company.Response.CompanyResponseDTO;
 import com.example.demo.DTOs.Filter.ExpenseFilterDTO;
 import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
 import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
@@ -33,6 +36,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.NoSuchElementException;
 
 @Tag(name = "Expenses", description = "Operations related to user expenses")
 @RestController
@@ -152,19 +157,23 @@ public class ExpenseController {
     })
     @PreAuthorize("hasAuthority('VER_GASTO')")
     @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<ExpenseResumeDTO>> getExpenseById(
+    public ResponseEntity<EntityModel<ExpenseResponseDTO>> getExpenseById(
             @PathVariable Long id,
             @AuthenticationPrincipal CredentialEntity credential) {
 
-        ExpenseResumeDTO expense = expenseService.findResumeById(id);
+        Long userId = credential.getUser().getId();
+        boolean isAdmin = credential.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-        boolean hasAccess = expense.getUserIds().contains(credential.getUser().getId());
+        ExpenseResponseDTO expense;
 
-        if (!hasAccess) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        if (isAdmin) {
+            expense = expenseService.findById(id);
+        } else {
+            expense = expenseService.findByIdIfOwned(id, userId);
         }
 
-        return ResponseEntity.ok(resumeAssembler.toModel(expense));
+        return ResponseEntity.ok(assembler.toModel(expense));
     }
 
 

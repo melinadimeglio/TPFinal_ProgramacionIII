@@ -1,11 +1,13 @@
 package com.example.demo.services;
 
+import com.example.demo.DTOs.CheckList.Response.CheckListItemResponseDTO;
 import com.example.demo.DTOs.Filter.ExpenseFilterDTO;
 import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
 import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
 import com.example.demo.DTOs.Expense.ExpenseUpdateDTO;
 import com.example.demo.DTOs.Expense.Response.ExpenseResumeDTO;
 import com.example.demo.SpecificationAPI.ExpenseSpecification;
+import com.example.demo.entities.CheckListItemEntity;
 import com.example.demo.entities.ExpenseEntity;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
@@ -63,6 +65,22 @@ public class ExpenseService{
         return expenseMapper.toDTO(entity);
     }
 
+    public ExpenseResumeDTO findByIdResume(Long id) {
+        ExpenseEntity entity = expenseRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Expense not found."));
+        return expenseMapper.toResumeDTO(entity);
+    }
+
+    public ExpenseResponseDTO findByIdIfOwned(Long id, Long userId) {
+        ExpenseEntity entity = expenseRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Item not found."));
+
+        if (!entity.getUsers().contains(userId)) {
+            throw new AccessDeniedException("You do not have permission to view this item.");
+        }
+
+        return expenseMapper.toDTO(entity);
+    }
 
     public ExpenseResponseDTO save(ExpenseCreateDTO dto, Long myUserId) {
 

@@ -54,6 +54,11 @@ public class CheckListService {
                 .map(checkListMapper::toDTO);
     }
 
+    public CheckListResponseDTO findById(Long id) {
+        return checkListRepository.findById(id)
+                .map(checkListMapper::toDTO);
+    }
+
     public CheckListResponseDTO findByIdIfOwned(Long id, Long myUserId) {
         CheckListEntity entity = checkListRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Checklist not found"));

@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTOs.CheckList.Response.CheckListResponseDTO;
 import com.example.demo.DTOs.Company.CompanyUpdateDTO;
 import com.example.demo.DTOs.Company.Request.CompanyCreateDTO;
 import com.example.demo.DTOs.Company.Response.CompanyResponseDTO;
@@ -194,11 +195,19 @@ public class CompanyController {
                                                                           @AuthenticationPrincipal CredentialEntity credential) {
         Long myCompanyId = credential.getCompany().getId();
 
-        if (!myCompanyId.equals(id)) {
-            throw new OwnershipException("You do not have permission to access this resource.");
-        }
+        boolean isAdmin = credential.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-        CompanyResponseDTO company = companyService.findById(id);
+        CompanyResponseDTO company;
+
+        if (isAdmin) {
+            company = companyService.findById(id);
+        } else {
+            if (!myCompanyId.equals(id)) {
+                throw new OwnershipException("You do not have permission to access this resource.");
+            }
+            company = companyService.findById(id);
+        }
         return ResponseEntity.ok(assembler.toModel(company));
     }
 

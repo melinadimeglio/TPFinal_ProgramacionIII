@@ -5,6 +5,7 @@ import com.example.demo.DTOs.CheckList.Response.CheckListResponseDTO;
 import com.example.demo.DTOs.CheckList.CheckListUpdateDTO;
 import com.example.demo.DTOs.Filter.CheckListFilterDTO;
 import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
+import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
 import com.example.demo.controllers.hateoas.CheckListModelAssembler;
 import com.example.demo.exceptions.OwnershipException;
 import com.example.demo.security.entities.CredentialEntity;
@@ -227,8 +228,19 @@ public class CheckListController {
             @AuthenticationPrincipal CredentialEntity credential
     ) {
         Long userId = credential.getUser().getId();
-        CheckListResponseDTO checkList = checkListService.findByIdIfOwned(id, userId);
-        return ResponseEntity.ok(assembler.toModel(checkList));
+
+        boolean isAdmin = credential.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        CheckListResponseDTO checklist;
+
+        if (isAdmin) {
+            checklist = checkListService.findById(id);
+        } else {
+            checklist = checkListService.findByIdIfOwned(id, userId);
+        }
+
+        return ResponseEntity.ok(assembler.toModel(checklist));
     }
 
 

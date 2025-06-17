@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
 import com.example.demo.DTOs.Filter.ItineraryFilterDTO;
 import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
 import com.example.demo.DTOs.Itinerary.Request.ItineraryCreateDTO;
@@ -268,9 +269,18 @@ public class ItineraryController {
             @AuthenticationPrincipal CredentialEntity credential) {
 
         Long userId = credential.getUser().getId();
-        ItineraryResponseDTO response = itineraryService.findByIdIfBelongsToUser(id, userId);
+        boolean isAdmin = credential.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-        return ResponseEntity.ok(assembler.toModel(response));
+        ItineraryResponseDTO itineraryResponseDTO;
+
+        if (isAdmin) {
+            itineraryResponseDTO = itineraryService.findById(id);
+        } else {
+            itineraryResponseDTO = itineraryService.findByIdIfBelongsToUser(id, userId);
+        }
+
+        return ResponseEntity.ok(assembler.toModel(itineraryResponseDTO));
     }
 
 

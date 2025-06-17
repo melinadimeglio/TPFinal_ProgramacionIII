@@ -16,9 +16,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -31,6 +30,11 @@ public class CheckListItemService {
 
     public Page<CheckListItemResponseDTO> findAll(Pageable pageable) {
         return itemRepository.findAll(pageable)
+                .map(itemMapper::toDTO);
+    }
+
+    public Optional<CheckListItemResponseDTO> findById(Long id) {
+        return itemRepository.findById(id)
                 .map(itemMapper::toDTO);
     }
 

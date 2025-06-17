@@ -3,6 +3,7 @@ package com.example.demo.controllers;
 import com.example.demo.DTOs.CheckList.Request.CheckListItemCreateDTO;
 import com.example.demo.DTOs.CheckList.Response.CheckListItemResponseDTO;
 import com.example.demo.DTOs.CheckList.CheckListItemUpdateDTO;
+import com.example.demo.DTOs.CheckList.Response.CheckListResponseDTO;
 import com.example.demo.DTOs.Filter.CheckListItemFilterDTO;
 import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
 import com.example.demo.controllers.hateoas.CheckListItemModelAssembler;
@@ -33,6 +34,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Tag(name = "Checklist Items", description = "Operations related to user travel checklist items")
 @RestController
@@ -170,9 +172,19 @@ public class CheckListItemController {
             @AuthenticationPrincipal CredentialEntity credential) {
 
         Long userId = credential.getUser().getId();
+        boolean isAdmin = credential.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-        CheckListItemResponseDTO checkListItem = service.findByIdIfOwned(id, userId);
-        return ResponseEntity.ok(assembler.toModel(checkListItem));
+        CheckListItemResponseDTO checklistItem;
+
+        if (isAdmin) {
+            checklistItem = service.findById(id)
+                    .orElseThrow(() -> new NoSuchElementException("ChecklistItem not found."));
+        } else {
+            checklistItem = service.findByIdIfOwned(id, userId);
+        }
+
+        return ResponseEntity.ok(assembler.toModel(checklistItem));
     }
 
 

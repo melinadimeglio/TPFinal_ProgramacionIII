@@ -1,6 +1,7 @@
 package com.example.demo.controllers;
 
 import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
+import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
 import com.example.demo.DTOs.User.Request.UserCreateDTO;
 import com.example.demo.DTOs.User.Response.UserResponseDTO;
 import com.example.demo.DTOs.User.UserUpdateDTO;
@@ -154,7 +155,12 @@ public class UserController {
             @PathVariable Long id,
             @AuthenticationPrincipal CredentialEntity credential) {
 
-        if (credential.getUser() == null || !credential.getUser().getId().equals(id)) {
+        Long userId = credential.getUser().getId();
+
+        boolean isAdmin = credential.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isAdmin && !userId.equals(id)) {
             throw new OwnershipException("You do not have permission to access this resource.");
         }
 

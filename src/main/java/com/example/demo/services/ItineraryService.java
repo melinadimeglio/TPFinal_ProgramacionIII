@@ -75,6 +75,13 @@ public class ItineraryService {
         return true;
     }
 
+    public ItineraryResponseDTO findById(Long id){
+        ItineraryEntity itinerary = itineraryRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Itinerary not found."));
+
+        return itineraryMapper.toDTO(itinerary);
+    }
+
     public ItineraryResponseDTO findByIdIfBelongsToUser(Long itineraryId, Long userId) {
         ItineraryEntity itinerary = itineraryRepository.findById(itineraryId)
                 .orElseThrow(() -> new NoSuchElementException("Itinerary not found."));
