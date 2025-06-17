@@ -231,6 +231,13 @@ public class ActivityService {
             entity.setItinerary(newItinerary);
         }
 
+        ItineraryEntity itinerary = itineraryRepository.findById(dto.getItineraryId())
+                        .orElseThrow(() -> new NoSuchElementException("Itinerary not found."));
+
+        if (!dto.getDate().equals(itinerary.getItineraryDate())){
+            throw new IllegalArgumentException("The activity cannot be updated if the date does not match the itinerary.");
+        }
+
         activityMapper.updateEntityFromDTO(dto, entity);
 
         if (entity.getStartTime() != null && entity.getEndTime() != null &&
