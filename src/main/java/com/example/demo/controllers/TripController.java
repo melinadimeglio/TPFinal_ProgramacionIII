@@ -44,6 +44,7 @@ import org.springframework.web.bind.annotation.*;
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -187,7 +188,16 @@ public class TripController {
 
         Long userId = credential.getUser().getId();
 
-        TripResponseDTO trip = tripService.findByIdForUser(id, userId);
+        boolean isAdmin = credential.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        TripResponseDTO trip;
+
+        if (isAdmin) {
+            trip = tripService.findById(id);
+        } else {
+            trip = tripService.findByIdForUser(id, userId);
+        }
 
         return ResponseEntity.ok(assembler.toModel(trip));
     }
