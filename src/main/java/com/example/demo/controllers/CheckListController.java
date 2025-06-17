@@ -31,6 +31,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
+
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 
@@ -235,7 +237,8 @@ public class CheckListController {
         CheckListResponseDTO checklist;
 
         if (isAdmin) {
-            checklist = checkListService.findById(id);
+            checklist = checkListService.findById(id)
+                    .orElseThrow(() -> new NoSuchElementException("Checklist not found"));
         } else {
             checklist = checkListService.findByIdIfOwned(id, userId);
         }

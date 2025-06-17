@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 public class CheckListService {
@@ -54,7 +55,7 @@ public class CheckListService {
                 .map(checkListMapper::toDTO);
     }
 
-    public CheckListResponseDTO findById(Long id) {
+    public Optional<CheckListResponseDTO> findById(Long id) {
         return checkListRepository.findById(id)
                 .map(checkListMapper::toDTO);
     }
