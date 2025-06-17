@@ -2,6 +2,7 @@ package com.example.demo.controllers;
 
 import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
 import com.example.demo.DTOs.Activity.CompanyActivityUpdateDTO;
+import com.example.demo.DTOs.Activity.Response.ActivityCreateResponseDTO;
 import com.example.demo.DTOs.Filter.ActivityFilterDTO;
 import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
@@ -11,6 +12,7 @@ import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.controllers.hateoas.ActivityCompanyModelAssembler;
 import com.example.demo.controllers.hateoas.ActivityModelAssembler;
+import com.example.demo.controllers.hateoas.ActivityModelAssemblerDif;
 import com.example.demo.entities.CompanyEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.enums.ActivityCategory;
@@ -57,20 +59,24 @@ public class ActivityController {
     private final ActivityModelAssembler assembler;
     private final PagedResourcesAssembler<ActivityResponseDTO> pagedResourcesAssembler;
     private final PagedResourcesAssembler<ActivityCompanyResponseDTO> pagedResourcesAssemblerCompany;
+    private final PagedResourcesAssembler<ActivityCreateResponseDTO> pagedResourcesAssemblerActivity;
     private final ItineraryService itineraryService;
     private final ItineraryRepository itineraryRepository;
     private final ActivityCompanyModelAssembler activityCompanyAssembler;
+    private final ActivityModelAssemblerDif activityModelAssemblerDif;
 
     @Autowired
-    public ActivityController(ActivityService activityService, ActivityModelAssembler assembler, PagedResourcesAssembler<ActivityResponseDTO> pagedResourcesAssembler, PagedResourcesAssembler<ActivityCompanyResponseDTO> pagedResourcesAssemblerCompany, ItineraryService itineraryService, ItineraryRepository itineraryRepository,
-                              ActivityCompanyModelAssembler activityCompanyAssembler) {
+    public ActivityController(ActivityService activityService, ActivityModelAssembler assembler, PagedResourcesAssembler<ActivityResponseDTO> pagedResourcesAssembler, PagedResourcesAssembler<ActivityCompanyResponseDTO> pagedResourcesAssemblerCompany, PagedResourcesAssembler<ActivityCreateResponseDTO> pagedResourcesAssemblerActivity, ItineraryService itineraryService, ItineraryRepository itineraryRepository,
+                              ActivityCompanyModelAssembler activityCompanyAssembler, ActivityModelAssemblerDif activityModelAssemblerDif) {
         this.activityService = activityService;
         this.assembler = assembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
         this.pagedResourcesAssemblerCompany = pagedResourcesAssemblerCompany;
+        this.pagedResourcesAssemblerActivity = pagedResourcesAssemblerActivity;
         this.itineraryService = itineraryService;
         this.itineraryRepository = itineraryRepository;
         this.activityCompanyAssembler = activityCompanyAssembler ;
+        this.activityModelAssemblerDif = activityModelAssemblerDif;
     }
 
     @Operation(
@@ -120,7 +126,7 @@ public class ActivityController {
     })
     @PreAuthorize("hasAuthority('CREAR_ACTIVIDAD_USUARIO')")
     @PostMapping("/user")
-    public ResponseEntity<ActivityResponseDTO> createFromUser(
+    public ResponseEntity<ActivityCreateResponseDTO> createFromUser(
             @RequestBody @Valid UserActivityCreateDTO dto,
             @AuthenticationPrincipal CredentialEntity credential, Pageable pageable) {
 
@@ -135,7 +141,7 @@ public class ActivityController {
             throw new ReservationException("There is no itinerary for the activity date. Please create one first..");
         }
 
-        ActivityResponseDTO createdActivity = activityService.createFromUser(dto, myUserId, itinerario.get().getId());
+        ActivityCreateResponseDTO createdActivity = activityService.createFromUser(dto, myUserId, itinerario.get().getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(createdActivity);
     }
 
@@ -566,7 +572,7 @@ public class ActivityController {
     })
     @PreAuthorize("hasAuthority('VER_ACTIVIDAD_USUARIO')")
     @GetMapping("/user/{userId}")
-    public ResponseEntity<PagedModel<EntityModel<ActivityResponseDTO>>> getActivitiesByUserId(
+    public ResponseEntity<PagedModel<EntityModel<ActivityCreateResponseDTO>>> getActivitiesByUserId(
             @PathVariable Long userId,
             @AuthenticationPrincipal CredentialEntity credential,
             ActivityFilterDTO filters,
@@ -582,8 +588,8 @@ public class ActivityController {
 
         }
 
-        Page<ActivityResponseDTO> activities = activityService.findByUserIdWithFilters(userId, filters, pageable);
-        PagedModel<EntityModel<ActivityResponseDTO>> model = pagedResourcesAssembler.toModel(activities, assembler);
+        Page<ActivityCreateResponseDTO> activities = activityService.findByUserIdWithFilters(userId, filters, pageable);
+        PagedModel<EntityModel<ActivityCreateResponseDTO>> model = pagedResourcesAssemblerActivity.toModel(activities, activityModelAssemblerDif);
         return ResponseEntity.ok(model);
     }
 
@@ -622,13 +628,13 @@ public class ActivityController {
     })
     @PreAuthorize("hasAuthority('MODIFICAR_ACTIVIDADES_USUARIO')")
     @PutMapping("/{id}")
-    public ResponseEntity<ActivityResponseDTO> updateActivity(
+    public ResponseEntity<ActivityCreateResponseDTO> updateActivity(
             @PathVariable Long id,
             @RequestBody @Valid ActivityUpdateDTO dto,
             @AuthenticationPrincipal CredentialEntity credential
     ) {
         Long myUserId = credential.getUser().getId();
-        ActivityResponseDTO updated = activityService.updateAndReturnIfOwned(id, dto, myUserId);
+        ActivityCreateResponseDTO updated = activityService.updateAndReturnIfOwned(id, dto, myUserId);
         return ResponseEntity.ok(updated);
     }
 

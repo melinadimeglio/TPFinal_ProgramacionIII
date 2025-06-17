@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.DTOs.Activity.CompanyActivityUpdateDTO;
+import com.example.demo.DTOs.Activity.Response.ActivityCreateResponseDTO;
 import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
 import com.example.demo.DTOs.Filter.ActivityFilterDTO;
 import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
@@ -64,7 +65,7 @@ public class ActivityService {
         this.tripService = tripService;
     }
 
-    public ActivityResponseDTO createFromUser(UserActivityCreateDTO dto, Long myUserId, Long itineraryId) {
+    public ActivityCreateResponseDTO createFromUser(UserActivityCreateDTO dto, Long myUserId, Long itineraryId) {
         ActivityEntity entity = activityMapper.toEntity(dto);
         entity.setAvailable(true);
 
@@ -130,7 +131,7 @@ public class ActivityService {
                 .sharedUserIds(usersIds)
                 .build(), myUserId);
 
-        return activityMapper.toDTO(saved);
+        return activityMapper.toDTOCreated(saved);
     }
 
     public boolean updateCapacity (Long activityId, int quantity){
@@ -203,7 +204,7 @@ public class ActivityService {
                 .map(activityMapper::toDTO);
     }
 
-    public ActivityResponseDTO updateAndReturnIfOwned(Long id, ActivityUpdateDTO dto, Long myUserId) {
+    public ActivityCreateResponseDTO updateAndReturnIfOwned(Long id, ActivityUpdateDTO dto, Long myUserId) {
         ActivityEntity entity = activityRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Activity not found."));
 
@@ -238,7 +239,7 @@ public class ActivityService {
         }
 
         ActivityEntity saved = activityRepository.save(entity);
-        return activityMapper.toDTO(saved);
+        return activityMapper.toDTOCreated(saved);
     }
 
 
@@ -323,7 +324,7 @@ public class ActivityService {
         activityRepository.save(activity);
     }
 
-    public Page<ActivityResponseDTO> findByUserIdWithFilters(Long userId, ActivityFilterDTO filters, Pageable pageable) {
+    public Page<ActivityCreateResponseDTO> findByUserIdWithFilters(Long userId, ActivityFilterDTO filters, Pageable pageable) {
 
         Specification<ActivityEntity> spec = Specification
                 .where(ActivitySpecification.belongsToUser(userId))
@@ -331,7 +332,7 @@ public class ActivityService {
                 .and(ActivitySpecification.dateBetween(filters.getStartDate(), filters.getEndDate()));
 
         Page<ActivityEntity> result = activityRepository.findAll(spec, pageable);
-        return result.map(activityMapper::toDTO);
+        return result.map(activityMapper::toDTOCreated);
     }
 
     public Page<ActivityCompanyResponseDTO> findAllCompany(
