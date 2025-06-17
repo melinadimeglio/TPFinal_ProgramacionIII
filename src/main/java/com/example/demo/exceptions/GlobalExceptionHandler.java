@@ -155,6 +155,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Object> handleDuplictes(Exception ex) {
-        return buildResponse(HttpStatus.BAD_REQUEST, "A record with that unique data already exists. Error: " + ex.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, "A record with that unique data already exists.");
     }
 }

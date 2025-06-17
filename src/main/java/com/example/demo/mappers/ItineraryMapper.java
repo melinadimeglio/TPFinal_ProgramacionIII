@@ -21,5 +21,6 @@ public interface ItineraryMapper {
     ItineraryEntity toEntity(ItineraryCreateDTO dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
     void updateEntityFromDTO(ItineraryUpdateDTO dto, @MappingTarget ItineraryEntity entity);
 }
