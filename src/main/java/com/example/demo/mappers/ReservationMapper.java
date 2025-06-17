@@ -14,8 +14,8 @@ public interface ReservationMapper {
     @Mapping(target = "user", source = "user")
     @Mapping(target = "activity", source = "activity")
     @Mapping(target = "reservationDate", expression = "java(java.time.LocalDateTime.now())")
-    @Mapping(target = "paid", constant = "true") // Por ahora siempre pagado (luego lo veremos para Mercado Pago)
-    @Mapping(target = "status", constant = "ACTIVE")
+    @Mapping(target = "paid", constant = "false") // Por ahora siempre pagado (luego lo veremos para Mercado Pago)
+    @Mapping(target = "status", constant = "PENDING")
     ReservationEntity toEntity(ReservationCreateDTO dto, UserEntity user, ActivityEntity activity);
 
     @Mapping(source = "user.id", target = "userId")

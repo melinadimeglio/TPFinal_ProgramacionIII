@@ -149,7 +149,6 @@ public class ExpenseService{
             throw new AccessDeniedException("You do not have permission to modify this expense.");
         }
 
-
         expenseMapper.updateEntityFromDTO(dto, entity);
         expenseRepository.save(entity);
     }

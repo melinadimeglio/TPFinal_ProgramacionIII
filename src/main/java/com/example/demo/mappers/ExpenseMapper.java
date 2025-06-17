@@ -44,7 +44,6 @@ public abstract class ExpenseMapper {
         @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
         public abstract void updateEntityFromDTO(ExpenseUpdateDTO dto, @MappingTarget ExpenseEntity entity);
 
-        // Conversión de Set<UserEntity> a Set<Long>
         protected Set<Long> mapUsersToIds(Set<UserEntity> users) {
                 return users.stream()
                         .map(UserEntity::getId)
