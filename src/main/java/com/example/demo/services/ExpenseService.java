@@ -101,6 +101,9 @@ public class ExpenseService{
             throw new ReservationException("The shared users must exactly match the users in the trip.");
         }
 
+        if (dto.getDate().isBefore(trip.getStartDate()) || dto.getDate().isAfter(trip.getEndDate())) {
+            throw new ReservationException("The expense date must be within the trip's start and end dates.");
+        }
 
         ExpenseEntity expense = expenseMapper.toEntity(dto);
         expense.setTrip(trip);
@@ -147,6 +150,10 @@ public class ExpenseService{
 
         if (!belongsToUser) {
             throw new AccessDeniedException("You do not have permission to modify this expense.");
+        }
+
+        if (dto.getDate().isBefore(trip.getStartDate()) || dto.getDate().isAfter(trip.getEndDate())) {
+            throw new ReservationException("The expense date must be within the trip's start and end dates.");
         }
 
         expenseMapper.updateEntityFromDTO(dto, entity);
