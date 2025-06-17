@@ -143,7 +143,7 @@ public class ItineraryService {
         itineraryMapper.updateEntityFromDTO(dto, entity);
         ItineraryEntity saved = itineraryRepository.save(entity);
         return itineraryMapper.toDTO(saved);
-        
+
     }
 
 

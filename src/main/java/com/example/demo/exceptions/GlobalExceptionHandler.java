@@ -6,6 +6,7 @@ import com.mercadopago.exceptions.MPException;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.validation.ConstraintViolationException;
 import org.apache.velocity.exception.ResourceNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -150,5 +151,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<Object> handleExpiredToken(Exception ex) {
         return buildResponse(HttpStatus.UNAUTHORIZED, "Token expired. Please log in again. Error: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Object> handleDuplictes(Exception ex) {
+        return buildResponse(HttpStatus.BAD_REQUEST, "A record with that unique data already exists. Error: " + ex.getMessage());
     }
 }
