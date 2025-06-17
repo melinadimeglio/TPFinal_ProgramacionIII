@@ -5,6 +5,7 @@ import com.example.demo.DTOs.Activity.CompanyActivityUpdateDTO;
 import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityCompanyResponseDTO;
+import com.example.demo.DTOs.Activity.Response.ActivityCreateResponseDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.entities.ActivityEntity;
 import com.example.demo.entities.CompanyEntity;
@@ -42,6 +43,10 @@ public interface ActivityMapper {
         @Mapping(target = "companyId", source = "company.id")
         @Mapping(target = "userIds", expression = "java(mapUsersToIds(entity.getUsers()))")
         ActivityResponseDTO toDTO(ActivityEntity entity);
+
+        @Mapping(target = "itineraryId", source = "itinerary.id")
+        @Mapping(target = "userIds", expression = "java(mapUsersToIds(entity.getUsers()))")
+        ActivityCreateResponseDTO toDTOCreated(ActivityEntity entity);
 
         List<ActivityResponseDTO> toDTOList(List<ActivityEntity> entities);
 
