@@ -1,5 +1,6 @@
 package com.example.demo.security.services;
 
+import com.example.demo.security.entities.CredentialEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -40,6 +41,12 @@ public class JWTService {
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList()));
+
+        if(userDetails instanceof CredentialEntity credential) {
+            if(credential.getUser() != null) {
+                claims.put("userId", credential.getUser().getId());
+            }
+        }
 
         return buildToken(claims, userDetails, jwtExpiration);
     }
