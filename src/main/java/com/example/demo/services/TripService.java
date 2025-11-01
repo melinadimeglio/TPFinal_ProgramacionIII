@@ -100,7 +100,7 @@ public class TripService {
             throw new ReservationException("The number of companions does not match the number of users sharing the trip.");
         }
 
-        if (dto.getEndDate().isBefore(dto.getStartDate())){
+        if (dto.getEndDate() != null && dto.getEndDate().isBefore(dto.getStartDate())) {
             throw new IllegalArgumentException("The end date cannot be earlier than the start date.");
         }
 
