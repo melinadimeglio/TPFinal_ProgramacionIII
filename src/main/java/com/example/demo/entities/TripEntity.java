@@ -36,7 +36,7 @@ public class TripEntity {
 
     private Double estimatedBudget;
 
-    private int companions;
+    private Integer companions;
 
     @Builder.Default
     private boolean active = true;
