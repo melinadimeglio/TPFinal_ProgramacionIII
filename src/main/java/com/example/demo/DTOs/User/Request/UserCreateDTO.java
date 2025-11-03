@@ -25,6 +25,8 @@ public class UserCreateDTO {
     @NotBlank(message = "El nombre de usuario no debe estar vacio.")
     @Column(unique = true)
     @Size(min = 5, max = 20, message = "El username debe tener entre 5 y 20 caracteres.")
+    @Pattern(regexp = "^(?!\\d+$)[A-Za-z\\d]+$",
+            message = "El nombre de usuario no puede ser solo numérico y solo puede contener letras y números.")
     private String username;
 
     @Schema(description = "Email del usuario", example = "melina@example.com")

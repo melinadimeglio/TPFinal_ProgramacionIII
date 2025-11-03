@@ -24,11 +24,9 @@ public class TripUpdateDTO {
     private String destination;
 
     @Schema(description = "Fecha de inicio del viaje (debe ser hoy o una posterior)", example = "2025-07-01")
-    @FutureOrPresent(message = "La fecha de comienzo del viaje debe ser la fecha de hoy, o una posterior.")
     private LocalDate startDate;
 
     @Schema(description = "Fecha de fin del viaje (debe ser hoy o una posterior)", example = "2025-07-10")
-    @FutureOrPresent(message = "La fecha de comienzo del viaje debe ser la fecha de hoy, o una posterior.")
     private LocalDate endDate;
 
     @Schema(description = "Presupuesto estimado actualizado para el viaje", example = "5000.00")

@@ -26,11 +26,9 @@ public class TripCreateDTO {
 
     @Schema(description = "Fecha de inicio del viaje", example = "2025-07-01")
     @NotNull(message = "La fecha de inicio es obligatoria.")
-    @FutureOrPresent(message = "La fecha de comienzo del viaje debe ser la fecha de hoy, o una posterior.")
     private LocalDate startDate;
 
     @Schema(description = "Fecha de fin del viaje (opcional)", example = "2025-07-10")
-    @FutureOrPresent(message = "La fecha de comienzo del viaje debe ser la fecha de hoy, o una posterior.")
     private LocalDate endDate;
 
     @Schema(description = "Presupuesto estimado para el viaje", example = "5000.00")
