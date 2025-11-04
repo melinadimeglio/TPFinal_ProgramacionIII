@@ -101,7 +101,7 @@ public class ItineraryService {
     }
 
     public Page<ItineraryResponseDTO> findByUserId(Long userId, Pageable pageable) {
-        return itineraryRepository.findByUserIdAndActiveTrue(userId, pageable)
+        return itineraryRepository.findByUserId(userId, pageable)
                 .map(itineraryMapper::toDTO);
     }
 
