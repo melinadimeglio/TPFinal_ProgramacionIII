@@ -5,6 +5,7 @@ import com.example.demo.DTOs.Filter.ItineraryFilterDTO;
 import com.example.demo.DTOs.Itinerary.Request.ItineraryCreateDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
+import com.example.demo.SpecificationAPI.ItinerarySpecification;
 import com.example.demo.entities.ActivityEntity;
 import com.example.demo.entities.ItineraryEntity;
 import com.example.demo.entities.TripEntity;
@@ -100,7 +101,7 @@ public class ItineraryService {
     }
 
     public Page<ItineraryResponseDTO> findByUserId(Long userId, Pageable pageable) {
-        return itineraryRepository.findByUserId(userId, pageable)
+        return itineraryRepository.findByUserIdAndActiveTrue(userId, pageable)
                 .map(itineraryMapper::toDTO);
     }
 
@@ -179,9 +180,14 @@ public class ItineraryService {
     }
 
     public Page<ItineraryResponseDTO> findByUserIdWithFilters(Long userId, ItineraryFilterDTO filters, Pageable pageable) {
-        Specification<ItineraryEntity> spec = Specification.where(
-                (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("user").get("id"), userId)
-        );
+        Specification<ItineraryEntity> spec = Specification
+                .where((Specification<ItineraryEntity>) (root, query, cb) ->
+                        cb.equal(root.get("user").get("id"), userId)
+                )
+                .and((Specification<ItineraryEntity>) (root, query, cb) ->
+                        cb.isTrue(root.get("active"))
+                );
+
 
         if (filters.getDateFrom() != null) {
             spec = spec.and((root, query, criteriaBuilder) ->
