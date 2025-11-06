@@ -477,7 +477,7 @@ public class TripController {
                     description = "Filtered recommendations successfully retrieved",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = PagedModel.class) // para representar que es paginado
+                            schema = @Schema(implementation = PagedModel.class)
                     )
             ),
             @ApiResponse(

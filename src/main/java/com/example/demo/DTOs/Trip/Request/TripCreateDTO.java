@@ -28,7 +28,8 @@ public class TripCreateDTO {
     @NotNull(message = "La fecha de inicio es obligatoria.")
     private LocalDate startDate;
 
-    @Schema(description = "Fecha de fin del viaje (opcional)", example = "2025-07-10")
+    @Schema(description = "Fecha de fin del viaje", example = "2025-07-10")
+    @NotNull(message = "La fecha de fin es obligatoria.")
     private LocalDate endDate;
 
     @Schema(description = "Presupuesto estimado para el viaje", example = "5000.00")
