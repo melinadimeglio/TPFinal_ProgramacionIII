@@ -198,6 +198,11 @@ public class ItineraryService {
                     criteriaBuilder.lessThanOrEqualTo(root.get("itineraryDate"), LocalDate.parse(filters.getDateTo())));
         }
 
+        if (filters.getTripId() != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("trip").get("id"), filters.getTripId()));
+        }
+
         Page<ItineraryEntity> page = itineraryRepository.findAll(spec, pageable);
         return page.map(itineraryMapper::toDTO);
     }

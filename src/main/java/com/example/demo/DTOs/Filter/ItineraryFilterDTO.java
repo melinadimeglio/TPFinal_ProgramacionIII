@@ -17,4 +17,7 @@ public class ItineraryFilterDTO {
 
     @Schema(description = "Fecha final para filtrar (formato yyyy-MM-dd)", example = "2025-06-30")
     private String dateTo;
+
+    @Schema(description = "Id para filtrar por viaje", example = "1")
+    private Long tripId;
  }
