@@ -128,6 +128,12 @@ public class CheckListItemService {
                 .map(itemMapper::toDTO);
     }
 
+    public Page<CheckListItemResponseDTO> findByChecklistIdAndUserId(Long checklistId, Long userId, Pageable pageable) {
+        Page<CheckListItemEntity> items = itemRepository.findByChecklistIdAndChecklistUserId(checklistId, userId, pageable);
+        return items.map(itemMapper::toDTO);
+    }
+
+
     public Page<CheckListItemResponseDTO> findByStatus(boolean completed, Pageable pageable) {
         return itemRepository.findByStatus(completed, pageable)
                 .map(itemMapper::toDTO);

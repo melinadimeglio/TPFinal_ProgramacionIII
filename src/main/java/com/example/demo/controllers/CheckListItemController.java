@@ -247,6 +247,43 @@ public class CheckListItemController {
         return ResponseEntity.ok(model);
     }
 
+    @Operation(
+            summary = "Get all items by checklist ID",
+            description = "Returns all checklist items that belong to a specific checklist."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Items retrieved successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CheckListItemResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Checklist not found or no items",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
+    @PreAuthorize("hasAuthority('VER_CHECKLISTITEM_USER')")
+    @GetMapping("/checklist/{checklistId}")
+    public ResponseEntity<PagedModel<EntityModel<CheckListItemResponseDTO>>> getItemsByChecklistId(
+            @PathVariable Long checklistId,
+            @AuthenticationPrincipal CredentialEntity credential,
+            Pageable pageable) {
+
+        Long userId = credential.getUser().getId();
+
+        Page<CheckListItemResponseDTO> items = service.findByChecklistIdAndUserId(checklistId, userId, pageable);
+        PagedModel<EntityModel<CheckListItemResponseDTO>> model = pagedResourcesAssembler.toModel(items, assembler);
+        return ResponseEntity.ok(model);
+    }
+
+
 
     @Operation(
             summary = "Create a new item",
