@@ -34,9 +34,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Tag(name = "Checklist Items", description = "Operations related to user travel checklist items")
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/checklist-items")
 public class CheckListItemController {
@@ -456,5 +458,18 @@ public class CheckListItemController {
         service.deleteIfOwned(id, userId);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/toggle/{id}")
+    @PreAuthorize("hasAuthority('MODIFICAR_CHECKLISTITEM')")
+    public ResponseEntity<CheckListItemResponseDTO> toggleStatus(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long userId = credential.getUser().getId();
+        CheckListItemResponseDTO updatedItem = service.toggleStatus(id, userId);
+        return ResponseEntity.ok(updatedItem);
+    }
+
+
 
 }

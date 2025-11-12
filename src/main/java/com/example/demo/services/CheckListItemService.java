@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -120,6 +121,17 @@ public class CheckListItemService {
         }
 
         itemRepository.delete(entity);
+    }
+
+    @Transactional
+    public CheckListItemResponseDTO toggleStatus(Long id, Long userId) {
+        CheckListItemEntity item = itemRepository.findByIdAndChecklist_User_Id(id, userId)
+                .orElseThrow(() -> new RuntimeException("Item no encontrado o no pertenece al usuario"));
+
+        item.setStatus(!item.getStatus());
+        itemRepository.save(item);
+
+        return itemMapper.toDTO(item);
     }
 
 

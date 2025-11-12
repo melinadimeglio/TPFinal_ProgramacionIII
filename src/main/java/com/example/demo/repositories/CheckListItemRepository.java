@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CheckListItemRepository extends JpaRepository <CheckListItemEntity, Long>, JpaSpecificationExecutor<CheckListItemEntity> {
@@ -18,5 +19,8 @@ public interface CheckListItemRepository extends JpaRepository <CheckListItemEnt
     Page<CheckListItemEntity> findByChecklistIdAndChecklistUserId(Long checklistId, Long userId, Pageable pageable);
     List<CheckListItemEntity> findByChecklistId(Long checklistId);
     Page<CheckListItemEntity> findByChecklistUserId(Long userId, Pageable pageable);
+    Optional<CheckListItemEntity> findByIdAndChecklist_User_Id(Long id, Long userId);
+
+
 
 }
