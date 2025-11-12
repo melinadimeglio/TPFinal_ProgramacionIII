@@ -37,7 +37,6 @@ public class UserEntity {
     @CreationTimestamp
     private LocalDateTime fechaRegistro;
 
-
     @ElementCollection
     @Enumerated(EnumType.STRING)
     private Set<UserPreferences> preferencias;

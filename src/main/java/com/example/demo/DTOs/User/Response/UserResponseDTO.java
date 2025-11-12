@@ -40,4 +40,8 @@ public class UserResponseDTO {
     @Schema(description = "Lista de viajes en los que participa el usuario")
     private List<TripResumeDTO> destinos;
 
+    @Schema(description = "Email del usuario", example = "meli@example.com")
+    private String email;
+
+
 }
