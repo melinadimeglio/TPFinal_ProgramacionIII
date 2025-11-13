@@ -50,6 +50,11 @@ public class CheckListService {
                 .map(checkListMapper::toDTO);
     }
 
+    public Page<CheckListResponseDTO> findAllActive(Pageable pageable) {
+        return checkListRepository.findAllByActiveTrue(pageable)
+                .map(checklist -> checkListMapper.toDTO(checklist));
+    }
+
     public Page<CheckListResponseDTO> findAllInactive(Pageable pageable) {
         return checkListRepository.findAllByActiveFalse(pageable)
                 .map(checkListMapper::toDTO);

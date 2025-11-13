@@ -294,6 +294,53 @@ public class CheckListController {
     }
 
     @Operation(
+            summary = "Get all active checklists",
+            description = "Returns a paginated list of all active checklists in the system."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Active checklists retrieved successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CheckListResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - User not authenticated",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - Insufficient permissions",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
+    @GetMapping("/active")
+    @PreAuthorize("hasAuthority('VER_TODOS_CHECKLIST_ACTIVAS')")
+    public ResponseEntity<PagedModel<EntityModel<CheckListResponseDTO>>> getAllActive(Pageable pageable) {
+        Page<CheckListResponseDTO> checklists = checkListService.findAllActive(pageable);
+        PagedModel<EntityModel<CheckListResponseDTO>> model = pagedResourcesAssembler.toModel(checklists, assembler);
+        return ResponseEntity.ok(model);
+    }
+
+
+    @Operation(
             summary = "Get all inactive checklists",
             description = "Retrieves a paginated list of all inactive checklists in the system."
     )
@@ -339,7 +386,7 @@ public class CheckListController {
                     )
             )
     })
-    @PreAuthorize("hasAuthority('VER_TODOS_CHECKLIST')")
+    @PreAuthorize("hasAuthority('VER_TODOS_CHECKLIST_INACTIVAS')")
     @GetMapping("/inactive")
     public ResponseEntity<PagedModel<EntityModel<CheckListResponseDTO>>> getAllInactive(Pageable pageable) {
         Page<CheckListResponseDTO> checklists = checkListService.findAllInactive(pageable);
