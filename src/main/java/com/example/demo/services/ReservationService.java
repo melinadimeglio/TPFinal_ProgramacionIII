@@ -83,7 +83,7 @@ public class ReservationService {
             throw new ReservationException("There is no itinerary for the activity date. Please create one.");
         }
 
-        if (!activityDisponible(itineraryOptional.get().getId(), dto.getActivityId())){
+        if (!activityDisponible(itineraryOptional.get().getTripId(), dto.getActivityId())){
             throw new ReservationException("The activity cannot be saved because it does not have sufficient availability.");
         }
 
@@ -94,8 +94,13 @@ public class ReservationService {
 
         ReservationEntity saved = reservationRepository.save(reservation);
 
+        try {
             String link = mpService.mercado(saved);
             saved.setUrlPayment(link);
+        } catch (MPApiException e) {
+            System.out.println("MP API Error: {}" + e.getApiResponse().getContent());
+            throw new ReservationException("Error processing payment. Details: " + e.getApiResponse().getContent());
+        }
 
         reservationRepository.save(saved);
 

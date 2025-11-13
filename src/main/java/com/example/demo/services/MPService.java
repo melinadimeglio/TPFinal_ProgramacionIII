@@ -61,6 +61,7 @@ public class MPService {
         PreferenceRequest preferenceRequest = PreferenceRequest.builder()
                 .items(items)
                 .backUrls(backUrls)
+                .autoReturn("approved")
                 .externalReference(String.valueOf(reservation.getId()))
                 .build();
 
