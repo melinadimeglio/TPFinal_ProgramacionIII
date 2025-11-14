@@ -124,8 +124,11 @@ public class ExpenseService{
 
         Set<UserEntity> usersTrip = trip.getUsers();
 
-        if (!usersTrip.equals(users)){
-            throw new ReservationException("The shared users must exactly match the users in the trip.");
+        boolean allUsersBelongToTrip = users.stream()
+                .allMatch(u -> usersTrip.contains(u));
+
+        if (!allUsersBelongToTrip) {
+            throw new ReservationException("All users in the expense must belong to the trip.");
         }
 
         if (dto.getDate().isBefore(trip.getStartDate()) || dto.getDate().isAfter(trip.getEndDate())) {
@@ -229,14 +232,14 @@ public class ExpenseService{
     }
 
     public Double getAverageExpenseByUserId(Long id) {
-        List<ExpenseEntity> expenses = expenseRepository.findByUserId(id);
+        List<ExpenseEntity> expenses = expenseRepository.findByUsers_IdAndActiveTrue(id);
         if (expenses.isEmpty()) return 0.0;
         double sum = expenses.stream().mapToDouble(ExpenseEntity::getAmount).sum();
         return sum / expenses.size();
     }
 
     public Double getRealAverageExpenseByUser(Long userId) {
-        List<ExpenseEntity> expenses = expenseRepository.findAll();
+        List<ExpenseEntity> expenses = expenseRepository.findAllByActiveTrue();
 
         double total = 0.0;
         int count = 0;
@@ -310,7 +313,7 @@ public class ExpenseService{
 
 
     public Double getTotalRealExpenseByUser(Long userId) {
-        List<ExpenseEntity> expenses = expenseRepository.findAll();
+        List<ExpenseEntity> expenses = expenseRepository.findAllByActiveTrue();
 
         return expenses.stream()
                 .filter(expense -> expense.getUsers().stream().anyMatch(u -> u.getId().equals(userId)))

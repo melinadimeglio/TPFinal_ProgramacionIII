@@ -18,10 +18,12 @@ public interface ExpenseRepository extends JpaRepository <ExpenseEntity, Long>, 
     Page<ExpenseEntity> findByUserId(Long userId, Pageable pageable);
     @Query("SELECT e FROM ExpenseEntity e JOIN e.users u WHERE u.id = :userId")
     List<ExpenseEntity> findByUserId(Long userId);
+    List<ExpenseEntity> findByUsers_IdAndActiveTrue(Long userId);
     Page<ExpenseEntity> findByTripId(Long tripId, Pageable pageable);
     List<ExpenseEntity> findByTripId(Long tripId);
     List<ExpenseEntity> findByTripIdAndActiveTrue(Long tripId);
     Page<ExpenseEntity> findByCategory(ExpenseCategory category, Pageable pageable);
     Page<ExpenseEntity> findAllByActiveTrue(Pageable pageable);
+    List<ExpenseEntity> findAllByActiveTrue();
     Page<ExpenseEntity> findAllByActiveFalse(Pageable pageable);
 }
