@@ -80,7 +80,11 @@ public class ExpenseService{
         ExpenseEntity entity = expenseRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Item not found."));
 
-        if (!entity.getUsers().contains(userId)) {
+        boolean isOwner = entity.getUsers()
+                .stream()
+                .anyMatch(u -> u.getId().equals(userId));
+
+        if (!isOwner) {
             throw new AccessDeniedException("You do not have permission to view this item.");
         }
 

@@ -25,13 +25,13 @@ public abstract class ExpenseMapper {
         }
 
         @Mapping(source = "trip.id", target = "tripId")
-        @Mapping(target = "userIds", expression = "java(mapUsersToIds(entity.getUsers()))")
+        @Mapping(source = "users", target = "userIds")
         public abstract ExpenseResponseDTO toDTO(ExpenseEntity entity);
 
         public abstract List<ExpenseResponseDTO> toDTOList(List<ExpenseEntity> entities);
 
         @Mapping(source = "trip.id", target = "tripId")
-        @Mapping(target = "userIds", expression = "java(mapUsersToIds(entity.getUsers()))")
+        @Mapping(source = "users", target = "userIds")
         public abstract ExpenseResumeDTO toResumeDTO(ExpenseEntity entity);
 
         public abstract List<ExpenseResumeDTO> toResumeList(List<ExpenseEntity> entities);
