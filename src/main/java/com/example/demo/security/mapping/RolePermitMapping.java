@@ -45,6 +45,7 @@ public class RolePermitMapping {
                 //ACTIVITY (empresa)
 
                 Permit.VER_TODAS_ACTIVIDADES_EMPRESA,
+                Permit.VER_ACTIVIDAD_EMPRESA,
 
                 // CHECKLIST
                 Permit.CREAR_CHECKLIST,

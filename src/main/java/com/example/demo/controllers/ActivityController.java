@@ -274,14 +274,14 @@ public class ActivityController {
             @AuthenticationPrincipal CredentialEntity credential,
             Pageable pageable) {
 
-        Optional <CompanyEntity> myCompanyId = Optional.ofNullable(credential.getCompany());
+        /*Optional <CompanyEntity> myCompanyId = Optional.ofNullable(credential.getCompany());
         boolean isAdmin = credential.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
         if ((!isAdmin && myCompanyId.isEmpty()) ||
                 (!isAdmin && !myCompanyId.get().getId().equals(companyId))) {
             throw new OwnershipException("You do not have permission to access this resource.");
-        }
+        }*/
 
         Page<ActivityCompanyResponseDTO> activities = activityService.findByCompanyId(companyId, pageable);
         PagedModel<EntityModel<ActivityCompanyResponseDTO>> model = pagedResourcesAssemblerCompany.toModel(activities);
