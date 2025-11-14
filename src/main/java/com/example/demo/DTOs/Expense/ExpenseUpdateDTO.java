@@ -32,7 +32,6 @@ public class ExpenseUpdateDTO {
     private Double amount;
 
     @Schema(description = "Fecha en la que se realizó el gasto", example = "2025-06-15")
-    @PastOrPresent(message = "La fecha debe ser el día de hoy o posterior.")
     @NotNull(message = "La fecha es obligatoria.")
     private LocalDate date;
 
