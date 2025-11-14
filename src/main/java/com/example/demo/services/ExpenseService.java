@@ -282,7 +282,7 @@ public class ExpenseService{
             throw new AccessDeniedException("You are not allowed to view expenses for this trip.");
         }
 
-        List<ExpenseEntity> expenses = expenseRepository.findByTripId(tripId);
+        List<ExpenseEntity> expenses = expenseRepository.findByTripIdAndActiveTrue(tripId);
 
         if (expenses.isEmpty()) return 0.0;
 
@@ -301,7 +301,7 @@ public class ExpenseService{
             throw new AccessDeniedException("You are not allowed to view expenses for this trip.");
         }
 
-        List<ExpenseEntity> expenses = expenseRepository.findByTripId(tripId);
+        List<ExpenseEntity> expenses = expenseRepository.findByTripIdAndActiveTrue(tripId);
 
         return expenses.stream()
                 .mapToDouble(ExpenseEntity::getAmount)

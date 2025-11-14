@@ -200,7 +200,7 @@
                 @AuthenticationPrincipal CredentialEntity credential) {
 
             Long userId = credential.getUser().getId();
-            
+
             boolean isAdmin = credential.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 

@@ -20,6 +20,7 @@ public interface ExpenseRepository extends JpaRepository <ExpenseEntity, Long>, 
     List<ExpenseEntity> findByUserId(Long userId);
     Page<ExpenseEntity> findByTripId(Long tripId, Pageable pageable);
     List<ExpenseEntity> findByTripId(Long tripId);
+    List<ExpenseEntity> findByTripIdAndActiveTrue(Long tripId);
     Page<ExpenseEntity> findByCategory(ExpenseCategory category, Pageable pageable);
     Page<ExpenseEntity> findAllByActiveTrue(Pageable pageable);
     Page<ExpenseEntity> findAllByActiveFalse(Pageable pageable);
