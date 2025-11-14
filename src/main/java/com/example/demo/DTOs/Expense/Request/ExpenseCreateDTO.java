@@ -30,7 +30,6 @@ public class ExpenseCreateDTO {
 
     @Schema(description = "Fecha en la que se realizó el gasto", example = "2025-06-15")
     @NotNull(message = "La fecha es obligatoria.")
-    @PastOrPresent(message = "La fecha debe ser hoy o en el pasado.")
     private LocalDate date;
 
     @Schema(description = "Lista de IDs de usuarios que tambien participan del gasto", example = "[3, 5]")

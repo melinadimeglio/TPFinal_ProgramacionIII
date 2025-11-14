@@ -54,6 +54,11 @@ public class ExpenseService{
                 .map(expenseMapper::toDTO);
     }
 
+    public Page<ExpenseResponseDTO> findAllActive(Pageable pageable) {
+        return expenseRepository.findAllByActiveTrue(pageable)
+                .map(checklist -> expenseMapper.toDTO(checklist));
+    }
+
     public Page<ExpenseResponseDTO> findAllInactive(Pageable pageable){
         return expenseRepository.findAllByActiveFalse(pageable)
                 .map(expenseMapper::toDTO);
@@ -324,6 +329,7 @@ public class ExpenseService{
 
         Specification<ExpenseEntity> spec = Specification
                 .where(ExpenseSpecification.belongsToUser(userId))
+                .and(ExpenseSpecification.isActive())
                 .and(ExpenseSpecification.hasCategory(filters.getCategory()))
                 .and(ExpenseSpecification.amountBetween(filters.getMinAmount(), filters.getMaxAmount()))
                 .and(ExpenseSpecification.dateBetween(filters.getStartDate(), filters.getEndDate()));

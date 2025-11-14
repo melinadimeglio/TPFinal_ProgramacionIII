@@ -17,6 +17,10 @@ public class ExpenseSpecification {
         };
     }
 
+    public static Specification<ExpenseEntity> isActive() {
+        return (root, query, cb) -> cb.isTrue(root.get("active"));
+    }
+
     public static Specification<ExpenseEntity> hasCategory(ExpenseCategory category) {
         return (root, query, cb) -> category == null ? null : cb.equal(root.get("category"), category);
     }
