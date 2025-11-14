@@ -274,14 +274,14 @@ public class ActivityController {
             @AuthenticationPrincipal CredentialEntity credential,
             Pageable pageable) {
 
-        /*Optional <CompanyEntity> myCompanyId = Optional.ofNullable(credential.getCompany());
+        Optional <CompanyEntity> myCompanyId = Optional.ofNullable(credential.getCompany());
         boolean isAdmin = credential.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
         if ((!isAdmin && myCompanyId.isEmpty()) ||
                 (!isAdmin && !myCompanyId.get().getId().equals(companyId))) {
             throw new OwnershipException("You do not have permission to access this resource.");
-        }*/
+        }
 
         Page<ActivityCompanyResponseDTO> activities = activityService.findByCompanyId(companyId, pageable);
         PagedModel<EntityModel<ActivityCompanyResponseDTO>> model = pagedResourcesAssemblerCompany.toModel(activities);
@@ -505,18 +505,16 @@ public class ActivityController {
 
         ActivityResponseDTO activity = activityService.findById(id);
 
-        boolean isUserAuthorized = credential.getUser() != null &&
+        boolean isUserOwner = credential.getUser() != null &&
                 activity.getUserIds() != null &&
                 activity.getUserIds().contains(credential.getUser().getId());
-
-        boolean isCompanyAuthorized = credential.getCompany() != null &&
-                activity.getCompanyId() != null &&
-                activity.getCompanyId().equals(credential.getCompany().getId());
 
         boolean isAdmin = credential.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-        if (!isUserAuthorized && !isCompanyAuthorized && !isAdmin) {
+        boolean isCompanyActivity = activity.getCompanyId() != null;
+        
+        if (!isUserOwner && !isAdmin && !isCompanyActivity) {
             throw new OwnershipException("You do not have permission to access this resource.");
         }
 
