@@ -182,6 +182,10 @@ public class CheckListService {
             spec = spec.and(CheckListSpecification.hasCompleted(filters.getCompleted()));
         }
 
+        if (filters.getActive() != null) {
+            spec = spec.and(CheckListSpecification.hasActive(filters.getActive()));
+        }
+
         Page<CheckListEntity> page = checkListRepository.findAll(spec, pageable);
         return page.map(checkListMapper::toDTO);
     }
