@@ -3,6 +3,7 @@ package com.example.demo.controllers;
 import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
 import com.example.demo.DTOs.Reservation.Request.ReservationCreateDTO;
 import com.example.demo.DTOs.Reservation.Response.ReservationResponseDTO;
+import com.example.demo.entities.ReservationEntity;
 import com.example.demo.exceptions.ReservationException;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.MPService;
@@ -139,6 +140,8 @@ public class ReservationController {
     public ResponseEntity<String> confirmarPago(@RequestParam Long external_reference,
                                                 @RequestParam Long payment_id,
                                                 @AuthenticationPrincipal CredentialEntity credential, Pageable pageable) throws MPException, MPApiException {
+
+
 
         Long myUserId = credential.getUser().getId();
         Set<ReservationResponseDTO> reservas = reservationService.findByUserId(myUserId, pageable).toSet();

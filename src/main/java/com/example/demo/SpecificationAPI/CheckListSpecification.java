@@ -11,4 +11,8 @@ public class CheckListSpecification {
     public static Specification<CheckListEntity> hasCompleted(Boolean completed) {
         return (root, query, cb) -> cb.equal(root.get("completed"), completed);
     }
+
+    public static Specification<CheckListEntity> hasActive(Boolean active) {
+        return (root, query, cb) -> cb.equal(root.get("active"), active);
+    }
 }
