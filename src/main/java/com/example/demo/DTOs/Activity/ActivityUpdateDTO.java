@@ -37,7 +37,6 @@ public class ActivityUpdateDTO {
 
     @Schema(description = "Fecha de la actividad", example = "2025-07-10")
     @NotNull(message = "La fecha es obligatoria.")
-    @FutureOrPresent(message = "La fecha debe ser hoy o en el futuro.")
     private LocalDate date;
 
     @Schema(description = "Hora de inicio", example = "10:00:00")

@@ -34,15 +34,12 @@ public class UserActivityCreateDTO {
 
     @Schema(description = "Fecha de la actividad (hoy o en el futuro)", example = "2025-07-10")
     @NotNull(message = "La fecha es obligatoria.")
-    @FutureOrPresent(message = "La fecha debe ser hoy o en el futuro.")
     private LocalDate date;
 
     @Schema(description = "Hora de inicio de la actividad", example = "10:00:00")
-    @NotNull(message = "La hora de inicio es obligatoria.")
     private LocalTime startTime;
 
     @Schema(description = "Hora de fin de la actividad", example = "12:00:00")
-    @NotNull(message = "La hora de fin es obligatoria.")
     private LocalTime endTime;
 
     @Schema(description = "Lista de IDs de usuarios que también participan en la actividad", example = "[3, 5]")
