@@ -339,7 +339,9 @@ public class ExpenseService{
                 .and(ExpenseSpecification.isActive())
                 .and(ExpenseSpecification.hasCategory(filters.getCategory()))
                 .and(ExpenseSpecification.amountBetween(filters.getMinAmount(), filters.getMaxAmount()))
-                .and(ExpenseSpecification.dateBetween(filters.getStartDate(), filters.getEndDate()));
+                .and(ExpenseSpecification.dateBetween(filters.getStartDate(), filters.getEndDate()))
+                .and(ExpenseSpecification.hasTripId(filters.getTripId()));
+
 
         Page<ExpenseEntity> result = expenseRepository.findAll(spec, pageable);
         return result.map(expenseMapper::toResumeDTO);

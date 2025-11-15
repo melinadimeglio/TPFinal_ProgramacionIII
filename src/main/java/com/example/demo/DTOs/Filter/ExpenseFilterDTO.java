@@ -32,4 +32,7 @@ public class ExpenseFilterDTO {
     @Schema(description = "Fecha final para filtrar gastos (inclusive)", example = "2025-06-30", format = "date")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate endDate;
+
+    @Schema(description = "ID del viaje para filtrar", example = "5")
+    private Long tripId;
 }

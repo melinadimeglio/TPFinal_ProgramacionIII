@@ -26,4 +26,5 @@ public interface ExpenseRepository extends JpaRepository <ExpenseEntity, Long>, 
     Page<ExpenseEntity> findAllByActiveTrue(Pageable pageable);
     List<ExpenseEntity> findAllByActiveTrue();
     Page<ExpenseEntity> findAllByActiveFalse(Pageable pageable);
+
 }

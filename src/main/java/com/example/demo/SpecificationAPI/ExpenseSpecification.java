@@ -42,4 +42,13 @@ public class ExpenseSpecification {
             return cb.between(root.get("date"), startDate, endDate);
         };
     }
+
+    public static Specification<ExpenseEntity> hasTripId(Long tripId) {
+        return (root, query, cb) -> {
+            if (tripId == null) {
+                return null;
+            }
+            return cb.equal(root.get("trip").get("id"), tripId);
+        };
+    }
 }
