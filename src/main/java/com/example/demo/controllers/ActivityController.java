@@ -497,7 +497,7 @@ public class ActivityController {
                     )
             )
     })
-    @PreAuthorize("hasAuthority('VER_ACTIVIDAD')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<ActivityResponseDTO>> getActivityById(
             @PathVariable Long id,
@@ -512,6 +512,7 @@ public class ActivityController {
         boolean isAdmin = credential.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
+        System.out.println("TIENE COMPANY ID: " + activity.getCompanyId() != null);
         boolean isCompanyActivity = activity.getCompanyId() != null;
         
         if (!isUserOwner && !isAdmin && !isCompanyActivity) {
