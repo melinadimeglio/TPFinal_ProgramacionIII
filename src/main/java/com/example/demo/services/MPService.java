@@ -27,6 +27,9 @@ public class MPService {
     @Value("${access_token}")
     private String mercadoPagoAccessToken;
 
+    @Value("${frontend.base.url}")
+    private String frontendBaseUrl;
+
     public MPService(ActivityService activityService) {
         this.activityService = activityService;
     }
@@ -37,11 +40,13 @@ public class MPService {
 
         ActivityResponseDTO activity = activityService.findById(reservation.getActivity().getId());
 
+        System.out.println("URL success: " + frontendBaseUrl + "/reservaciones/payment-return");
+
         PreferenceBackUrlsRequest backUrls =
                 PreferenceBackUrlsRequest.builder()
-                        .success("https://www.seu-site/reservation/confirmar-pago?reservaId=" + reservation.getId())
-                        .pending("https://www.seu-site/pending")
-                        .failure("https://www.seu-site/failure")
+                        .success(frontendBaseUrl + "/reservaciones/payment-return")
+                        .pending(frontendBaseUrl + "/reservaciones")
+                        .failure(frontendBaseUrl + "/reservaciones")
                         .build();
 
         PreferenceItemRequest itemRequest =
@@ -51,7 +56,7 @@ public class MPService {
                         .description(activity.getDescription())
                         .categoryId(String.valueOf(activity.getCategory()))
                         .quantity(1)
-                        .currencyId("ARG")
+                        .currencyId("ARS")
                         .unitPrice(BigDecimal.valueOf(activity.getPrice()))
                         .build();
         List<PreferenceItemRequest> items = new ArrayList<>();
@@ -61,7 +66,7 @@ public class MPService {
         PreferenceRequest preferenceRequest = PreferenceRequest.builder()
                 .items(items)
                 .backUrls(backUrls)
-                .autoReturn("approved")
+                //.autoReturn("approved")
                 .externalReference(String.valueOf(reservation.getId()))
                 .build();
 

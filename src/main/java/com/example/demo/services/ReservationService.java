@@ -22,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -106,6 +107,45 @@ public class ReservationService {
 
         return reservationMapper.toDTO(saved);
     }
+
+    @Transactional
+    public void setPaymentUrl(Long reservationId, String paymentUrl) {
+        ReservationEntity reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new RuntimeException("Reservation not found"));
+
+        reservation.setUrlPayment(paymentUrl); // asumimos que tu entidad tiene el campo urlPayment
+        reservationRepository.save(reservation);
+    }
+
+    @Transactional
+    public String generatePaymentUrl(Long reservationId, Long userId) throws MPException, MPApiException {
+        ReservationEntity reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
+
+        if (!reservation.getUser().getId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot pay a reservation that is not yours.");
+        }
+
+        // Si ya tiene URL, la devolvemos
+        if (reservation.getUrlPayment() != null && !reservation.getUrlPayment().isEmpty()) {
+            return reservation.getUrlPayment();
+        }
+
+        // Generamos la URL de Mercado Pago
+        String paymentUrl = mpService.mercado(reservation);
+        reservation.setUrlPayment(paymentUrl);
+        reservationRepository.save(reservation);
+
+        return paymentUrl;
+    }
+
+    public ReservationResponseDTO findByIdAndUserId(Long reservationId, Long userId) {
+        return reservationRepository.findById(reservationId)
+                .filter(r -> r.getUser().getId().equals(userId))
+                .map(reservationMapper::toDTO)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Reservation not found or does not belong to user."));
+    }
+
 
     public boolean activityDisponible (Long tripId, Long activityId) {
 
