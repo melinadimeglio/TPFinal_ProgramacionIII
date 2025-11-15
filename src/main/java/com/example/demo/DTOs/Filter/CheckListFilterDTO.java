@@ -14,4 +14,7 @@ public class CheckListFilterDTO {
 
     @Schema(description = "Indica si se quieren filtrar solo checklists completadas o no completadas", example = "true")
     private Boolean completed;
+
+    @Schema(description = "Indica si se quieren filtrar solo checklists activas o inactivas", example = "true")
+    private Boolean active;
 }
