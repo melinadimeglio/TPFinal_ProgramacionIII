@@ -350,6 +350,7 @@ public class ActivityService {
         Specification<ActivityEntity> spec = Specification
                 .where(ActivitySpecification.belongsToUser(userId))
                 .and(ActivitySpecification.hasCategory(filters.getCategory()))
+                .and(ActivitySpecification.isAvailable())
                 .and(ActivitySpecification.dateBetween(filters.getStartDate(), filters.getEndDate()));
 
         Page<ActivityEntity> result = activityRepository.findAll(spec, pageable);

@@ -15,6 +15,12 @@ public class ActivitySpecification {
         };
     }
 
+    public static Specification<ActivityEntity> isAvailable() {
+        return (root, query, cb) ->
+                cb.isTrue(root.get("available"));
+    }
+
+
     public static Specification<ActivityEntity> dateBetween(LocalDate startDate, LocalDate endDate) {
         return (root, query, cb) -> {
             if (startDate == null && endDate == null) return null;
