@@ -19,6 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
@@ -115,7 +116,7 @@ public class TripService {
         return tripMapper.toDTO(savedTrip);
     }
 
-
+    @Transactional
     public TripResponseDTO updateIfBelongsToUser(Long tripId, TripUpdateDTO dto, Long userId) {
         TripEntity trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new ResourceNotFoundException("Trip not found"));
@@ -127,40 +128,42 @@ public class TripService {
             throw new AccessDeniedException("You are not allowed to modify this trip");
         }
 
-        Set<UserEntity> users = new HashSet<>();
-
+        Set<UserEntity> newUsers = new HashSet<>();
         UserEntity owner = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found."));
-        users.add(owner);
+        newUsers.add(owner);
 
         if (dto.getSharedUserIds() != null && !dto.getSharedUserIds().isEmpty()) {
             for (Long sharedId : dto.getSharedUserIds()) {
                 UserEntity sharedUser = userRepository.findById(sharedId)
                         .orElseThrow(() -> new RuntimeException("Shared user not found."));
-
-                if (sharedUser.getCredential().getAuthorities().stream()
-                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))){
-                    throw new ReservationException("You cannot add Admin type users.");
-                } else if (sharedUser.getCredential().getAuthorities().stream()
-                        .anyMatch(a -> a.getAuthority().equals("ROLE_COMPANY"))){
-                    throw new ReservationException("You cannot add Company type users.");
-                }
-                users.add(sharedUser);
+                newUsers.add(sharedUser);
             }
         }
 
-        if (dto.getCompanions() != users.size() - 1){
+        if (dto.getCompanions() != null && dto.getCompanions() != newUsers.size() - 1) {
             throw new ReservationException("The number of companions does not match the number of users sharing the trip.");
         }
 
-        trip.setUsers(users);
-
         tripMapper.updateEntityFromDTO(dto, trip);
+
+        Set<UserEntity> previousUsers = trip.getUsers() == null ? new HashSet<>() : new HashSet<>(trip.getUsers());
+
+        trip.setUsers(newUsers);
+        for (UserEntity u : newUsers) {
+            if (u.getTrips() == null) u.setTrips(new HashSet<>());
+            u.getTrips().add(trip);
+        }
+
+        for (UserEntity removed : previousUsers) {
+            if (!newUsers.contains(removed)) {
+                removed.getTrips().remove(trip);
+            }
+        }
 
         TripEntity updated = tripRepository.save(trip);
         return tripMapper.toDTO(updated);
     }
-
 
     public void softDeleteIfBelongsToUser(Long tripId, Long userId) {
         TripEntity trip = tripRepository.findById(tripId)

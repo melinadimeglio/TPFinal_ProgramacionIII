@@ -26,6 +26,7 @@ public interface TripMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "users", ignore = true)
     void updateEntityFromDTO(TripUpdateDTO dto, @MappingTarget TripEntity entity);
 
     @AfterMapping
