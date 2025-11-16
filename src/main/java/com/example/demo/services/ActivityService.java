@@ -106,8 +106,8 @@ public class ActivityService {
         if (trip != null){
             Set<UserEntity> usersTrip = trip.getUsers();
 
-            if (!usersTrip.equals(users)){
-                throw new ReservationException("The shared users must exactly match the users in the trip.");
+            if (users.size() > 1 && !usersTrip.containsAll(users)) {
+                throw new ReservationException("Some shared users are not part of the trip.");
             }
         }
 

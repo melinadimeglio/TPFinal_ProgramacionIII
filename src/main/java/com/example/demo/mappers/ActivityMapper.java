@@ -7,6 +7,7 @@ import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityCompanyResponseDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityCreateResponseDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
+import com.example.demo.DTOs.Activity.Response.ActivityResumeDTO;
 import com.example.demo.entities.ActivityEntity;
 import com.example.demo.entities.CompanyEntity;
 import com.example.demo.entities.UserEntity;
@@ -63,4 +64,8 @@ public interface ActivityMapper {
                 return users == null ? null :
                         users.stream().map(UserEntity::getId).collect(Collectors.toSet());
         }
+
+        @Mapping(target = "name", source = "name")
+        @Mapping(target = "description", source = "description")
+        ActivityResumeDTO toResumeDTO(ActivityEntity entity);
 }

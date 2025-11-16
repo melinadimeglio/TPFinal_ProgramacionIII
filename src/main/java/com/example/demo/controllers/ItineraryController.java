@@ -283,8 +283,6 @@ public class ItineraryController {
         return ResponseEntity.ok(assembler.toModel(itineraryResponseDTO));
     }
 
-
-
     @Operation(
             summary = "Get itineraries by user ID",
             description = "Retrieves all itineraries associated with a specific user. Allows filtering by date and destination.",
@@ -330,9 +328,12 @@ public class ItineraryController {
             @ModelAttribute ItineraryFilterDTO filters,
             @AuthenticationPrincipal CredentialEntity credential) {
 
-        if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
+        boolean isAdmin = credential.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        /*if (!isAdmin || credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
             throw new OwnershipException("You do not have permission to access this resource.");
-        }
+        }*/
 
         Page<ItineraryResponseDTO> itineraries = itineraryService.findByUserIdWithFilters(userId, filters, pageable);
         PagedModel<EntityModel<ItineraryResponseDTO>> model = pagedResourcesAssembler.toModel(itineraries, assembler);

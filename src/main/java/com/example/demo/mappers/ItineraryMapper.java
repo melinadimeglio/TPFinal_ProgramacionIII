@@ -13,6 +13,7 @@ public interface ItineraryMapper {
 
     @Mapping(source = "user.id", target = "userId")
     @Mapping(source = "trip.id", target = "tripId")
+    @Mapping(source = "activities", target = "activities")
     ItineraryResponseDTO toDTO(ItineraryEntity entity);
 
     List<ItineraryResponseDTO> toDTOList(List<ItineraryEntity> entities);

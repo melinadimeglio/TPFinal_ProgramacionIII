@@ -22,10 +22,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class ItineraryService {
@@ -34,14 +36,16 @@ public class ItineraryService {
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
     private final ActivityRepository activityRepository;
+    private final ActivityMapper activityMapper;
 
     @Autowired
-    public ItineraryService(ItineraryRepository itineraryRepository, ItineraryMapper itineraryMapper, TripRepository tripRepository, UserRepository userRepository, ActivityRepository activityRepository) {
+    public ItineraryService(ItineraryRepository itineraryRepository, ItineraryMapper itineraryMapper, TripRepository tripRepository, UserRepository userRepository, ActivityRepository activityRepository, ActivityMapper activityMapper) {
         this.itineraryRepository = itineraryRepository;
         this.itineraryMapper = itineraryMapper;
         this.tripRepository = tripRepository;
         this.userRepository = userRepository;
         this.activityRepository = activityRepository;
+        this.activityMapper = activityMapper;
     }
 
     public Page<ItineraryResponseDTO> findAll(Pageable pageable){
@@ -83,16 +87,41 @@ public class ItineraryService {
         return itineraryMapper.toDTO(itinerary);
     }
 
-    public ItineraryResponseDTO findByIdIfBelongsToUser(Long itineraryId, Long userId) {
+    /*public ItineraryResponseDTO findByIdIfBelongsToUser(Long itineraryId, Long userId) {
         ItineraryEntity itinerary = itineraryRepository.findById(itineraryId)
                 .orElseThrow(() -> new NoSuchElementException("Itinerary not found."));
+
+        List<ActivityEntity> activitiesItinerary = itinerary.getActivities();
+        System.out.println("ACTIVIDADES: " + activitiesItinerary);
 
         if (!itinerary.getUser().getId().equals(userId)) {
             throw new AccessDeniedException("You do not have permission to view this itinerary.");
         }
 
+        // Mapear manualmente actividades al DTO
+        ItineraryResponseDTO dto = itineraryMapper.toDTO(itinerary);
+        dto.setActivities(
+                itinerary.getActivities()
+                        .stream()
+                        .map(activityMapper::toResumeDTO)  // Asegurate de tener un mapper de actividades
+                        .collect(Collectors.toList())
+        );
+
+        return dto;
+    }*/
+
+    @Transactional(readOnly = true)
+    public ItineraryResponseDTO findByIdIfBelongsToUser(Long itineraryId, Long userId) {
+        ItineraryEntity itinerary = itineraryRepository.findByIdWithActivities(itineraryId)
+                .orElseThrow(() -> new NoSuchElementException("Itinerary not found."));
+
+        if (!itinerary.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("No permission");
+        }
+
         return itineraryMapper.toDTO(itinerary);
     }
+
 
 
     public ItineraryEntity getEntityById(Long id) {
@@ -106,12 +135,15 @@ public class ItineraryService {
     }
 
     public ItineraryResponseDTO save(ItineraryCreateDTO dto, Long myUserId) {
+        // Traer usuario
         UserEntity user = userRepository.findById(myUserId)
                 .orElseThrow(() -> new NoSuchElementException("User not found."));
 
+        // Traer viaje
         TripEntity trip = tripRepository.findById(dto.getTripId())
                 .orElseThrow(() -> new NoSuchElementException("Trip not found."));
 
+        // Validar que el viaje pertenece al usuario
         boolean belongsToUser = trip.getUsers().stream()
                 .anyMatch(u -> u.getId().equals(myUserId));
 
@@ -119,18 +151,43 @@ public class ItineraryService {
             throw new IllegalArgumentException("The itinerary date does not correspond to the travel date range.");
         }
 
-
         if (!belongsToUser) {
             throw new AccessDeniedException("You do not have permission to use this itinerary.");
         }
 
+        // Mapear DTO a entidad
         ItineraryEntity entity = itineraryMapper.toEntity(dto);
         entity.setUser(user);
         entity.setTrip(trip);
 
+        // Traer actividades que pertenecen al usuario
+        List<ActivityEntity> activities = activityRepository.findAll().stream()
+                .filter(activityEntity ->
+                        activityEntity.getUsers().stream()
+                                .anyMatch(userEntity -> userEntity.getId().equals(myUserId))
+                )
+                .toList();
+
+        if (!activities.isEmpty()) {
+            // 🔑 VINCULAR CADA ACTIVIDAD CON EL ITINERARIO
+            for (ActivityEntity activity : activities) {
+                activity.setItinerary(entity);
+            }
+            entity.setActivities(activities);
+        }
+
+        // Guardar el itinerario
         ItineraryEntity saved = itineraryRepository.save(entity);
+
+        // Guardar actividades (si no tenés cascade)
+        if (!activities.isEmpty()) {
+            activityRepository.saveAll(activities);
+        }
+
+        // Mapear a DTO y devolver
         return itineraryMapper.toDTO(saved);
     }
+
 
 
     public ItineraryResponseDTO updateAndReturnIfOwned(Long id, ItineraryUpdateDTO dto, Long userId) {
