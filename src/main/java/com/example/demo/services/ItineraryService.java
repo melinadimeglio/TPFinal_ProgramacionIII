@@ -135,15 +135,15 @@ public class ItineraryService {
     }
 
     public ItineraryResponseDTO save(ItineraryCreateDTO dto, Long myUserId) {
-        // Traer usuario
+
         UserEntity user = userRepository.findById(myUserId)
                 .orElseThrow(() -> new NoSuchElementException("User not found."));
 
-        // Traer viaje
+
         TripEntity trip = tripRepository.findById(dto.getTripId())
                 .orElseThrow(() -> new NoSuchElementException("Trip not found."));
 
-        // Validar que el viaje pertenece al usuario
+
         boolean belongsToUser = trip.getUsers().stream()
                 .anyMatch(u -> u.getId().equals(myUserId));
 
@@ -155,12 +155,12 @@ public class ItineraryService {
             throw new AccessDeniedException("You do not have permission to use this itinerary.");
         }
 
-        // Mapear DTO a entidad
+
         ItineraryEntity entity = itineraryMapper.toEntity(dto);
         entity.setUser(user);
         entity.setTrip(trip);
 
-        // Traer actividades que pertenecen al usuario
+
         List<ActivityEntity> activities = activityRepository.findAll().stream()
                 .filter(activityEntity ->
                         activityEntity.getUsers().stream()
@@ -169,22 +169,19 @@ public class ItineraryService {
                 .toList();
 
         if (!activities.isEmpty()) {
-            // 🔑 VINCULAR CADA ACTIVIDAD CON EL ITINERARIO
             for (ActivityEntity activity : activities) {
                 activity.setItinerary(entity);
             }
             entity.setActivities(activities);
         }
 
-        // Guardar el itinerario
+
         ItineraryEntity saved = itineraryRepository.save(entity);
 
-        // Guardar actividades (si no tenés cascade)
         if (!activities.isEmpty()) {
             activityRepository.saveAll(activities);
         }
 
-        // Mapear a DTO y devolver
         return itineraryMapper.toDTO(saved);
     }
 
