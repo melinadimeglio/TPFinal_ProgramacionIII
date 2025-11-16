@@ -208,6 +208,35 @@ public class ActivityService {
         ActivityEntity entity = activityRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Activity not found."));
 
+        if (entity.getItinerary() != null) {
+            if (!entity.getItinerary().getUser().getId().equals(myUserId)) {
+                throw new AccessDeniedException("You do not have permission to modify this activity.");
+            }
+        } else {
+            boolean belongsToUser = entity.getUsers().stream()
+                    .anyMatch(user -> user.getId().equals(myUserId));
+            if (!belongsToUser) {
+                throw new AccessDeniedException("You do not have permission to modify this activity.");
+            }
+        }
+
+        ItineraryEntity newItinerary = null;
+
+        if (dto.getItineraryId() != null) {
+            newItinerary = itineraryRepository.findById(dto.getItineraryId())
+                    .orElseThrow(() -> new NoSuchElementException("Itinerary not found."));
+
+            if (!newItinerary.getUser().getId().equals(myUserId)) {
+                throw new AccessDeniedException("You do not have permission to move the activity to that itinerary.");
+            }
+
+            if (!dto.getDate().equals(newItinerary.getItineraryDate())) {
+                throw new IllegalArgumentException("The activity date must match the itinerary date.");
+            }
+
+            entity.setItinerary(newItinerary);
+        }
+
         if (dto.getItineraryId() == null || dto.getItineraryId().equals(entity.getItinerary() != null ? entity.getItinerary().getId() : null)) {
             if (entity.getItinerary() != null) {
                 if (!entity.getItinerary().getUser().getId().equals(myUserId)) {
@@ -222,22 +251,6 @@ public class ActivityService {
             }
         }
 
-        if (dto.getItineraryId() != null && (entity.getItinerary() == null || !dto.getItineraryId().equals(entity.getItinerary().getId()))) {
-            ItineraryEntity newItinerary = itineraryRepository.findById(dto.getItineraryId())
-                    .orElseThrow(() -> new NoSuchElementException("Itinerary not found."));
-            if (!newItinerary.getUser().getId().equals(myUserId)) {
-                throw new AccessDeniedException("You do not have permission to move the activity to that itinerary.");
-            }
-            entity.setItinerary(newItinerary);
-        }
-
-        ItineraryEntity itinerary = itineraryRepository.findById(dto.getItineraryId())
-                        .orElseThrow(() -> new NoSuchElementException("Itinerary not found."));
-
-        if (!dto.getDate().equals(itinerary.getItineraryDate())){
-            throw new IllegalArgumentException("The activity cannot be updated if the date does not match the itinerary.");
-        }
-
         activityMapper.updateEntityFromDTO(dto, entity);
 
         if (entity.getStartTime() != null && entity.getEndTime() != null &&
@@ -246,6 +259,7 @@ public class ActivityService {
         }
 
         ActivityEntity saved = activityRepository.save(entity);
+
         return activityMapper.toDTOCreated(saved);
     }
 
