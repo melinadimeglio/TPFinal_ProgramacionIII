@@ -46,6 +46,9 @@ public class JWTService {
             if(credential.getUser() != null) {
                 claims.put("userId", credential.getUser().getId());
             }
+            if(credential.getCompany() != null){
+                claims.put("companyId", credential.getCompany().getId());
+            }
         }
 
         return buildToken(claims, userDetails, jwtExpiration);

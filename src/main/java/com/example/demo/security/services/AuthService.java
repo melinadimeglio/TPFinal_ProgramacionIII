@@ -50,6 +50,7 @@ public class AuthService {
 
         String newAccessToken = jwtService.generateToken(user);
         String newRefreshToken = jwtService.generateRefreshToken(user);
+        System.out.println(newAccessToken);
         user.setRefreshToken(newRefreshToken);
         credentialsRepository.save(user);
         return new AuthResponse(newAccessToken, newRefreshToken);
