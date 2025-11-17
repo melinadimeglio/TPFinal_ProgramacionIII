@@ -97,6 +97,10 @@ public class TripService {
             }
         }
 
+        if (dto.getCompanions() == null) {
+            dto.setCompanions(0);
+        }
+
         if (dto.getCompanions() != null && dto.getCompanions() != users.size() - 1) {
             throw new ReservationException("The number of companions does not match the number of users sharing the trip.");
         }
