@@ -1,11 +1,10 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTOs.CheckList.CheckListUpdateDTO;
 import com.example.demo.DTOs.CheckList.Request.CheckListCreateDTO;
 import com.example.demo.DTOs.CheckList.Response.CheckListResponseDTO;
-import com.example.demo.DTOs.CheckList.CheckListUpdateDTO;
 import com.example.demo.DTOs.Filter.CheckListFilterDTO;
 import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
-import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
 import com.example.demo.controllers.hateoas.CheckListModelAssembler;
 import com.example.demo.exceptions.OwnershipException;
 import com.example.demo.security.entities.CredentialEntity;
@@ -13,6 +12,7 @@ import com.example.demo.services.CheckListService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
@@ -30,10 +29,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.NoSuchElementException;
-
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 
 @Tag(name = "Checklists", description = "Operations related to user travel checklists")

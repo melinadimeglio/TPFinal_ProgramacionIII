@@ -2,7 +2,8 @@ package com.example.demo.DTOs.Expense.Request;
 
 import com.example.demo.enums.ExpenseCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 import java.time.LocalDate;

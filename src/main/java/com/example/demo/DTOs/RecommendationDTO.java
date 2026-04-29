@@ -1,6 +1,5 @@
 package com.example.demo.DTOs;
 
-import com.example.demo.entities.CategoryEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 

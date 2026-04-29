@@ -1,8 +1,6 @@
 package com.example.demo.controllers.hateoas;
 
-import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
-import com.example.demo.controllers.ActivityController;
 import com.example.demo.controllers.ItineraryController;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.CollectionModel;

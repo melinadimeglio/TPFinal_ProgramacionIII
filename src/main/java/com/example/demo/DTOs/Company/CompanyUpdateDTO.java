@@ -2,9 +2,7 @@ package com.example.demo.DTOs.Company;
 
 import com.example.demo.DTOs.Activity.Response.ActivityResumeDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
