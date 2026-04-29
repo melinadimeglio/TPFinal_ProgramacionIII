@@ -1,8 +1,8 @@
 package com.example.demo.services;
 
+import com.example.demo.DTOs.CheckList.CheckListItemUpdateDTO;
 import com.example.demo.DTOs.CheckList.Request.CheckListItemCreateDTO;
 import com.example.demo.DTOs.CheckList.Response.CheckListItemResponseDTO;
-import com.example.demo.DTOs.CheckList.CheckListItemUpdateDTO;
 import com.example.demo.DTOs.Filter.CheckListItemFilterDTO;
 import com.example.demo.entities.CheckListEntity;
 import com.example.demo.entities.CheckListItemEntity;
@@ -16,9 +16,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service

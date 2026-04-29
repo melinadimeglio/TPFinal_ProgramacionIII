@@ -1,10 +1,6 @@
 package com.example.demo.controllers.hateoas;
 
-import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
-import com.example.demo.DTOs.CheckList.Response.CheckListItemResponseDTO;
 import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
-import com.example.demo.controllers.ActivityController;
-import com.example.demo.controllers.CheckListItemController;
 import com.example.demo.controllers.ExpenseController;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.CollectionModel;

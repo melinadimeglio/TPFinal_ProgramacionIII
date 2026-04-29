@@ -2,7 +2,6 @@ package com.example.demo.controllers.hateoas;
 
 import com.example.demo.DTOs.Expense.Response.ExpenseResumeDTO;
 import com.example.demo.controllers.ExpenseController;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.security.core.Authentication;

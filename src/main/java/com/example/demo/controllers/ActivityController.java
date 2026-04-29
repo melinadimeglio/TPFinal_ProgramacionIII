@@ -2,12 +2,12 @@ package com.example.demo.controllers;
 
 import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
 import com.example.demo.DTOs.Activity.CompanyActivityUpdateDTO;
-import com.example.demo.DTOs.Activity.Response.ActivityCreateResponseDTO;
-import com.example.demo.DTOs.Filter.ActivityFilterDTO;
 import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityCompanyResponseDTO;
+import com.example.demo.DTOs.Activity.Response.ActivityCreateResponseDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
+import com.example.demo.DTOs.Filter.ActivityFilterDTO;
 import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.controllers.hateoas.ActivityCompanyModelAssembler;
@@ -32,23 +32,20 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.hateoas.PagedModel;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @Tag(name = "Activities", description = "Operations related to users and companies activities")
 @RestController

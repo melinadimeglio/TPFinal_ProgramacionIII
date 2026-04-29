@@ -1,10 +1,10 @@
 package com.example.demo.services;
 
-import com.example.demo.DTOs.Filter.ExpenseFilterDTO;
+import com.example.demo.DTOs.Expense.ExpenseUpdateDTO;
 import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
 import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
-import com.example.demo.DTOs.Expense.ExpenseUpdateDTO;
 import com.example.demo.DTOs.Expense.Response.ExpenseResumeDTO;
+import com.example.demo.DTOs.Filter.ExpenseFilterDTO;
 import com.example.demo.SpecificationAPI.ExpenseSpecification;
 import com.example.demo.entities.ExpenseEntity;
 import com.example.demo.entities.TripEntity;
@@ -15,7 +15,6 @@ import com.example.demo.mappers.ExpenseMapper;
 import com.example.demo.repositories.ExpenseRepository;
 import com.example.demo.repositories.TripRepository;
 import com.example.demo.repositories.UserRepository;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class ExpenseService{

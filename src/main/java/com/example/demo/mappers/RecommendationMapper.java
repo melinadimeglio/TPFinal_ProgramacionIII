@@ -1,16 +1,11 @@
 package com.example.demo.mappers;
 
-import com.example.demo.api.Feature;
 import com.example.demo.DTOs.RecommendationDTO;
+import com.example.demo.api.Feature;
 import com.example.demo.api.GeometryHelper;
-import com.example.demo.entities.CategoryEntity;
 import com.example.demo.entities.RecommendationEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", uses = GeometryHelper.class)
 public interface RecommendationMapper {

@@ -1,15 +1,14 @@
 package com.example.demo.security.config;
 
 import com.example.demo.security.entities.PermitEntity;
+import com.example.demo.security.entities.RoleEntity;
 import com.example.demo.security.enums.Permit;
+import com.example.demo.security.enums.Role;
 import com.example.demo.security.mapping.RolePermitMapping;
 import com.example.demo.security.repositories.PermitRepository;
 import com.example.demo.security.repositories.RoleRepository;
-import com.example.demo.security.entities.RoleEntity;
-import com.example.demo.security.enums.Role;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Set;

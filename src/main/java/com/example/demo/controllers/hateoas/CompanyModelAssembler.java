@@ -1,8 +1,6 @@
 package com.example.demo.controllers.hateoas;
 
-import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.DTOs.Company.Response.CompanyResponseDTO;
-import com.example.demo.controllers.ActivityController;
 import com.example.demo.controllers.CompanyController;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.CollectionModel;
@@ -18,7 +16,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;@Component
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+@Component
 public class CompanyModelAssembler implements RepresentationModelAssembler<CompanyResponseDTO, EntityModel<CompanyResponseDTO>> {
 
     @Override

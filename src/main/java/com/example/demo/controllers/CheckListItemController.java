@@ -1,8 +1,8 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTOs.CheckList.CheckListItemUpdateDTO;
 import com.example.demo.DTOs.CheckList.Request.CheckListItemCreateDTO;
 import com.example.demo.DTOs.CheckList.Response.CheckListItemResponseDTO;
-import com.example.demo.DTOs.CheckList.CheckListItemUpdateDTO;
 import com.example.demo.DTOs.Filter.CheckListItemFilterDTO;
 import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
 import com.example.demo.controllers.hateoas.CheckListItemModelAssembler;
@@ -10,7 +10,6 @@ import com.example.demo.exceptions.OwnershipException;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.CheckListItemService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -18,12 +17,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
@@ -31,8 +28,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "Checklist Items", description = "Operations related to user travel checklist items")
 @RestController
