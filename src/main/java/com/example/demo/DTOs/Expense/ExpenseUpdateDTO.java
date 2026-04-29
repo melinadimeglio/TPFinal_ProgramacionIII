@@ -2,14 +2,11 @@ package com.example.demo.DTOs.Expense;
 
 import com.example.demo.enums.ExpenseCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.Set;
 
 @Getter
 @Setter

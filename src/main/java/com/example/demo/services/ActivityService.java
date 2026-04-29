@@ -1,15 +1,14 @@
 package com.example.demo.services;
 
+import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
 import com.example.demo.DTOs.Activity.CompanyActivityUpdateDTO;
-import com.example.demo.DTOs.Activity.Response.ActivityCreateResponseDTO;
-import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
-import com.example.demo.DTOs.Filter.ActivityFilterDTO;
 import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityCompanyResponseDTO;
+import com.example.demo.DTOs.Activity.Response.ActivityCreateResponseDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
-import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
-
+import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
+import com.example.demo.DTOs.Filter.ActivityFilterDTO;
 import com.example.demo.SpecificationAPI.ActivitySpecification;
 import com.example.demo.entities.*;
 import com.example.demo.enums.ActivityCategory;
@@ -20,16 +19,13 @@ import com.example.demo.repositories.ActivityRepository;
 import com.example.demo.repositories.CompanyRepository;
 import com.example.demo.repositories.ItineraryRepository;
 import com.example.demo.repositories.UserRepository;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.HashSet;

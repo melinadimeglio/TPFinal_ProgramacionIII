@@ -1,5 +1,5 @@
 package com.example.demo.repositories;
-import com.example.demo.entities.CheckListEntity;
+
 import com.example.demo.entities.CheckListItemEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

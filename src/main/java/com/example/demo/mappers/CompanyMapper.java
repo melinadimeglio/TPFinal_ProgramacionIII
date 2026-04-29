@@ -1,10 +1,9 @@
 package com.example.demo.mappers;
 
+import com.example.demo.DTOs.Company.CompanyUpdateDTO;
 import com.example.demo.DTOs.Company.Request.CompanyCreateDTO;
 import com.example.demo.DTOs.Company.Response.CompanyResponseDTO;
-import com.example.demo.DTOs.Company.CompanyUpdateDTO;
 import com.example.demo.entities.CompanyEntity;
-
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

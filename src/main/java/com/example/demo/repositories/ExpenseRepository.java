@@ -1,7 +1,6 @@
 package com.example.demo.repositories;
 
 import com.example.demo.entities.ExpenseEntity;
-import com.example.demo.entities.UserEntity;
 import com.example.demo.enums.ExpenseCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

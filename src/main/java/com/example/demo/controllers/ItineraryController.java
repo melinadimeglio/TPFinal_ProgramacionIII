@@ -1,14 +1,12 @@
 package com.example.demo.controllers;
 
-import com.example.demo.DTOs.Expense.Response.ExpenseResponseDTO;
 import com.example.demo.DTOs.Filter.ItineraryFilterDTO;
 import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
+import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
 import com.example.demo.DTOs.Itinerary.Request.ItineraryCreateDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
-import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
 import com.example.demo.controllers.hateoas.ItineraryModelAssembler;
 import com.example.demo.exceptions.OwnershipException;
-import com.example.demo.mappers.ItineraryMapper;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.ItineraryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
@@ -31,8 +28,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "Itineraries", description = "Operations related to user itineraries")
 @RestController

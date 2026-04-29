@@ -1,11 +1,9 @@
 package com.example.demo.services;
 
-import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.DTOs.Filter.ItineraryFilterDTO;
+import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
 import com.example.demo.DTOs.Itinerary.Request.ItineraryCreateDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
-import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
-import com.example.demo.SpecificationAPI.ItinerarySpecification;
 import com.example.demo.entities.ActivityEntity;
 import com.example.demo.entities.ItineraryEntity;
 import com.example.demo.entities.TripEntity;
@@ -27,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 @Service
 public class ItineraryService {

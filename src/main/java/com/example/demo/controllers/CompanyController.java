@@ -1,13 +1,10 @@
 package com.example.demo.controllers;
 
-import com.example.demo.DTOs.CheckList.Response.CheckListResponseDTO;
 import com.example.demo.DTOs.Company.CompanyUpdateDTO;
 import com.example.demo.DTOs.Company.Request.CompanyCreateDTO;
 import com.example.demo.DTOs.Company.Response.CompanyResponseDTO;
 import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
-import com.example.demo.DTOs.User.Response.UserResponseDTO;
 import com.example.demo.controllers.hateoas.CompanyModelAssembler;
-import com.example.demo.entities.CompanyEntity;
 import com.example.demo.exceptions.OwnershipException;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.CompanyService;
@@ -22,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;

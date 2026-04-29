@@ -1,7 +1,6 @@
 package com.example.demo.DTOs.Activity.Response;
 
 import com.example.demo.enums.ActivityCategory;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 

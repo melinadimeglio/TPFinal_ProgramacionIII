@@ -1,7 +1,6 @@
 package com.example.demo.DTOs.Trip;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;

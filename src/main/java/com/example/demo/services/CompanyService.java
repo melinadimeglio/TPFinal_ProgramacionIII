@@ -1,10 +1,9 @@
 package com.example.demo.services;
 
+import com.example.demo.DTOs.Company.CompanyUpdateDTO;
 import com.example.demo.DTOs.Company.Request.CompanyCreateDTO;
 import com.example.demo.DTOs.Company.Response.CompanyResponseDTO;
-import com.example.demo.DTOs.Company.CompanyUpdateDTO;
-import com.example.demo.DTOs.User.Response.UserResponseDTO;
-import com.example.demo.entities.*;
+import com.example.demo.entities.CompanyEntity;
 import com.example.demo.mappers.CompanyMapper;
 import com.example.demo.repositories.CompanyRepository;
 import com.example.demo.security.entities.CredentialEntity;
@@ -21,10 +20,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 
 @Service
