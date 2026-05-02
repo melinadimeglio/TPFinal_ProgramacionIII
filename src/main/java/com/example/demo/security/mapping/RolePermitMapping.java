@@ -96,8 +96,12 @@ public class RolePermitMapping {
                 Permit.CREAR_RESERVA,
                 Permit.CANCELAR_RESERVA,
                 Permit.VER_RESERVAS_USUARIO,
-                Permit.PAGAR_RESERVA
+                Permit.PAGAR_RESERVA,
 
+                    //NOTIFICACIONES
+                    Permit.MARCAR_TODAS_NOTIFICACIONES_LEIDAS,
+                    Permit.MARCAR_NOTIFICACION_LEIDA,
+                    Permit.VER_NOTIFICACIONES
         ));
 
         // COMPANY
