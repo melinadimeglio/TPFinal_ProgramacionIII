@@ -15,6 +15,7 @@ public interface CompanyMapper {
 
 
     CompanyResponseDTO toDTO(CompanyEntity company);
+
     CompanyEntity toEntity(CompanyCreateDTO dto);
 
     List<CompanyResponseDTO> toDTOList(List<CompanyEntity> companies);

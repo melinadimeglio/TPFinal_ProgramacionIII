@@ -48,7 +48,7 @@ public class CompanyService {
     }
 
     public CompanyResponseDTO save(CompanyCreateDTO dto) {
-        if (companyRepository.existsByTaxId(dto.getTaxId())){
+        if (companyRepository.existsByTaxId(dto.getTaxId())) {
             throw new IllegalArgumentException("The Tax ID is already registered in the system.");
         }
 
@@ -104,7 +104,7 @@ public class CompanyService {
         return companyMapper.toDTO(updated);
     }
 
-    public CompanyResponseDTO getProfile(String username){
+    public CompanyResponseDTO getProfile(String username) {
         CredentialEntity credential = credentialRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
         CompanyEntity company = credential.getCompany();

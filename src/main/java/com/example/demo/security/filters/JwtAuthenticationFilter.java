@@ -7,6 +7,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -31,8 +32,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+                                    @NotNull HttpServletResponse response,
+                                    @NotNull FilterChain filterChain) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -50,28 +51,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         var userDetails = userDetailsService.loadUserByUsername(username);
 
-                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    if (jwtService.isTokenValid(jwt, userDetails)) {
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (jwtService.isTokenValid(jwt, userDetails)) {
 
-                        //var userDetails = userDetailsService.loadUserByUsername(username);
+                //var userDetails = userDetailsService.loadUserByUsername(username);
 
-                        var roles = jwtService.extractRoles(jwt);
+                var roles = jwtService.extractRoles(jwt);
 
-                        var authorities = roles.stream()
-                                .map(org.springframework.security.core.authority.SimpleGrantedAuthority::new)
-                                .collect(Collectors.toList());
+                var authorities = roles.stream()
+                        .map(org.springframework.security.core.authority.SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList());
 
-                        UsernamePasswordAuthenticationToken authToken =
-                                new UsernamePasswordAuthenticationToken(
-                                        userDetails,
-                                        null,
-                                        authorities
-                                );
-                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(authToken);
-                    }
-                }
-                filterChain.doFilter(request, response);
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                authorities
+                        );
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        }
+        filterChain.doFilter(request, response);
     }
 }
 

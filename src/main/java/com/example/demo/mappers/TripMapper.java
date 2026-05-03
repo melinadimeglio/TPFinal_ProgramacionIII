@@ -17,7 +17,7 @@ public interface TripMapper {
     @Mapping(target = "userIds", expression = "java(mapUsersToIds(entity.getUsers()))")
     TripResponseDTO toDTO(TripEntity entity);
 
-    List <TripResponseDTO> toDTOList(List<TripEntity> entities);
+    List<TripResponseDTO> toDTOList(List<TripEntity> entities);
 
     TripResumeDTO toResumeDTO(TripEntity entity);
 

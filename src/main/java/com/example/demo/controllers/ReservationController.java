@@ -139,24 +139,23 @@ public class ReservationController {
                                                 @AuthenticationPrincipal CredentialEntity credential, Pageable pageable) throws MPException, MPApiException {
 
 
-
         Long myUserId = credential.getUser().getId();
         Set<ReservationResponseDTO> reservas = reservationService.findByUserId(myUserId, pageable).toSet();
         List<Long> idReservas = reservas.stream()
                 .map(ReservationResponseDTO::getId)
                 .toList();
 
-        if (idReservas.contains(external_reference)){
-                PaymentClient paymentClient = new PaymentClient();
-                Payment payment = paymentClient.get(payment_id);
+        if (idReservas.contains(external_reference)) {
+            PaymentClient paymentClient = new PaymentClient();
+            Payment payment = paymentClient.get(payment_id);
 
-                if(payment.getStatus().equalsIgnoreCase("approved")){
-                    reservationService.paidReservation(external_reference, myUserId, pageable);
-                    return ResponseEntity.ok("Reservation marked as paid.");
-                }else{
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("The payment was not approved.");
-                }
+            if (payment.getStatus().equalsIgnoreCase("approved")) {
+                reservationService.paidReservation(external_reference, myUserId, pageable);
+                return ResponseEntity.ok("Reservation marked as paid.");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("The payment was not approved.");
+            }
 
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

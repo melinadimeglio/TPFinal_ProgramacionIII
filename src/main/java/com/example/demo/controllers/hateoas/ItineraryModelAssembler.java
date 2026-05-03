@@ -19,7 +19,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
-public class ItineraryModelAssembler implements RepresentationModelAssembler <ItineraryResponseDTO, EntityModel<ItineraryResponseDTO>> {
+public class ItineraryModelAssembler implements RepresentationModelAssembler<ItineraryResponseDTO, EntityModel<ItineraryResponseDTO>> {
 
     @Override
     public EntityModel<ItineraryResponseDTO> toModel(ItineraryResponseDTO itinerary) {
@@ -31,7 +31,7 @@ public class ItineraryModelAssembler implements RepresentationModelAssembler <It
         }
 
         if (permisos.contains("VER_ITINERARIOS")) {
-            model.add(linkTo((methodOn(ItineraryController.class).getAllItineraries(PageRequest.of(0,10)))).withRel("all-itineraries"));
+            model.add(linkTo((methodOn(ItineraryController.class).getAllItineraries(PageRequest.of(0, 10)))).withRel("all-itineraries"));
         }
 
         return model;
@@ -47,7 +47,7 @@ public class ItineraryModelAssembler implements RepresentationModelAssembler <It
         Set<String> permisos = getAuthorities();
 
         if (permisos.contains("VER_ITINERARIOS")) {
-            collection.add(linkTo(methodOn(ItineraryController.class).getAllItineraries(PageRequest.of(0,10))).withSelfRel());
+            collection.add(linkTo(methodOn(ItineraryController.class).getAllItineraries(PageRequest.of(0, 10))).withSelfRel());
         }
 
         return collection;
@@ -62,11 +62,11 @@ public class ItineraryModelAssembler implements RepresentationModelAssembler <It
         Set<String> permisos = getAuthorities();
 
         if (permisos.contains("VER_ITINERARIO_USUARIO")) {
-            collection.add(linkTo(methodOn(ItineraryController.class).getItinerariesByUserId(PageRequest.of(0,10), userId, null, null)).withSelfRel());
+            collection.add(linkTo(methodOn(ItineraryController.class).getItinerariesByUserId(PageRequest.of(0, 10), userId, null, null)).withSelfRel());
         }
 
         if (permisos.contains("VER_ITINERARIOS")) {
-            collection.add(linkTo(methodOn(ItineraryController.class).getAllItineraries(PageRequest.of(0,10))).withRel("all-itineraries"));
+            collection.add(linkTo(methodOn(ItineraryController.class).getAllItineraries(PageRequest.of(0, 10))).withRel("all-itineraries"));
         }
 
         return collection;

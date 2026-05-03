@@ -11,7 +11,7 @@ public class CategoryService {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    public CategoryEntity getOrCreateCategory (String name){
+    public CategoryEntity getOrCreateCategory(String name) {
         return categoryRepository.findByName(name)
                 .orElseGet(() -> categoryRepository.save(CategoryEntity.builder().name(name).build()));
     }

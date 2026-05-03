@@ -12,14 +12,19 @@ import java.util.List;
 @Repository
 public interface ReservationRepository extends JpaRepository<ReservationEntity, Long> {
     List<ReservationEntity> findByUserId(Long userId);
+
     @Query("SELECT r FROM ReservationEntity r " +
             "JOIN r.activity a " +
             "JOIN a.company c " +
             "WHERE c.id = :companyId")
     List<ReservationEntity> findByCompanyId(Long companyId);
+
     Page<ReservationEntity> findAllByActiveTrue(Pageable pageable);
+
     Page<ReservationEntity> findAllByActiveFalse(Pageable pageable);
+
     Page<ReservationEntity> findByUserId(Long userId, Pageable pageable);
+
     @Query("SELECT r FROM ReservationEntity r " +
             "JOIN r.activity a " +
             "JOIN a.company c " +

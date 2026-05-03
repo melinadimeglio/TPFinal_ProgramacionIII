@@ -12,9 +12,14 @@ import java.time.LocalDate;
 @Repository
 public interface TripRepository extends JpaRepository<TripEntity, Long>, JpaSpecificationExecutor<TripEntity> {
     Page<TripEntity> findByUsersId(Long userId, Pageable pageable);
+
     Page<TripEntity> findAllByActiveTrue(Pageable pageable);
+
     Page<TripEntity> findAllByActiveFalse(Pageable pageable);
+
     Page<TripEntity> findByDestinationContainsIgnoreCaseAndId(String destination, Long id, Pageable pageable);
+
     Page<TripEntity> findByStartDateAndId(LocalDate date, Long id, Pageable pageable);
+
     Page<TripEntity> findByDestinationContainsIgnoreCaseAndStartDateAndId(String destination, LocalDate date, Long id, Pageable pageable);
 }

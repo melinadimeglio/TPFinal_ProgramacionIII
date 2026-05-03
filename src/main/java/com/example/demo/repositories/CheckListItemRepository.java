@@ -11,16 +11,22 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface CheckListItemRepository extends JpaRepository <CheckListItemEntity, Long>, JpaSpecificationExecutor<CheckListItemEntity> {
+public interface CheckListItemRepository extends JpaRepository<CheckListItemEntity, Long>, JpaSpecificationExecutor<CheckListItemEntity> {
     Page<CheckListItemEntity> findByChecklistIdAndStatusAndChecklistUserId(Long checklistId, Long userId, boolean status, Pageable pageable);
-    Page<CheckListItemEntity> findByChecklistIdAndStatus(Long checklistId, boolean status, Pageable pageable);
-    Page<CheckListItemEntity> findByStatusAndChecklistUserId(boolean status, Long userId, Pageable pageable);
-    Page<CheckListItemEntity> findByStatus(boolean status, Pageable pageable);
-    Page<CheckListItemEntity> findByChecklistIdAndChecklistUserId(Long checklistId, Long userId, Pageable pageable);
-    List<CheckListItemEntity> findByChecklistId(Long checklistId);
-    Page<CheckListItemEntity> findByChecklistUserId(Long userId, Pageable pageable);
-    Optional<CheckListItemEntity> findByIdAndChecklist_User_Id(Long id, Long userId);
 
+    Page<CheckListItemEntity> findByChecklistIdAndStatus(Long checklistId, boolean status, Pageable pageable);
+
+    Page<CheckListItemEntity> findByStatusAndChecklistUserId(boolean status, Long userId, Pageable pageable);
+
+    Page<CheckListItemEntity> findByStatus(boolean status, Pageable pageable);
+
+    Page<CheckListItemEntity> findByChecklistIdAndChecklistUserId(Long checklistId, Long userId, Pageable pageable);
+
+    List<CheckListItemEntity> findByChecklistId(Long checklistId);
+
+    Page<CheckListItemEntity> findByChecklistUserId(Long userId, Pageable pageable);
+
+    Optional<CheckListItemEntity> findByIdAndChecklist_User_Id(Long id, Long userId);
 
 
 }

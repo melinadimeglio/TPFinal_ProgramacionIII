@@ -8,8 +8,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CompanyRepository extends JpaRepository<CompanyEntity, Long> {
-    boolean existsByTaxId (String taxId);
+    boolean existsByTaxId(String taxId);
+
     Page<CompanyEntity> findAllByActiveTrue(Pageable pageable);
+
     Page<CompanyEntity> findAllByActiveFalse(Pageable pageable);
 
 }

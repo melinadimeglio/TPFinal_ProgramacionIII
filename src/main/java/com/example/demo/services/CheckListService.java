@@ -52,7 +52,7 @@ public class CheckListService {
 
     public Page<CheckListResponseDTO> findAllActive(Pageable pageable) {
         return checkListRepository.findAllByActiveTrue(pageable)
-                .map(checklist -> checkListMapper.toDTO(checklist));
+                .map(checkListMapper::toDTO);
     }
 
     public Page<CheckListResponseDTO> findAllInactive(Pageable pageable) {

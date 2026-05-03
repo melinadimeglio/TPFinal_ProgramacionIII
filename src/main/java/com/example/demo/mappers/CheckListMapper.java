@@ -10,24 +10,24 @@ import org.mapstruct.*;
 import java.util.List;
 
 @Mapper(componentModel = "spring", uses = {CheckListItemMapper.class})
-    public interface CheckListMapper {
+public interface CheckListMapper {
 
-        @Mapping(source = "trip.id", target = "tripId")
-        @Mapping(source = "user.id", target = "userId")
-        CheckListResponseDTO toDTO(CheckListEntity entity);
+    @Mapping(source = "trip.id", target = "tripId")
+    @Mapping(source = "user.id", target = "userId")
+    CheckListResponseDTO toDTO(CheckListEntity entity);
 
-        List<CheckListResponseDTO> toDTOList(List<CheckListEntity> entities);
+    List<CheckListResponseDTO> toDTOList(List<CheckListEntity> entities);
 
-        @Mapping(target = "trip", ignore = true)
-        @Mapping(target = "user", ignore = true)
-        @Mapping(target = "items", ignore = true)
-        CheckListEntity toEntity(CheckListCreateDTO dto);
+    @Mapping(target = "trip", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "items", ignore = true)
+    CheckListEntity toEntity(CheckListCreateDTO dto);
 
-        @Mapping(target = "trip", ignore = true)
-        @Mapping(target = "user", ignore = true)
-        @Mapping(target = "items", ignore = true)
-        @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-        @Mapping(target = "id", ignore = true)
-        void updateEntityFromDTO(CheckListUpdateDTO dto, @MappingTarget CheckListEntity entity);
-    }
+    @Mapping(target = "trip", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "items", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    void updateEntityFromDTO(CheckListUpdateDTO dto, @MappingTarget CheckListEntity entity);
+}
 

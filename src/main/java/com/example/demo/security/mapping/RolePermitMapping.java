@@ -23,16 +23,16 @@ public class RolePermitMapping {
         rolePermissions.put(Role.ROLE_ADMIN, EnumSet.allOf(Permit.class));
 
         // USER
-            rolePermissions.put(Role.ROLE_USER, EnumSet.of(
-                    // TRIP
-                    Permit.CREAR_VIAJE,
-                    Permit.VER_VIAJE,
-                    Permit.MODIFICAR_VIAJE,
-                    Permit.ELIMINAR_VIAJE,
-                    Permit.RESTAURAR_VIAJE,
-                    Permit.OBTENER_RECOMENDACIONES_VIAJE,
-                    Permit.OBTENER_RECOMENDACIONES_FILTRADAS,
-                    Permit.VER_VIAJE_USUARIO,
+        rolePermissions.put(Role.ROLE_USER, EnumSet.of(
+                // TRIP
+                Permit.CREAR_VIAJE,
+                Permit.VER_VIAJE,
+                Permit.MODIFICAR_VIAJE,
+                Permit.ELIMINAR_VIAJE,
+                Permit.RESTAURAR_VIAJE,
+                Permit.OBTENER_RECOMENDACIONES_VIAJE,
+                Permit.OBTENER_RECOMENDACIONES_FILTRADAS,
+                Permit.VER_VIAJE_USUARIO,
 
                 // ACTIVITY (usuario)
                 Permit.CREAR_ACTIVIDAD_USUARIO,
@@ -98,10 +98,10 @@ public class RolePermitMapping {
                 Permit.VER_RESERVAS_USUARIO,
                 Permit.PAGAR_RESERVA,
 
-                    //NOTIFICACIONES
-                    Permit.MARCAR_TODAS_NOTIFICACIONES_LEIDAS,
-                    Permit.MARCAR_NOTIFICACION_LEIDA,
-                    Permit.VER_NOTIFICACIONES
+                //NOTIFICACIONES
+                Permit.MARCAR_TODAS_NOTIFICACIONES_LEIDAS,
+                Permit.MARCAR_NOTIFICACION_LEIDA,
+                Permit.VER_NOTIFICACIONES
         ));
 
         // COMPANY
@@ -117,7 +117,7 @@ public class RolePermitMapping {
                 // USER (básicos)
                 Permit.INICIAR_SESION,
                 Permit.CERRAR_SESION,
-                
+
                 // EMPRESA
                 Permit.VER_EMPRESA,
                 Permit.MODIFICAR_EMPRESA,

@@ -31,7 +31,7 @@ public class ExpenseModelAssembler implements RepresentationModelAssembler<Expen
         }
 
         if (permisos.contains("VER_TODOS_GASTOS")) {
-            model.add(linkTo((methodOn(ExpenseController.class).getAllExpenses(PageRequest.of(0,10), null))).withRel("all-expenses"));
+            model.add(linkTo((methodOn(ExpenseController.class).getAllExpenses(PageRequest.of(0, 10), null))).withRel("all-expenses"));
         }
 
         return model;
@@ -47,7 +47,7 @@ public class ExpenseModelAssembler implements RepresentationModelAssembler<Expen
         Set<String> permisos = getAuthorities();
 
         if (permisos.contains("VER_TODOS_GASTOS")) {
-            collection.add(linkTo(methodOn(ExpenseController.class).getAllExpenses(PageRequest.of(0,10),null)).withSelfRel());
+            collection.add(linkTo(methodOn(ExpenseController.class).getAllExpenses(PageRequest.of(0, 10), null)).withSelfRel());
         }
 
         return collection;
@@ -68,7 +68,7 @@ public class ExpenseModelAssembler implements RepresentationModelAssembler<Expen
         }
 
         if (permisos.contains("VER_TODOS_GASTOS")) {
-            collection.add(linkTo(methodOn(ExpenseController.class).getAllExpenses(PageRequest.of(0,10),null)).withRel("all-expenses"));
+            collection.add(linkTo(methodOn(ExpenseController.class).getAllExpenses(PageRequest.of(0, 10), null)).withRel("all-expenses"));
         }
 
         return collection;
@@ -87,7 +87,7 @@ public class ExpenseModelAssembler implements RepresentationModelAssembler<Expen
         }
 
         if (permisos.contains("VER_TODOS_GASTOS")) {
-            collection.add(linkTo(methodOn(ExpenseController.class).getAllExpenses(PageRequest.of(0,10),null)).withRel("all-expenses"));
+            collection.add(linkTo(methodOn(ExpenseController.class).getAllExpenses(PageRequest.of(0, 10), null)).withRel("all-expenses"));
         }
 
         return collection;

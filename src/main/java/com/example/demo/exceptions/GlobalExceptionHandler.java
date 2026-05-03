@@ -28,10 +28,10 @@ import java.util.NoSuchElementException;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<Object> handleInvalidEnumValue (HttpMessageNotReadableException e){
-        if (e.getCause() instanceof InvalidFormatException){
+    public ResponseEntity<Object> handleInvalidEnumValue(HttpMessageNotReadableException e) {
+        if (e.getCause() instanceof InvalidFormatException) {
             InvalidFormatException cause = (InvalidFormatException) e.getCause();
-            if (cause.getTargetType().isEnum()){
+            if (cause.getTargetType().isEnum()) {
                 String enumName = cause.getTargetType().getSimpleName();
                 String invalidValue = cause.getValue().toString();
                 return buildResponse(HttpStatus.BAD_REQUEST, "Invalid value for " + enumName + ": " + invalidValue);
@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions (MethodArgumentNotValidException e){
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException e) {
         Map<String, String> errores = new HashMap<>();
         e.getBindingResult().getAllErrors().forEach(error -> {
             if (error instanceof FieldError fieldError) {
@@ -58,7 +58,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RepitedElementException.class)
-    public ResponseEntity<Object> handleRepitedElementExceptions (RepitedElementException e){
+    public ResponseEntity<Object> handleRepitedElementExceptions(RepitedElementException e) {
         String message = e.getMessage() != null ? e.getMessage() : "The element already exists and must be unique.";
         return buildResponse(HttpStatus.CONFLICT, message);
     }

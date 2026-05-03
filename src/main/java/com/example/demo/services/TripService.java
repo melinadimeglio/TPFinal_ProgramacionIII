@@ -84,10 +84,10 @@ public class TripService {
                         .orElseThrow(() -> new RuntimeException("Shared user not found."));
 
                 if (sharedUser.getCredential().getAuthorities().stream()
-                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))){
-                        throw new ReservationException("You cannot add Admin type users.");
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+                    throw new ReservationException("You cannot add Admin type users.");
                 } else if (sharedUser.getCredential().getAuthorities().stream()
-                        .anyMatch(a -> a.getAuthority().equals("ROLE_COMPANY"))){
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_COMPANY"))) {
                     throw new ReservationException("You cannot add Company type users.");
                 }
                 users.add(sharedUser);
@@ -205,16 +205,13 @@ public class TripService {
     public Page<TripResponseDTO> findByUserId(Long userId, String destination, LocalDate date, Pageable pageable) {
         Page<TripEntity> tripEntity;
 
-        if(destination != null && date != null){
+        if (destination != null && date != null) {
             tripEntity = tripRepository.findByDestinationContainsIgnoreCaseAndStartDateAndId(destination, date, userId, pageable);
-        }
-        else if (destination != null){
+        } else if (destination != null) {
             tripEntity = tripRepository.findByDestinationContainsIgnoreCaseAndId(destination, userId, pageable);
-        }
-        else if(date != null){
+        } else if (date != null) {
             tripEntity = tripRepository.findByStartDateAndId(date, userId, pageable);
-        }
-        else {
+        } else {
             tripEntity = tripRepository.findByUsersId(userId, pageable);
         }
         return tripEntity.map(tripMapper::toDTO);

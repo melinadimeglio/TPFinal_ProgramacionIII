@@ -13,11 +13,17 @@ import java.time.LocalDate;
 @Repository
 public interface ActivityRepository extends JpaRepository<ActivityEntity, Long>, JpaSpecificationExecutor<ActivityEntity> {
     Page<ActivityEntity> findByUsers_Id(Long userId, Pageable pageable);
+
     Page<ActivityEntity> findByCompanyId(Long companyId, Pageable pageable);
+
     Page<ActivityEntity> findByCategory(ActivityCategory category, Pageable pageable);
+
     Page<ActivityEntity> findByDateBetween(LocalDate start, LocalDate end, Pageable pageable);
+
     Page<ActivityEntity> findByCategoryAndDateBetween(ActivityCategory category, LocalDate start, LocalDate end, Pageable pageable);
+
     Page<ActivityEntity> findAllByAvailableTrue(Pageable pageable);
+
     Page<ActivityEntity> findAllByAvailableFalse(Pageable pageable);
 }
 

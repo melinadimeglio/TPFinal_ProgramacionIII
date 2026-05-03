@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface CredentialRepository extends JpaRepository <CredentialEntity, Long> {
+public interface CredentialRepository extends JpaRepository<CredentialEntity, Long> {
     Optional<CredentialEntity> findByEmail(String email);
 }

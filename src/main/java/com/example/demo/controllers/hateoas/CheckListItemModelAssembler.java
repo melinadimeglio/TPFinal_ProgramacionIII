@@ -31,7 +31,7 @@ public class CheckListItemModelAssembler implements RepresentationModelAssembler
         }
 
         if (permisos.contains("VER_TODOS_CHECKLISTITEM")) {
-            model.add(linkTo((methodOn(CheckListItemController.class).getAll(PageRequest.of(0,10), null))).withRel("all-checklist-items"));
+            model.add(linkTo((methodOn(CheckListItemController.class).getAll(PageRequest.of(0, 10), null))).withRel("all-checklist-items"));
         }
 
         return model;

@@ -452,7 +452,7 @@ public class UserController {
     })
     @PreAuthorize("hasAuthority('ASIGNAR_ROLES')")
     @PutMapping("/roles/{id}")
-    public ResponseEntity<String> assignRole(@PathVariable Long id){
+    public ResponseEntity<String> assignRole(@PathVariable Long id) {
         String mensaje = userService.assignRole(id);
 
         return ResponseEntity.ok(mensaje);

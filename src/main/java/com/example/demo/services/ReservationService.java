@@ -10,7 +10,6 @@ import com.example.demo.enums.ReservationStatus;
 import com.example.demo.exceptions.ReservationException;
 import com.example.demo.mappers.ReservationMapper;
 import com.example.demo.repositories.ActivityRepository;
-import com.example.demo.repositories.ItineraryRepository;
 import com.example.demo.repositories.ReservationRepository;
 import com.example.demo.repositories.UserRepository;
 import com.mercadopago.exceptions.MPApiException;
@@ -39,13 +38,12 @@ public class ReservationService {
     private final ActivityService activityService;
     private final MPService mpService;
     private final ExpenseService expenseService;
-    private final ItineraryRepository itineraryRepository;
 
     @Autowired
     public ReservationService(ReservationRepository reservationRepository,
                               UserRepository userRepository,
                               ActivityRepository activityRepository,
-                              ReservationMapper reservationMapper, ItineraryService itineraryService, TripService tripService, ActivityService activityService, MPService mpService, ExpenseService expenseService, ItineraryRepository itineraryRepository) {
+                              ReservationMapper reservationMapper, ItineraryService itineraryService, TripService tripService, ActivityService activityService, MPService mpService, ExpenseService expenseService) {
         this.reservationRepository = reservationRepository;
         this.userRepository = userRepository;
         this.activityRepository = activityRepository;
@@ -55,10 +53,9 @@ public class ReservationService {
         this.activityService = activityService;
         this.mpService = mpService;
         this.expenseService = expenseService;
-        this.itineraryRepository = itineraryRepository;
     }
 
-    public ReservationResponseDTO createReservation(ReservationCreateDTO dto, Long userId) throws MPException, MPApiException {
+    public ReservationResponseDTO createReservation(ReservationCreateDTO dto, Long userId) throws MPException {
 
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -68,7 +65,7 @@ public class ReservationService {
 
         Optional<CompanyEntity> companyId = Optional.ofNullable(activity.getCompany());
 
-        if (companyId.isEmpty()){
+        if (companyId.isEmpty()) {
             throw new ReservationException("You cannot create a reservation for the entered activity.");
         }
 
@@ -78,11 +75,11 @@ public class ReservationService {
                 .filter(itinerary -> itinerary.getItineraryDate().equals(activity.getDate()))
                 .findFirst();
 
-        if (itineraryOptional.isEmpty()){
+        if (itineraryOptional.isEmpty()) {
             throw new ReservationException("There is no itinerary for the activity date. Please create one.");
         }
 
-        if (!activityDisponible(itineraryOptional.get().getTripId(), dto.getActivityId())){
+        if (!activityDisponible(itineraryOptional.get().getTripId(), dto.getActivityId())) {
             throw new ReservationException("The activity cannot be saved because it does not have sufficient availability.");
         }
 
@@ -145,22 +142,18 @@ public class ReservationService {
     }
 
 
-    public boolean activityDisponible (Long tripId, Long activityId) {
+    public boolean activityDisponible(Long tripId, Long activityId) {
 
         ActivityEntity activity = activityRepository.findById(activityId)
                 .orElseThrow(() -> new ResourceNotFoundException("Activity not found"));
 
         TripEntity trip = tripService.getTripById(tripId);
-        int cant = trip.getCompanions() + 1 ;
+        int cant = trip.getCompanions() + 1;
 
-        if (activity.getAvailable_quantity() - cant < 0) {
-            return false;
-        }
-
-        return true;
+        return activity.getAvailable_quantity() - cant >= 0;
     }
 
-    public void paidReservation(Long reservationId, Long userId, Pageable pageable){
+    public void paidReservation(Long reservationId, Long userId, Pageable pageable) {
         ReservationEntity reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ReservationException("Reservation not found"));
 
@@ -170,29 +163,29 @@ public class ReservationService {
         Set<ItineraryResponseDTO> itinerariosUser = itineraryService.findByUserId(userId, pageable).toSet();
 
         Optional<ItineraryResponseDTO> itineraryOptional = itinerariosUser.stream()
-                        .filter(itinerary -> itinerary.getItineraryDate().equals(activity.getDate()))
-                        .findFirst();
+                .filter(itinerary -> itinerary.getItineraryDate().equals(activity.getDate()))
+                .findFirst();
 
-        if (itineraryOptional.isEmpty()){
+        if (itineraryOptional.isEmpty()) {
             throw new ReservationException("There is no itinerary for the activity date. Please create one..");
         }
 
         TripEntity trip = tripService.getTripById(itineraryOptional.get().getTripId());
-        int cant = trip.getCompanions() + 1 ;
+        int cant = trip.getCompanions() + 1;
 
-        if (!activityService.updateCapacity(activity.getId(), cant)){
+        if (!activityService.updateCapacity(activity.getId(), cant)) {
             throw new ReservationException("The activity cannot be saved because it does not have sufficient availability..");
         }
 
         Long itineraryId = itineraryOptional.get().getId();
 
-        if (!itineraryService.addActivity(itineraryId, userId, activity.getId())){
+        if (!itineraryService.addActivity(itineraryId, userId, activity.getId())) {
             throw new ReservationException("The activity could not be added to the itinerary.");
         }
 
         Set<Long> users = trip.getUsers().stream()
-                        .map(UserEntity::getId)
-                        .collect(Collectors.toSet());
+                .map(UserEntity::getId)
+                .collect(Collectors.toSet());
 
         expenseService.save(ExpenseCreateDTO.builder()
                 .amount(activity.getPrice())

@@ -62,9 +62,8 @@ public class UserService {
     }
 
     public UserEntity findByIdAdmin(Long id) {
-        UserEntity user = userRepository.findById(id)
+        return userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
-        return user;
     }
 
     public UserResponseDTO save(UserCreateDTO user) {
@@ -98,10 +97,10 @@ public class UserService {
         UserEntity existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
 
-        if(dto.getPassword() != null){
+        if (dto.getPassword() != null) {
             existingUser.getCredential().setPassword(passwordEncoder.encode(dto.getPassword()));
         }
-        if(dto.getEmail() != null){
+        if (dto.getEmail() != null) {
             existingUser.getCredential().setEmail(dto.getEmail());
         }
         userMapper.updateUserEntityFromDTO(dto, existingUser);
@@ -116,10 +115,10 @@ public class UserService {
 
         UserEntity existingUser = credential.getUser();
 
-        if(dto.getPassword() != null){
+        if (dto.getPassword() != null) {
             existingUser.getCredential().setPassword(passwordEncoder.encode(dto.getPassword()));
         }
-        if(dto.getEmail() != null){
+        if (dto.getEmail() != null) {
             existingUser.getCredential().setEmail(dto.getEmail());
         }
         userMapper.updateUserEntityFromDTO(dto, existingUser);
@@ -157,14 +156,14 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public UserResponseDTO getProfileByUsername(String username){
+    public UserResponseDTO getProfileByUsername(String username) {
         CredentialEntity credential = credentialRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
         UserEntity user = credential.getUser();
         return userMapper.toDTO(user);
     }
 
-    public String assignRole(Long id){
+    public String assignRole(Long id) {
         UserEntity user = findByIdAdmin(id);
         CredentialEntity credential = user.getCredential();
         RoleEntity userRole = roleRepository.findByRole(Role.ROLE_ADMIN)
@@ -178,7 +177,7 @@ public class UserService {
         credentialRepository.save(credential);
 
 
-        if (!rolesUser.contains(userRole)){
+        if (!rolesUser.contains(userRole)) {
             return "The new role could not be assigned.";
         }
 

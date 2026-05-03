@@ -78,6 +78,8 @@ public class ActivityService {
             entity.setItinerary(itinerary);
         }
 
+
+        assert itinerary != null;
         TripEntity trip = tripService.getTripById(itinerary.getTrip().getId());
 
         Set<UserEntity> users = new HashSet<>();
@@ -92,14 +94,14 @@ public class ActivityService {
                         .orElseThrow(() -> new RuntimeException("Shared user not found."));
 
                 if (sharedUser.getCredential().getAuthorities().stream()
-                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))){
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
                     throw new ReservationException("You cannot add Admin type users.");
                 }
                 users.add(sharedUser);
             }
         }
 
-        if (trip != null){
+        if (trip != null) {
             Set<UserEntity> usersTrip = trip.getUsers();
 
             if (users.size() > 1 && !usersTrip.containsAll(users)) {
@@ -110,13 +112,13 @@ public class ActivityService {
         entity.setUsers(users);
 
         ActivityEntity saved = activityRepository.save(entity);
-        if (!itineraryService.addActivity(itineraryId, myUserId, saved.getId())){
+        if (!itineraryService.addActivity(itineraryId, myUserId, saved.getId())) {
             throw new ReservationException("The activity could not be created.");
         }
 
         Set<Long> usersIds = users.stream()
-                        .map(UserEntity::getId)
-                                .collect(Collectors.toSet());
+                .map(UserEntity::getId)
+                .collect(Collectors.toSet());
 
         expenseService.save(ExpenseCreateDTO.builder()
                 .amount(dto.getPrice())
@@ -130,16 +132,16 @@ public class ActivityService {
         return activityMapper.toDTOCreated(saved);
     }
 
-    public boolean updateCapacity (Long activityId, int quantity){
+    public boolean updateCapacity(Long activityId, int quantity) {
 
         ActivityEntity activity = activityRepository.findById(activityId)
                 .orElseThrow(() -> new NoSuchElementException("Activity not found."));
 
-        if (activity.getAvailable_quantity() != null && activity.getAvailable_quantity()-quantity >= 0){
+        if (activity.getAvailable_quantity() != null && activity.getAvailable_quantity() - quantity >= 0) {
             activity.setAvailable_quantity(activity.getAvailable_quantity() - quantity);
             activityRepository.save(activity);
             return true;
-        }else {
+        } else {
             return false;
         }
     }
@@ -176,7 +178,7 @@ public class ActivityService {
                 .map(activityMapper::toDTO);
     }
 
-    public Page<ActivityResponseDTO> findAllCompany (Pageable pageable){
+    public Page<ActivityResponseDTO> findAllCompany(Pageable pageable) {
         Page<ActivityEntity> activities = activityRepository.findAllByAvailableTrue(pageable);
         List<ActivityEntity> activitiesList = activities.stream()
                 .toList();
@@ -216,7 +218,7 @@ public class ActivityService {
             }
         }
 
-        ItineraryEntity newItinerary = null;
+        ItineraryEntity newItinerary;
 
         if (dto.getItineraryId() != null) {
             newItinerary = itineraryRepository.findById(dto.getItineraryId())
@@ -290,8 +292,7 @@ public class ActivityService {
             if (!itinerary.getUser().getId().equals(myUserId)) {
                 throw new AccessDeniedException("You do not have permission to restore this activity (you do not own the itinerary).");
             }
-        }
-        else {
+        } else {
             boolean belongsToUser = activity.getUsers().stream()
                     .anyMatch(user -> user.getId().equals(myUserId));
             if (!belongsToUser) {
@@ -372,7 +373,6 @@ public class ActivityService {
         Page<ActivityEntity> result = activityRepository.findAll(spec, pageable);
         return result.map(activityMapper::toCompanyResponseDTO);
     }
-
 
 
 }

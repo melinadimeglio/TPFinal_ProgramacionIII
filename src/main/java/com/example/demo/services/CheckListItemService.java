@@ -52,16 +52,13 @@ public class CheckListItemService {
 
     public Page<CheckListItemResponseDTO> findByUserId(Long userId, Long checklistId, boolean completed, Pageable pageable) {
         Page<CheckListItemEntity> checkListItem;
-        if(checklistId != null){
-            checkListItem = itemRepository.findByChecklistIdAndChecklistUserId(checklistId, userId, pageable);
-        }
-        else if(checklistId != null && completed == false){
+        if (checklistId != null && !completed) {
             checkListItem = itemRepository.findByChecklistIdAndStatusAndChecklistUserId(checklistId, userId, completed, pageable);
-        }
-        else if(completed == false){
-            checkListItem = itemRepository.findByStatusAndChecklistUserId(completed,userId, pageable);
-        }
-        else {
+        } else if (checklistId != null) {
+            checkListItem = itemRepository.findByChecklistIdAndChecklistUserId(checklistId, userId, pageable);
+        } else if (!completed) {
+            checkListItem = itemRepository.findByStatusAndChecklistUserId(completed, userId, pageable);
+        } else {
             checkListItem = itemRepository.findByChecklistUserId(userId, pageable);
         }
         return checkListItem.map(itemMapper::toDTO);

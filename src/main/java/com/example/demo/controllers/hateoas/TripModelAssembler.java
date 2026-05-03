@@ -18,7 +18,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
-public class TripModelAssembler implements RepresentationModelAssembler <TripResponseDTO, EntityModel<TripResponseDTO>> {
+public class TripModelAssembler implements RepresentationModelAssembler<TripResponseDTO, EntityModel<TripResponseDTO>> {
 
     @Override
     public EntityModel<TripResponseDTO> toModel(TripResponseDTO trip) {

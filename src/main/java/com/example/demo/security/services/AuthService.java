@@ -42,7 +42,7 @@ public class AuthService {
                 credentialsRepository.findByEmail(username)
                         .orElseThrow(() -> new IllegalArgumentException("User not found"));
         if (!user.getRefreshToken().equals(refreshToken)) {
-            throw  new IllegalArgumentException("Refresh token does not match");
+            throw new IllegalArgumentException("Refresh token does not match");
         }
         if (!jwtService.validateRefreshToken(refreshToken, user)) {
             throw new IllegalArgumentException("Refresh token expired or invalid");

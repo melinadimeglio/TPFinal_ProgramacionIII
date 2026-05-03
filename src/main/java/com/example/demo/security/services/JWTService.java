@@ -41,11 +41,11 @@ public class JWTService {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList()));
 
-        if(userDetails instanceof CredentialEntity credential) {
-            if(credential.getUser() != null) {
+        if (userDetails instanceof CredentialEntity credential) {
+            if (credential.getUser() != null) {
                 claims.put("userId", credential.getUser().getId());
             }
-            if(credential.getCompany() != null){
+            if (credential.getCompany() != null) {
                 claims.put("companyId", credential.getCompany().getId());
             }
         }
@@ -53,13 +53,13 @@ public class JWTService {
         return buildToken(claims, userDetails, jwtExpiration);
     }
 
-    public String generateRefreshToken (UserDetails userDetails){
+    public String generateRefreshToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("type", "refresh");
         return buildToken(claims, userDetails, refreshTokenExpiration);
     }
 
-    public boolean validateRefreshToken (String refreshToken, UserDetails userDetails){
+    public boolean validateRefreshToken(String refreshToken, UserDetails userDetails) {
         try {
             Jwts.parserBuilder()
                     .setSigningKey(getSignInKey())
@@ -69,7 +69,7 @@ public class JWTService {
             final String username = extractUsername(refreshToken);
             return (username.equals(userDetails.getUsername())) &&
                     !isTokenExpired(refreshToken);
-        }catch (JwtException e){
+        } catch (JwtException e) {
             return false;
         }
     }
@@ -79,6 +79,7 @@ public class JWTService {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
+
     private Claims extractAllClaims(String token) {
         return Jwts
                 .parserBuilder()
@@ -93,20 +94,19 @@ public class JWTService {
         return claims.get("roles", List.class);
     }
 
-    public boolean isAdmin(String token){
-        return "ROLE_ADMIN".equals(extractRoles(token));
+    public boolean isAdmin(String token) {
+        return extractRoles(token).contains("ROLE_ADMIN");
     }
 
-    public boolean isCompany(String token){
-        return "ROLE_COMPANY".equals(extractRoles(token));
+    public boolean isCompany(String token) {
+        return extractRoles(token).contains("ROLE_COMPANY");
     }
 
-    public boolean isUser(String token){
-        return "ROLE_USER".equals(extractRoles(token));
+    public boolean isUser(String token) {
+        return extractRoles(token).contains("ROLE_USER");
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails)
-    {
+    public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()))
                 && !isTokenExpired(token)
@@ -129,6 +129,7 @@ public class JWTService {
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
+
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(jwtSecretKey);
         return Keys.hmacShaKeyFor(keyBytes);

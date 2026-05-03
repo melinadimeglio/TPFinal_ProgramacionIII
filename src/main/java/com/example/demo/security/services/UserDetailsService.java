@@ -9,10 +9,12 @@ import org.springframework.stereotype.Service;
 public class UserDetailsService implements org.springframework.security.core.userdetails.UserDetailsService {
 
     private final CredentialRepository credentialsRepository;
+
     public UserDetailsService(CredentialRepository
                                       credentialsRepository) {
         this.credentialsRepository = credentialsRepository;
     }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return credentialsRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Email not found"));

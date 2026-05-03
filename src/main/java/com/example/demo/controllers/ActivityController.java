@@ -18,7 +18,6 @@ import com.example.demo.entities.UserEntity;
 import com.example.demo.enums.ActivityCategory;
 import com.example.demo.exceptions.OwnershipException;
 import com.example.demo.exceptions.ReservationException;
-import com.example.demo.repositories.ItineraryRepository;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.ActivityService;
 import com.example.demo.services.ItineraryService;
@@ -58,12 +57,11 @@ public class ActivityController {
     private final PagedResourcesAssembler<ActivityCompanyResponseDTO> pagedResourcesAssemblerCompany;
     private final PagedResourcesAssembler<ActivityCreateResponseDTO> pagedResourcesAssemblerActivity;
     private final ItineraryService itineraryService;
-    private final ItineraryRepository itineraryRepository;
     private final ActivityCompanyModelAssembler activityCompanyAssembler;
     private final ActivityModelAssemblerDif activityModelAssemblerDif;
 
     @Autowired
-    public ActivityController(ActivityService activityService, ActivityModelAssembler assembler, PagedResourcesAssembler<ActivityResponseDTO> pagedResourcesAssembler, PagedResourcesAssembler<ActivityCompanyResponseDTO> pagedResourcesAssemblerCompany, PagedResourcesAssembler<ActivityCreateResponseDTO> pagedResourcesAssemblerActivity, ItineraryService itineraryService, ItineraryRepository itineraryRepository,
+    public ActivityController(ActivityService activityService, ActivityModelAssembler assembler, PagedResourcesAssembler<ActivityResponseDTO> pagedResourcesAssembler, PagedResourcesAssembler<ActivityCompanyResponseDTO> pagedResourcesAssemblerCompany, PagedResourcesAssembler<ActivityCreateResponseDTO> pagedResourcesAssemblerActivity, ItineraryService itineraryService,
                               ActivityCompanyModelAssembler activityCompanyAssembler, ActivityModelAssemblerDif activityModelAssemblerDif) {
         this.activityService = activityService;
         this.assembler = assembler;
@@ -71,8 +69,7 @@ public class ActivityController {
         this.pagedResourcesAssemblerCompany = pagedResourcesAssemblerCompany;
         this.pagedResourcesAssemblerActivity = pagedResourcesAssemblerActivity;
         this.itineraryService = itineraryService;
-        this.itineraryRepository = itineraryRepository;
-        this.activityCompanyAssembler = activityCompanyAssembler ;
+        this.activityCompanyAssembler = activityCompanyAssembler;
         this.activityModelAssemblerDif = activityModelAssemblerDif;
     }
 
@@ -134,7 +131,7 @@ public class ActivityController {
                 .filter(itinerary -> itinerary.getItineraryDate().equals(dto.getDate()))
                 .findFirst();
 
-        if (itinerario.isEmpty()){
+        if (itinerario.isEmpty()) {
             throw new ReservationException("There is no itinerary for the activity date. Please create one first..");
         }
 
@@ -207,9 +204,9 @@ public class ActivityController {
                 .map(Object::toString)
                 .toList();
 
-        if (authorities.contains("ROLE_ADMIN")){
+        if (authorities.contains("ROLE_ADMIN")) {
             companyId = dto.getCompanyId();
-        }else if (authorities.contains("ROLE_COMPANY")){
+        } else if (authorities.contains("ROLE_COMPANY")) {
             if (credential.getCompany() == null) {
                 throw new RuntimeException("The company is not associated with the user COMPANY.");
             }
@@ -271,7 +268,7 @@ public class ActivityController {
             @AuthenticationPrincipal CredentialEntity credential,
             Pageable pageable) {
 
-        Optional <CompanyEntity> myCompanyId = Optional.ofNullable(credential.getCompany());
+        Optional<CompanyEntity> myCompanyId = Optional.ofNullable(credential.getCompany());
         boolean isAdmin = credential.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
@@ -509,9 +506,9 @@ public class ActivityController {
         boolean isAdmin = credential.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-        System.out.println("TIENE COMPANY ID: " + activity.getCompanyId() != null);
+        System.out.println("TIENE COMPANY ID: " + (activity.getCompanyId() != null));
         boolean isCompanyActivity = activity.getCompanyId() != null;
-        
+
         if (!isUserOwner && !isAdmin && !isCompanyActivity) {
             throw new OwnershipException("You do not have permission to access this resource.");
         }
@@ -574,7 +571,7 @@ public class ActivityController {
             ActivityFilterDTO filters,
             Pageable pageable) {
 
-        Optional <UserEntity> myUserId = Optional.ofNullable(credential.getUser());
+        Optional<UserEntity> myUserId = Optional.ofNullable(credential.getUser());
         boolean isAdmin = credential.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 

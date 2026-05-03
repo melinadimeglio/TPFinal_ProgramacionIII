@@ -17,45 +17,45 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public abstract class ExpenseMapper {
 
-        protected UserRepository userRepository;
+    protected UserRepository userRepository;
 
-        @Autowired
-        public void setUserRepository(UserRepository userRepository) {
-                this.userRepository = userRepository;
-        }
+    @Autowired
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
-        @Mapping(source = "trip.id", target = "tripId")
-        @Mapping(source = "users", target = "userIds")
-        public abstract ExpenseResponseDTO toDTO(ExpenseEntity entity);
+    @Mapping(source = "trip.id", target = "tripId")
+    @Mapping(source = "users", target = "userIds")
+    public abstract ExpenseResponseDTO toDTO(ExpenseEntity entity);
 
-        public abstract List<ExpenseResponseDTO> toDTOList(List<ExpenseEntity> entities);
+    public abstract List<ExpenseResponseDTO> toDTOList(List<ExpenseEntity> entities);
 
-        @Mapping(source = "trip.id", target = "tripId")
-        @Mapping(source = "users", target = "userIds")
-        public abstract ExpenseResumeDTO toResumeDTO(ExpenseEntity entity);
+    @Mapping(source = "trip.id", target = "tripId")
+    @Mapping(source = "users", target = "userIds")
+    public abstract ExpenseResumeDTO toResumeDTO(ExpenseEntity entity);
 
-        public abstract List<ExpenseResumeDTO> toResumeList(List<ExpenseEntity> entities);
+    public abstract List<ExpenseResumeDTO> toResumeList(List<ExpenseEntity> entities);
 
-        @Mapping(target = "id", ignore = true)
-        @Mapping(target = "trip", ignore = true)
-        @Mapping(target = "users", ignore = true)
-        public abstract ExpenseEntity toEntity(ExpenseCreateDTO dto);
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "trip", ignore = true)
+    @Mapping(target = "users", ignore = true)
+    public abstract ExpenseEntity toEntity(ExpenseCreateDTO dto);
 
-        @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-        @Mapping(target = "id", ignore = true)
-        public abstract void updateEntityFromDTO(ExpenseUpdateDTO dto, @MappingTarget ExpenseEntity entity);
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    public abstract void updateEntityFromDTO(ExpenseUpdateDTO dto, @MappingTarget ExpenseEntity entity);
 
-        protected Set<Long> mapUsersToIds(Set<UserEntity> users) {
-                return users.stream()
-                        .map(UserEntity::getId)
-                        .collect(Collectors.toSet());
-        }
+    protected Set<Long> mapUsersToIds(Set<UserEntity> users) {
+        return users.stream()
+                .map(UserEntity::getId)
+                .collect(Collectors.toSet());
+    }
 
-        public Set<UserEntity> mapSharedUserIdsToUsers(Set<Long> sharedIds) {
-                if (sharedIds == null) return Set.of();
-                return sharedIds.stream()
-                        .map(id -> userRepository.findById(id)
-                                .orElseThrow(() -> new IllegalArgumentException("User not found: " + id)))
-                        .collect(Collectors.toSet());
-        }
+    public Set<UserEntity> mapSharedUserIdsToUsers(Set<Long> sharedIds) {
+        if (sharedIds == null) return Set.of();
+        return sharedIds.stream()
+                .map(id -> userRepository.findById(id)
+                        .orElseThrow(() -> new IllegalArgumentException("User not found: " + id)))
+                .collect(Collectors.toSet());
+    }
 }

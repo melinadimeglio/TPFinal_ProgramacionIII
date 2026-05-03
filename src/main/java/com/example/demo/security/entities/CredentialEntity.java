@@ -34,7 +34,7 @@ public class CredentialEntity implements UserDetails {
     private boolean active = true;
 
 
-    @ManyToMany(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinTable(
             name = "credentials_roles",
             joinColumns = @JoinColumn(name = "credential_id"),
@@ -93,14 +93,6 @@ public class CredentialEntity implements UserDetails {
     @Override
     public boolean isAccountNonLocked() {
         return true;
-    }
-
-    public String getRefreshToken() {
-        return refreshToken;
-    }
-
-    public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
     }
 
 }

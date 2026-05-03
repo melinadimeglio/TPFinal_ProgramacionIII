@@ -11,19 +11,19 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface CheckListItemMapper {
 
-        @Mapping(source = "checklist.id", target = "checklistId")
-        @Mapping(source = "checklist.user.id", target = "userId")
-        CheckListItemResponseDTO toDTO(CheckListItemEntity entity);
+    @Mapping(source = "checklist.id", target = "checklistId")
+    @Mapping(source = "checklist.user.id", target = "userId")
+    CheckListItemResponseDTO toDTO(CheckListItemEntity entity);
 
-        List<CheckListItemResponseDTO> toDTOList(List<CheckListItemEntity> entities);
+    List<CheckListItemResponseDTO> toDTOList(List<CheckListItemEntity> entities);
 
-        @Mapping(target = "checklist", ignore = true)
-        CheckListItemEntity toEntity(CheckListItemCreateDTO dto);
+    @Mapping(target = "checklist", ignore = true)
+    CheckListItemEntity toEntity(CheckListItemCreateDTO dto);
 
-        @Mapping(target = "checklist", ignore = true)
-        @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-        @Mapping(target = "id", ignore = true)
-        void updateEntityFromDTO(CheckListItemUpdateDTO dto, @MappingTarget CheckListItemEntity entity);
+    @Mapping(target = "checklist", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    void updateEntityFromDTO(CheckListItemUpdateDTO dto, @MappingTarget CheckListItemEntity entity);
 }
 
 

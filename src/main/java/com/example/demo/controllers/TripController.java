@@ -449,7 +449,7 @@ public class TripController {
     @GetMapping("/{id}/{tripId}/recommendations")
     public ResponseEntity<PagedModel<EntityModel<RecommendationDTO>>> getRecommendations(@PathVariable Long tripId, @PathVariable Long id,
                                                                                          @AuthenticationPrincipal CredentialEntity credential,
-                                                                                         Pageable pageable){
+                                                                                         Pageable pageable) {
         if (credential.getUser() == null || !credential.getUser().getId().equals(id)) {
             throw new OwnershipException("You do not have permission to access this resource.");
         }
@@ -499,7 +499,7 @@ public class TripController {
     @GetMapping("/{id}/{tripId}/recommendations/filtered")
     public ResponseEntity<?> getFilteredRecommendations(@PathVariable Long tripId, @PathVariable Long id,
                                                         @AuthenticationPrincipal CredentialEntity credential,
-                                                        Pageable pageable){
+                                                        Pageable pageable) {
         if (credential.getUser() == null || !credential.getUser().getId().equals(id)) {
             throw new OwnershipException("You do not have permission to access this resource.");
         }

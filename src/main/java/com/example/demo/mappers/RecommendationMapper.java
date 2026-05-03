@@ -12,13 +12,13 @@ public interface RecommendationMapper {
 
     @Mapping(source = "properties.name", target = "name")
     @Mapping(target = "categories", ignore = true)
-    RecommendationDTO toDTO (Feature feature);
+    RecommendationDTO toDTO(Feature feature);
 
     @Mapping(target = "lat", source = "geometry", qualifiedByName = "extractLat")
     @Mapping(target = "lon", source = "geometry", qualifiedByName = "extractLon")
     @Mapping(source = "properties.name", target = "name")
     @Mapping(target = "categories", ignore = true)
-    RecommendationEntity toEntity (Feature feature);
+    RecommendationEntity toEntity(Feature feature);
 
     RecommendationDTO toDTO(RecommendationEntity entity);
 

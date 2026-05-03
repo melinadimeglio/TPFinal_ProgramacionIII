@@ -1,4 +1,5 @@
 package com.example.demo.entities;
+
 import com.example.demo.enums.NotificationCategory;
 import com.example.demo.enums.NotificationType;
 import jakarta.persistence.*;

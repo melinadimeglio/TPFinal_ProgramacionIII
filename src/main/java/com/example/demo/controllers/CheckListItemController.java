@@ -280,7 +280,6 @@ public class CheckListItemController {
     }
 
 
-
     @Operation(
             summary = "Create a new item",
             description = "Creates a new checklist item associated with a specific checklist.",
@@ -463,7 +462,6 @@ public class CheckListItemController {
         CheckListItemResponseDTO updatedItem = service.toggleStatus(id, userId);
         return ResponseEntity.ok(updatedItem);
     }
-
 
 
 }
