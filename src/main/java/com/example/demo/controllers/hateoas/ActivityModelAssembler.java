@@ -1,7 +1,6 @@
 package com.example.demo.controllers.hateoas;
 
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
-import com.example.demo.DTOs.Filter.ActivityFilterDTO;
 import com.example.demo.controllers.ActivityController;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.CollectionModel;
@@ -15,22 +14,24 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
 @Component
 public class ActivityModelAssembler implements RepresentationModelAssembler<ActivityResponseDTO, EntityModel<ActivityResponseDTO>> {
 
     @Override
     public EntityModel<ActivityResponseDTO> toModel(ActivityResponseDTO activity) {
+        return toModel(activity, getAuthorities());
+    }
+
+    public EntityModel<ActivityResponseDTO> toModel(ActivityResponseDTO activity, Set<String> permisos) {
         EntityModel<ActivityResponseDTO> model = EntityModel.of(activity);
-        Set<String> permisos = getAuthorities();
 
         if (permisos.contains("VER_ACTIVIDAD")) {
             model.add(linkTo(methodOn(ActivityController.class).getActivityById(activity.getId(), null)).withSelfRel());
         }
-
         if (permisos.contains("VER_TODAS_ACTIVIDADES")) {
             model.add(linkTo(methodOn(ActivityController.class).getAllActivities(PageRequest.of(0, 10))).withRel("all-activities"));
         }
@@ -40,12 +41,13 @@ public class ActivityModelAssembler implements RepresentationModelAssembler<Acti
 
     @Override
     public CollectionModel<EntityModel<ActivityResponseDTO>> toCollectionModel(Iterable<? extends ActivityResponseDTO> activities) {
-        List<EntityModel<ActivityResponseDTO>> activityModels = ((List<ActivityResponseDTO>) activities).stream()
-                .map(this::toModel)
+        Set<String> permisos = getAuthorities();
+
+        List<EntityModel<ActivityResponseDTO>> activityModels = StreamSupport.stream(activities.spliterator(), false)
+                .map(a -> toModel(a, permisos))
                 .toList();
 
         CollectionModel<EntityModel<ActivityResponseDTO>> collection = CollectionModel.of(activityModels);
-        Set<String> permisos = getAuthorities();
 
         if (permisos.contains("VER_TODAS_ACTIVIDADES")) {
             collection.add(linkTo(methodOn(ActivityController.class).getAllActivities(PageRequest.of(0, 10))).withSelfRel());
@@ -55,23 +57,18 @@ public class ActivityModelAssembler implements RepresentationModelAssembler<Acti
     }
 
     public CollectionModel<EntityModel<ActivityResponseDTO>> toCollectionModelByUser(List<ActivityResponseDTO> activities, Long userId) {
+        Set<String> permisos = getAuthorities();
+
         List<EntityModel<ActivityResponseDTO>> activityModels = activities.stream()
-                .map(this::toModel)
+                .map(a -> toModel(a, permisos))
                 .toList();
 
         CollectionModel<EntityModel<ActivityResponseDTO>> collection = CollectionModel.of(activityModels);
-        Set<String> permisos = getAuthorities();
-
-        ActivityFilterDTO filters = new ActivityFilterDTO();
 
         if (permisos.contains("VER_ACTIVIDAD_USUARIO")) {
-            collection.add(
-                    linkTo(methodOn(ActivityController.class)
-                            .getActivitiesByUserId(userId, null, null, PageRequest.of(0, 10)))
-                            .withSelfRel()
-            );
+            collection.add(linkTo(methodOn(ActivityController.class)
+                    .getActivitiesByUserId(userId, null, null, PageRequest.of(0, 10))).withSelfRel());
         }
-
         if (permisos.contains("VER_TODAS_ACTIVIDADES")) {
             collection.add(linkTo(methodOn(ActivityController.class).getAllActivities(PageRequest.of(0, 10))).withRel("all-activities"));
         }
@@ -80,17 +77,17 @@ public class ActivityModelAssembler implements RepresentationModelAssembler<Acti
     }
 
     public CollectionModel<EntityModel<ActivityResponseDTO>> toCollectionModelByCompany(List<ActivityResponseDTO> activities, Long companyId) {
+        Set<String> permisos = getAuthorities();
+
         List<EntityModel<ActivityResponseDTO>> activityModels = activities.stream()
-                .map(this::toModel)
+                .map(a -> toModel(a, permisos))
                 .toList();
 
         CollectionModel<EntityModel<ActivityResponseDTO>> collection = CollectionModel.of(activityModels);
-        Set<String> permisos = getAuthorities();
 
         if (permisos.contains("VER_ACTIVIDAD_EMPRESA")) {
             collection.add(linkTo(methodOn(ActivityController.class).getByCompanyId(companyId, null, PageRequest.of(0, 10))).withSelfRel());
         }
-
         if (permisos.contains("VER_TODAS_ACTIVIDADES")) {
             collection.add(linkTo(methodOn(ActivityController.class).getAllActivities(PageRequest.of(0, 10))).withRel("all-activities"));
         }
@@ -103,6 +100,6 @@ public class ActivityModelAssembler implements RepresentationModelAssembler<Acti
         if (authentication == null || authentication.getAuthorities() == null) return Set.of();
         return authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toUnmodifiableSet());
     }
 }

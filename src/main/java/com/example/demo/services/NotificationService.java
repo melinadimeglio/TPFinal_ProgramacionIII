@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -174,6 +175,42 @@ public class NotificationService {
                 .body("Tu viaje a \"" + tripName + "\" comienza en " + daysUntilTrip + " días. ¡Revisá tu checklist!")
                 .relatedEntityId(tripId)
                 .relatedEntityType("TRIP")
+                .build());
+    }
+
+    public void notifyBudgetExceeded(Long userId, String tripName, Long tripId) {
+        create(NotificationCreateDTO.builder()
+                .userId(userId)
+                .type(NotificationType.BUDGET_EXCEEDED)
+                .category(NotificationCategory.TRIPS)
+                .title("Presupuesto superado")
+                .body("El presupuesto del viaje \"" + tripName + "\" ha sido superado.")
+                .relatedEntityId(tripId)
+                .relatedEntityType("TRIP")
+                .build());
+    }
+
+    public void notifyBudgetHalfSpent(Long userId, String tripName, Long tripId) {
+        create(NotificationCreateDTO.builder()
+                .userId(userId)
+                .type(NotificationType.BUDGET_HALF_SPENT)
+                .category(NotificationCategory.TRIPS)
+                .title("Presupuesto al 50%")
+                .body("Ya gastaste más del 50% del presupuesto del viaje \"" + tripName + "\".")
+                .relatedEntityId(tripId)
+                .relatedEntityType("TRIP")
+                .build());
+    }
+
+    public void notifyActivityReminder(Long userId, String activityName, LocalDate date, Long activityId) {
+        create(NotificationCreateDTO.builder()
+                .userId(userId)
+                .type(NotificationType.ACTIVITY_REMINDER)
+                .category(NotificationCategory.TRIPS)
+                .title("Actividad mañana")
+                .body("Mañana tenés programada la actividad \"" + activityName + "\".")
+                .relatedEntityId(activityId)
+                .relatedEntityType("ACTIVITY")
                 .build());
     }
 

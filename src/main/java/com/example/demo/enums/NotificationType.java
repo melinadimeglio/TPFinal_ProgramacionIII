@@ -9,6 +9,8 @@ public enum NotificationType {
     TRIP_INVITE,
     TRIP_INVITE_ACCEPTED,
     TRIP_REMINDER,
+    BUDGET_EXCEEDED,
+    BUDGET_HALF_SPENT,
 
     // Shared expenses
     SHARED_EXPENSE_ASSIGNED,
@@ -20,5 +22,8 @@ public enum NotificationType {
 
     // Payments
     PAYMENT_CONFIRMED,
-    PAYMENT_FAILED
-}
+    PAYMENT_FAILED,
+
+    //Activities
+    ACTIVITY_REMINDER
+    }
