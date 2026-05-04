@@ -233,7 +233,7 @@ public class TripController {
     @PreAuthorize("hasAuthority('CREAR_VIAJE')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<TripResponseDTO> createTrip(
-            @RequestBody @Valid TripCreateDTO tripCreateDTO,
+            @RequestPart("trip") @Valid TripCreateDTO tripCreateDTO,
             @RequestPart(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal CredentialEntity credential) {
 
@@ -333,7 +333,7 @@ public class TripController {
     public ResponseEntity<TripResponseDTO> updateTrip(
             @Parameter(description = "ID of the trip to update", required = true)
             @PathVariable Long id,
-            @RequestBody @Valid TripUpdateDTO tripUpdateDTO,
+            @RequestPart("trip") @Valid TripUpdateDTO tripUpdateDTO,
             @RequestPart(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal CredentialEntity credential) {
 

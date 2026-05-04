@@ -123,7 +123,7 @@ public class ActivityController {
     @PreAuthorize("hasAuthority('CREAR_ACTIVIDAD_USUARIO')")
     @PostMapping(value = "/user", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ActivityCreateResponseDTO> createFromUser(
-            @RequestBody @Valid UserActivityCreateDTO dto,
+            @RequestPart("activity") @Valid UserActivityCreateDTO dto,
             @RequestPart(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal CredentialEntity credential, Pageable pageable) {
 
@@ -197,7 +197,7 @@ public class ActivityController {
     @PreAuthorize("hasAuthority('CREAR_ACTIVIDAD_EMPRESA')")
     @PostMapping(value = "/company", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ActivityCompanyResponseDTO> createActivityFromCompany(
-            @RequestBody @Valid CompanyActivityCreateDTO dto,
+            @RequestPart("activity") @Valid CompanyActivityCreateDTO dto,
             @RequestPart(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal CredentialEntity credential) {
 
@@ -627,7 +627,7 @@ public class ActivityController {
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ActivityCreateResponseDTO> updateActivity(
             @PathVariable Long id,
-            @RequestBody @Valid ActivityUpdateDTO dto,
+            @RequestPart("activity") @Valid ActivityUpdateDTO dto,
             @RequestPart(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal CredentialEntity credential
     ) {
@@ -756,7 +756,7 @@ public class ActivityController {
     public ResponseEntity<ActivityResponseDTO> updateActivityByCompany(
             @PathVariable Long companyId,
             @PathVariable Long activityId,
-            @RequestBody @Valid CompanyActivityUpdateDTO dto,
+            @RequestPart("activity") @Valid CompanyActivityUpdateDTO dto,
             @RequestPart(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal CredentialEntity credential) {
 
