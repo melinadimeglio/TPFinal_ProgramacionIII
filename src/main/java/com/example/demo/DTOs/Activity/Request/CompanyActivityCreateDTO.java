@@ -55,5 +55,12 @@ public class CompanyActivityCreateDTO {
     @NotNull(message = "La cantidad de lugares disponibles es obligatoria.")
     private Long available_quantity;
 
+    @Schema(
+            description = "URL de la imagen de la actividad almacenada en Cloudinary",
+            example = "https://res.cloudinary.com/tu-cloud/image/upload/v1234567890/travelplanner/actividad.jpg",
+            nullable = true
+    )
+    private String imageUrl;
+
 }
 

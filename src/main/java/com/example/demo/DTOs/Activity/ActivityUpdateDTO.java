@@ -49,4 +49,11 @@ public class ActivityUpdateDTO {
 
     @Schema(description = "ID del itinerario al que se quiere asociar la actividad", example = "3")
     private Long itineraryId;
+
+    @Schema(
+            description = "URL de la imagen de la actividad almacenada en Cloudinary",
+            example = "https://res.cloudinary.com/tu-cloud/image/upload/v1234567890/travelplanner/actividad.jpg",
+            nullable = true
+    )
+    private String imageUrl;
 }

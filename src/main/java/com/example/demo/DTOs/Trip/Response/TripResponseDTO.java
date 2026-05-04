@@ -41,4 +41,9 @@ public class TripResponseDTO {
     @Schema(description = "Lista de IDs de los usuarios que participan en el viaje", example = "[1, 2, 5]")
     private List<Long> userIds;
 
+    @Schema(description = "URL de la imagen del viaje almacenada en Cloudinary",
+            example = "https://res.cloudinary.com/tu-cloud/image/upload/v1234567890/travelplanner/imagen.jpg",
+            nullable = true)
+    private String imageUrl;
+
 }

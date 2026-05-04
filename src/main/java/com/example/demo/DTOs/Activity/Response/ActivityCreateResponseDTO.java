@@ -49,4 +49,11 @@ public class ActivityCreateResponseDTO {
     @Schema(description = "IDs de los usuarios que participan en la actividad", example = "[1, 2, 3]")
     private Set<Long> userIds;
 
+    @Schema(
+            description = "URL de la imagen de la actividad almacenada en Cloudinary",
+            example = "https://res.cloudinary.com/tu-cloud/image/upload/v1234567890/travelplanner/actividad.jpg",
+            nullable = true
+    )
+    private String imageUrl;
+
 }

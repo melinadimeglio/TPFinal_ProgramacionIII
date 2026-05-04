@@ -23,4 +23,9 @@ public class TripResumeDTO {
     @Schema(description = "Estado del viaje (activo o no)", example = "true")
     private boolean active;
 
+    @Schema(description = "URL de la imagen del viaje almacenada en Cloudinary",
+            example = "https://res.cloudinary.com/tu-cloud/image/upload/v1234567890/travelplanner/imagen.jpg",
+            nullable = true)
+    private String imageUrl;
+
 }

@@ -33,6 +33,8 @@ public class TripEntity {
 
     private Integer companions;
 
+    private String imageUrl;
+
     @Builder.Default
     private boolean active = true;
 
