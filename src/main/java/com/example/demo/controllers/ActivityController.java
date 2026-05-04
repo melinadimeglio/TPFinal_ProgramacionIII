@@ -36,10 +36,12 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -119,9 +121,10 @@ public class ActivityController {
             )
     })
     @PreAuthorize("hasAuthority('CREAR_ACTIVIDAD_USUARIO')")
-    @PostMapping("/user")
+    @PostMapping(value = "/user", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ActivityCreateResponseDTO> createFromUser(
             @RequestBody @Valid UserActivityCreateDTO dto,
+            @RequestPart(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal CredentialEntity credential, Pageable pageable) {
 
         Long myUserId = credential.getUser().getId();
@@ -135,7 +138,7 @@ public class ActivityController {
             throw new ReservationException("There is no itinerary for the activity date. Please create one first..");
         }
 
-        ActivityCreateResponseDTO createdActivity = activityService.createFromUser(dto, myUserId, itinerario.get().getId());
+        ActivityCreateResponseDTO createdActivity = activityService.createFromUser(dto, myUserId, itinerario.get().getId(), file);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdActivity);
     }
 
@@ -192,9 +195,10 @@ public class ActivityController {
             )
     })
     @PreAuthorize("hasAuthority('CREAR_ACTIVIDAD_EMPRESA')")
-    @PostMapping("/company")
+    @PostMapping(value = "/company", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ActivityCompanyResponseDTO> createActivityFromCompany(
             @RequestBody @Valid CompanyActivityCreateDTO dto,
+            @RequestPart(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal CredentialEntity credential) {
 
         Long companyId = 0L;
@@ -213,7 +217,7 @@ public class ActivityController {
             companyId = credential.getCompany().getId();
         }
 
-        ActivityCompanyResponseDTO response = activityService.createFromCompanyService(dto, companyId);
+        ActivityCompanyResponseDTO response = activityService.createFromCompanyService(dto, companyId, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -620,14 +624,15 @@ public class ActivityController {
             )
     })
     @PreAuthorize("hasAuthority('MODIFICAR_ACTIVIDADES_USUARIO')")
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ActivityCreateResponseDTO> updateActivity(
             @PathVariable Long id,
             @RequestBody @Valid ActivityUpdateDTO dto,
+            @RequestPart(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal CredentialEntity credential
     ) {
         Long myUserId = credential.getUser().getId();
-        ActivityCreateResponseDTO updated = activityService.updateAndReturnIfOwned(id, dto, myUserId);
+        ActivityCreateResponseDTO updated = activityService.updateAndReturnIfOwned(id, dto, myUserId, file);
         return ResponseEntity.ok(updated);
     }
 
@@ -747,11 +752,12 @@ public class ActivityController {
             )
     })
     @PreAuthorize("hasAuthority('MODIFICAR_ACTIVIDADES_EMPRESA')")
-    @PutMapping("/company/{companyId}/activities/{activityId}")
+    @PutMapping(value = "/company/{companyId}/activities/{activityId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ActivityResponseDTO> updateActivityByCompany(
             @PathVariable Long companyId,
             @PathVariable Long activityId,
             @RequestBody @Valid CompanyActivityUpdateDTO dto,
+            @RequestPart(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal CredentialEntity credential) {
 
         Long myCompanyId = credential.getCompany().getId();
@@ -760,7 +766,7 @@ public class ActivityController {
             throw new OwnershipException("You do not have permission to access this resource.");
         }
 
-        ActivityResponseDTO updated = activityService.updateActivityByCompany(myCompanyId, activityId, dto);
+        ActivityResponseDTO updated = activityService.updateActivityByCompany(myCompanyId, activityId, dto, file);
         return ResponseEntity.ok(updated);
     }
 

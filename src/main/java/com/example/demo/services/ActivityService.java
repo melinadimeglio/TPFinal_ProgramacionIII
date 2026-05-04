@@ -26,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -44,13 +45,14 @@ public class ActivityService {
     private final ItineraryService itineraryService;
     private final ExpenseService expenseService;
     private final TripService tripService;
+    private final CloudinaryService cloudinaryService;
 
     @Autowired
     public ActivityService(ActivityRepository activityRepository,
                            ActivityMapper activityMapper,
                            UserRepository userRepository,
                            CompanyRepository companyRepository,
-                           ItineraryRepository itineraryRepository, ItineraryService itineraryService, ExpenseService expenseService, TripService tripService) {
+                           ItineraryRepository itineraryRepository, ItineraryService itineraryService, ExpenseService expenseService, TripService tripService, CloudinaryService cloudinaryService) {
         this.activityRepository = activityRepository;
         this.activityMapper = activityMapper;
         this.userRepository = userRepository;
@@ -59,9 +61,10 @@ public class ActivityService {
         this.itineraryService = itineraryService;
         this.expenseService = expenseService;
         this.tripService = tripService;
+        this.cloudinaryService = cloudinaryService;
     }
 
-    public ActivityCreateResponseDTO createFromUser(UserActivityCreateDTO dto, Long myUserId, Long itineraryId) {
+    public ActivityCreateResponseDTO createFromUser(UserActivityCreateDTO dto, Long myUserId, Long itineraryId, MultipartFile file) {
         ActivityEntity entity = activityMapper.toEntity(dto);
         entity.setAvailable(true);
 
@@ -129,6 +132,12 @@ public class ActivityService {
                 .sharedUserIds(usersIds)
                 .build(), myUserId);
 
+        if (file != null && !file.isEmpty()) {
+            String url = cloudinaryService.uploadImage(file);
+            saved.setImageUrl(url);
+            activityRepository.save(saved);
+        }
+
         return activityMapper.toDTOCreated(saved);
     }
 
@@ -146,7 +155,7 @@ public class ActivityService {
         }
     }
 
-    public ActivityCompanyResponseDTO createFromCompanyService(CompanyActivityCreateDTO dto, Long companyId) {
+    public ActivityCompanyResponseDTO createFromCompanyService(CompanyActivityCreateDTO dto, Long companyId, MultipartFile file) {
 
         System.out.println("ID DE COMPANY DENTRO DE CREATE FROM COMPANY: " + companyId);
 
@@ -158,6 +167,13 @@ public class ActivityService {
         entity.setAvailable(true);
 
         ActivityEntity saved = activityRepository.save(entity);
+
+        if (file != null && !file.isEmpty()) {
+            String url = cloudinaryService.uploadImage(file);
+            saved.setImageUrl(url);
+            activityRepository.save(saved);
+        }
+
         return activityMapper.toCompanyResponseDTO(saved);
     }
 
@@ -202,7 +218,7 @@ public class ActivityService {
                 .map(activityMapper::toDTO);
     }
 
-    public ActivityCreateResponseDTO updateAndReturnIfOwned(Long id, ActivityUpdateDTO dto, Long myUserId) {
+    public ActivityCreateResponseDTO updateAndReturnIfOwned(Long id, ActivityUpdateDTO dto, Long myUserId, MultipartFile file) {
         ActivityEntity entity = activityRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Activity not found."));
 
@@ -258,6 +274,15 @@ public class ActivityService {
 
         ActivityEntity saved = activityRepository.save(entity);
 
+        if (file != null && !file.isEmpty()) {
+            if (saved.getImageUrl() != null) {
+                cloudinaryService.deleteImage(saved.getImageUrl());
+            }
+            String url = cloudinaryService.uploadImage(file);
+            saved.setImageUrl(url);
+            activityRepository.save(saved);
+        }
+
         return activityMapper.toDTOCreated(saved);
     }
 
@@ -304,7 +329,7 @@ public class ActivityService {
         activityRepository.save(activity);
     }
 
-    public ActivityResponseDTO updateActivityByCompany(Long companyId, Long activityId, CompanyActivityUpdateDTO dto) {
+    public ActivityResponseDTO updateActivityByCompany(Long companyId, Long activityId, CompanyActivityUpdateDTO dto, MultipartFile file) {
         ActivityEntity activity = activityRepository.findById(activityId)
                 .orElseThrow(() -> new NoSuchElementException("Activity not found."));
 
@@ -314,6 +339,15 @@ public class ActivityService {
 
         activityMapper.updateEntityFromCompanyDTO(dto, activity);
         activityRepository.save(activity);
+
+        if (file != null && !file.isEmpty()) {
+            if (activity.getImageUrl() != null) {
+                cloudinaryService.deleteImage(activity.getImageUrl());
+            }
+            String url = cloudinaryService.uploadImage(file);
+            activity.setImageUrl(url);
+            activityRepository.save(activity);
+        }
 
         return activityMapper.toDTO(activity);
     }

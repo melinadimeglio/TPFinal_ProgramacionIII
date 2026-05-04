@@ -19,6 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -30,12 +31,14 @@ public class TripService {
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
     private final TripMapper tripMapper;
+    private final CloudinaryService cloudinaryService;
 
     @Autowired
-    public TripService(TripRepository tripRepository, UserRepository userRepository, TripMapper tripMapper) {
+    public TripService(TripRepository tripRepository, UserRepository userRepository, TripMapper tripMapper, CloudinaryService cloudinaryService) {
         this.tripRepository = tripRepository;
         this.userRepository = userRepository;
         this.tripMapper = tripMapper;
+        this.cloudinaryService = cloudinaryService;
     }
 
     public Page<TripResponseDTO> findAll(Pageable pageable) {
@@ -70,7 +73,7 @@ public class TripService {
     }
 
 
-    public TripResponseDTO save(TripCreateDTO dto, Long myUserId) {
+    public TripResponseDTO save(TripCreateDTO dto, Long myUserId, MultipartFile file) {
 
         Set<UserEntity> users = new HashSet<>();
 
@@ -114,11 +117,18 @@ public class TripService {
         }
 
         TripEntity savedTrip = tripRepository.save(trip);
+
+        if (file != null && !file.isEmpty()) {
+            String url = cloudinaryService.uploadImage(file);
+            savedTrip.setImageUrl(url);
+            tripRepository.save(savedTrip);
+        }
+
         return tripMapper.toDTO(savedTrip);
     }
 
     @Transactional
-    public TripResponseDTO updateIfBelongsToUser(Long tripId, TripUpdateDTO dto, Long userId) {
+    public TripResponseDTO updateIfBelongsToUser(Long tripId, TripUpdateDTO dto, Long userId, MultipartFile file) {
         TripEntity trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new ResourceNotFoundException("Trip not found"));
 
@@ -163,6 +173,16 @@ public class TripService {
         }
 
         TripEntity updated = tripRepository.save(trip);
+
+        if (file != null && !file.isEmpty()) {
+            if (updated.getImageUrl() != null) {
+                cloudinaryService.deleteImage(updated.getImageUrl());
+            }
+            String url = cloudinaryService.uploadImage(file);
+            updated.setImageUrl(url);
+            tripRepository.save(updated);
+        }
+
         return tripMapper.toDTO(updated);
     }
 
