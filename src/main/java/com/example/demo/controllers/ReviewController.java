@@ -4,6 +4,7 @@ import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
 import com.example.demo.DTOs.Review.ActivityReviewSummaryDTO;
 import com.example.demo.DTOs.Review.Request.ReviewRequestDTO;
 import com.example.demo.DTOs.Review.Response.ReviewResponseDTO;
+import com.example.demo.exceptions.OwnershipException;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -69,6 +70,10 @@ public class ReviewController {
             @AuthenticationPrincipal CredentialEntity credential,
             @Valid @RequestBody ReviewRequestDTO dto) {
 
+        if (credential.getUser() == null) {
+            throw new OwnershipException("Only users (not companies) can create reviews.");
+        }
+
         Long userId = credential.getUser().getId();
         ReviewResponseDTO response = reviewService.createReview(userId, dto);
 
@@ -99,7 +104,11 @@ public class ReviewController {
             @PathVariable Long activityId,
             @AuthenticationPrincipal CredentialEntity credential) {
 
-        Long userId = (credential != null) ? credential.getUser().getId() : null;
+        Long userId = null;
+
+        if (credential != null && credential.getUser() != null) {
+            userId = credential.getUser().getId();
+        }
 
         ActivityReviewSummaryDTO summary =
                 reviewService.getSummaryByActivity(activityId, userId);
