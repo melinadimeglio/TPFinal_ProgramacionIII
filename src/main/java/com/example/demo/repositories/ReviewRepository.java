@@ -17,13 +17,13 @@ public interface ReviewRepository extends JpaRepository<ReviewEntity, Long> {
 
     Optional<ReviewEntity> findByUserIdAndActivityId(Long userId, Long activityId);
 
-    @Query("SELECT COALESCE(AVG(r.rating), 0) FROM Review r WHERE r.activity.id = :activityId")
+    @Query("SELECT COALESCE(AVG(r.rating), 0) FROM ReviewEntity r WHERE r.activity.id = :activityId")
     Double findAverageRatingByActivityId(@Param("activityId") Long activityId);
 
-    @Query("SELECT COUNT(r) FROM Review r WHERE r.activity.id = :activityId")
+    @Query("SELECT COUNT(r) FROM ReviewEntity r WHERE r.activity.id = :activityId")
     Long countByActivityId(@Param("activityId") Long activityId);
 
-    @Query("SELECT r.rating, COUNT(r) FROM Review r WHERE r.activity.id = :activityId GROUP BY r.rating ORDER BY r.rating DESC")
+    @Query("SELECT r.rating, COUNT(r) FROM ReviewEntity r WHERE r.activity.id = :activityId GROUP BY r.rating ORDER BY r.rating DESC")
     List<Object[]> findRatingDistributionByActivityId(@Param("activityId") Long activityId);
 }
 

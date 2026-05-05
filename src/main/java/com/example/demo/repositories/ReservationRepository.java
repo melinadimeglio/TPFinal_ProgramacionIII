@@ -31,5 +31,5 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
             "WHERE c.id = :companyId")
     Page<ReservationEntity> findByCompanyId(Long companyId, Pageable pageable);
 
-    boolean existsByUserIdAndActivity_IdAndEstado(Long userId, Long activityId, String estado);
+    boolean existsByUserIdAndActivity_IdAndActive(Long userId, Long activityId, boolean active);
 }

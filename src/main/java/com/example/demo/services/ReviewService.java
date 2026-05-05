@@ -39,7 +39,7 @@ public class ReviewService {
 
 
         boolean reservationCompleted = reservationRepository
-                .existsByUserIdAndActivity_IdAndEstado(userId, dto.getActivityId(), "COMPLETADA");
+                .existsByUserIdAndActivity_IdAndActive(userId, dto.getActivityId(), false);
 
         if (!reservationCompleted) {
             throw new ResponseStatusException(
@@ -111,11 +111,11 @@ public class ReviewService {
 
     @Transactional(readOnly = true)
     public Map<String, Object> getSimpleAverage(Long activityId) {
-        Double promedio = reviewRepository.findAverageRatingByActivityId(activityId);
+        Double average = reviewRepository.findAverageRatingByActivityId(activityId);
         Long total = reviewRepository.countByActivityId(activityId);
 
         Map<String, Object> result = new HashMap<>();
-        result.put("promedio", Math.round((promedio != null ? promedio : 0.0) * 10.0) / 10.0);
+        result.put("promedio", Math.round((average != null ? average : 0.0) * 10.0) / 10.0);
         result.put("total", total != null ? total : 0L);
         return result;
     }
