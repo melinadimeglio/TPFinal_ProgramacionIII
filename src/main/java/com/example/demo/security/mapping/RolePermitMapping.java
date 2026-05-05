@@ -101,7 +101,11 @@ public class RolePermitMapping {
                 //NOTIFICACIONES
                 Permit.MARCAR_TODAS_NOTIFICACIONES_LEIDAS,
                 Permit.MARCAR_NOTIFICACION_LEIDA,
-                Permit.VER_NOTIFICACIONES
+                Permit.VER_NOTIFICACIONES,
+
+                //REVIEWS
+                Permit.CREAR_RESENIA,
+                Permit.VER_RESENIAS
         ));
 
         // COMPANY
