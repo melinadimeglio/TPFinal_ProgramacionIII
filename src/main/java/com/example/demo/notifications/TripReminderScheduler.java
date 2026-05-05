@@ -1,10 +1,14 @@
 package com.example.demo.notifications;
 
 import com.example.demo.entities.ExpenseEntity;
+import com.example.demo.enums.NotificationType;
 import com.example.demo.notifications.interfaces.TripBudget;
 import com.example.demo.notifications.interfaces.TripReminder;
 import com.example.demo.repositories.ExpenseRepository;
 import com.example.demo.repositories.TripRepository;
+import com.example.demo.repositories.UserRepository;
+import com.example.demo.security.entities.CredentialEntity;
+import com.example.demo.services.EmailService;
 import com.example.demo.services.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +27,8 @@ public class TripReminderScheduler {
     private final NotificationService notificationService;
     private final TripRepository tripRepository;
     private final ExpenseRepository expenseRepository;
+    private final EmailService emailService;
+    private final UserRepository userRepository;
 
     @Scheduled(cron = "0 0 9 * * *")
     public void sendTripReminders() {
@@ -53,13 +59,41 @@ public class TripReminderScheduler {
 
             if (total <= estimated * 0.5) continue;
 
+            boolean exceeded = total > estimated;
+            NotificationType tipoNotif = exceeded
+                    ? NotificationType.BUDGET_EXCEEDED
+                    : NotificationType.BUDGET_HALF_SPENT;
+
             for (TripBudget row : tripRows) {
                 try {
-                    if (total > estimated) {
+                    log.info("Procesando userId={} tripId={}", row.getUserId(), tripId);
+
+                    boolean yaNotificado = notificationService.wasNotifiedToday(
+                            row.getUserId(), tipoNotif, tripId);
+                    log.info("wasNotifiedToday={}", yaNotificado);
+
+                    if (yaNotificado) continue;
+
+                    if (exceeded) {
                         notificationService.notifyBudgetExceeded(row.getUserId(), tripName, tripId);
                     } else {
                         notificationService.notifyBudgetHalfSpent(row.getUserId(), tripName, tripId);
                     }
+                    log.info("Notificacion interna creada para userId={}", row.getUserId());
+
+                    userRepository.findById(row.getUserId()).ifPresent(user -> {
+                        CredentialEntity credential = user.getCredential();
+                        if (credential != null && credential.getEmail() != null) {
+                            emailService.sendBudgetAlert(
+                                    credential.getEmail(),
+                                    user.getUsername(),
+                                    tripName,
+                                    estimated,
+                                    total
+                            );
+                        }
+                    });
+
                 } catch (Exception e) {
                     log.error("Error enviando notificación de presupuesto tripId={} userId={}: {}",
                             tripId, row.getUserId(), e.getMessage());
@@ -70,13 +104,28 @@ public class TripReminderScheduler {
         log.info("Job de presupuestos finalizado.");
     }
 
-
     private void sendRemindersForDate(LocalDate startDate, int daysUntilTrip) {
         List<TripReminder> trips = tripRepository.findActiveTripsWithUsersByStartDate(startDate);
 
         for (TripReminder row : trips) {
             try {
-                notificationService.notifyTripReminder(row.getUserId(), row.getDestination(), daysUntilTrip, row.getTripId());
+                notificationService.notifyTripReminder(
+                        row.getUserId(), row.getDestination(), daysUntilTrip, row.getTripId());
+
+                if (daysUntilTrip == 3) {
+                    userRepository.findById(row.getUserId()).ifPresent(user -> {
+                        CredentialEntity credential = user.getCredential();
+                        if (credential != null && credential.getEmail() != null) {
+                            emailService.sendTripReminder(
+                                    credential.getEmail(),
+                                    user.getUsername(),
+                                    row.getDestination(),
+                                    startDate
+                            );
+                        }
+                    });
+                }
+
             } catch (Exception e) {
                 log.error("Error enviando recordatorio para tripId={} userId={}: {}",
                         row.getTripId(), row.getUserId(), e.getMessage());

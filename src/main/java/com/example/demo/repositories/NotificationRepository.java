@@ -2,6 +2,7 @@ package com.example.demo.repositories;
 
 import com.example.demo.entities.NotificationEntity;
 import com.example.demo.enums.NotificationCategory;
+import com.example.demo.enums.NotificationType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -30,4 +32,7 @@ public interface NotificationRepository extends JpaRepository<NotificationEntity
     @Query("UPDATE NotificationEntity n SET n.read = true, n.readAt = CURRENT_TIMESTAMP " +
             "WHERE n.id = :id AND n.userId = :userId")
     int markAsRead(@Param("id") Long id, @Param("userId") Long userId);
+
+    boolean existsByUserIdAndTypeAndRelatedEntityIdAndCreatedAtAfter(
+            Long userId, NotificationType type, Long relatedEntityId, LocalDateTime createdAt);
 }

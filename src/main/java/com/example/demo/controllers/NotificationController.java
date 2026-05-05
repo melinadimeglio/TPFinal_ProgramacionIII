@@ -3,6 +3,7 @@ package com.example.demo.controllers;
 import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
 import com.example.demo.DTOs.Notification.Summary;
 import com.example.demo.enums.NotificationCategory;
+import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -69,9 +70,10 @@ public class NotificationController {
     @PreAuthorize("hasAuthority('VER_NOTIFICACIONES')")
     @GetMapping
     public ResponseEntity<Summary> getNotifications(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal CredentialEntity credential,
             @RequestParam(required = false) NotificationCategory category) {
 
+        Long userId = credential.getUser().getId();
         return ResponseEntity.ok(notificationService.getNotifications(userId, category));
     }
 
@@ -117,8 +119,9 @@ public class NotificationController {
     @PreAuthorize("hasAuthority('VER_NOTIFICACIONES')")
     @GetMapping("/unread-count")
     public ResponseEntity<Map<String, Long>> getUnreadCount(
-            @AuthenticationPrincipal Long userId) {
+            @AuthenticationPrincipal CredentialEntity credential) {
 
+        Long userId = credential.getUser().getId();
         return ResponseEntity.ok(Map.of("unreadCount", notificationService.getUnreadCount(userId)));
     }
 
@@ -169,9 +172,9 @@ public class NotificationController {
     @PatchMapping("/{id}/read")
     public ResponseEntity<Void> markAsRead(
             @PathVariable Long id,
-            @AuthenticationPrincipal Long userId) {
+            @AuthenticationPrincipal CredentialEntity credential) {
 
-        notificationService.markAsRead(id, userId);
+        notificationService.markAsRead(id, credential.getUser().getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -217,9 +220,9 @@ public class NotificationController {
     @PreAuthorize("hasAuthority('MARCAR_TODAS_NOTIFICACIONES_LEIDAS')")
     @PatchMapping("/read-all")
     public ResponseEntity<Map<String, Integer>> markAllAsRead(
-            @AuthenticationPrincipal Long userId) {
+            @AuthenticationPrincipal CredentialEntity credential) {
 
-        int updated = notificationService.markAllAsRead(userId);
+        int updated = notificationService.markAllAsRead(credential.getUser().getId());
         return ResponseEntity.ok(Map.of("updated", updated));
     }
 

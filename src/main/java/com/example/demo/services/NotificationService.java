@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -227,6 +228,12 @@ public class NotificationService {
                 .createdAt(n.getCreatedAt())
                 .readAt(n.getReadAt())
                 .build();
+    }
+
+    public boolean wasNotifiedToday(Long userId, NotificationType type, Long entityId) {
+        LocalDateTime since = LocalDateTime.now().minusHours(24);
+        return notificationRepository
+                .existsByUserIdAndTypeAndRelatedEntityIdAndCreatedAtAfter(userId, type, entityId, since);
     }
 
 }
