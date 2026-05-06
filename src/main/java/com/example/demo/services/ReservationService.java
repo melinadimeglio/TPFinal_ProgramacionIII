@@ -12,6 +12,7 @@ import com.example.demo.mappers.ReservationMapper;
 import com.example.demo.repositories.ActivityRepository;
 import com.example.demo.repositories.ReservationRepository;
 import com.example.demo.repositories.UserRepository;
+import com.example.demo.security.entities.CredentialEntity;
 import com.mercadopago.exceptions.MPApiException;
 import com.mercadopago.exceptions.MPException;
 import org.apache.velocity.exception.ResourceNotFoundException;
@@ -38,12 +39,14 @@ public class ReservationService {
     private final ActivityService activityService;
     private final MPService mpService;
     private final ExpenseService expenseService;
+    private final EmailService emailService;
+    private final NotificationService notificationService;
 
     @Autowired
     public ReservationService(ReservationRepository reservationRepository,
                               UserRepository userRepository,
                               ActivityRepository activityRepository,
-                              ReservationMapper reservationMapper, ItineraryService itineraryService, TripService tripService, ActivityService activityService, MPService mpService, ExpenseService expenseService) {
+                              ReservationMapper reservationMapper, ItineraryService itineraryService, TripService tripService, ActivityService activityService, MPService mpService, ExpenseService expenseService, EmailService emailService, NotificationService notificationService) {
         this.reservationRepository = reservationRepository;
         this.userRepository = userRepository;
         this.activityRepository = activityRepository;
@@ -53,6 +56,8 @@ public class ReservationService {
         this.activityService = activityService;
         this.mpService = mpService;
         this.expenseService = expenseService;
+        this.emailService = emailService;
+        this.notificationService = notificationService;
     }
 
     public ReservationResponseDTO createReservation(ReservationCreateDTO dto, Long userId) throws MPException {
@@ -199,14 +204,43 @@ public class ReservationService {
         reservation.setStatus(ReservationStatus.ACTIVE);
         reservation.setPaid(true);
         reservationRepository.save(reservation);
+
+        notificationService.notifyPaymentConfirmed(userId, activity.getName(), reservationId);
+
+        userRepository.findById(userId).ifPresent(user -> {
+            CredentialEntity credential = user.getCredential();
+            if (credential != null && credential.getEmail() != null) {
+                emailService.sendPaymentConfirmed(
+                        credential.getEmail(),
+                        user.getUsername(),
+                        activity.getName(),
+                        reservation.getAmount()
+                );
+            }
+        });
     }
 
-    public void cancelReservation(Long reservationId) {
+    public void cancelReservation(Long reservationId, Long userId) {
         ReservationEntity reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
 
         reservation.setStatus(ReservationStatus.CANCELLED);
         reservationRepository.save(reservation);
+
+        String activityName = reservation.getActivity().getName();
+
+        notificationService.notifyReservationCancelled(userId, activityName, reservationId);
+
+        userRepository.findById(userId).ifPresent(user -> {
+            CredentialEntity credential = user.getCredential();
+            if (credential != null && credential.getEmail() != null) {
+                emailService.sendReservationCancelled(
+                        credential.getEmail(),
+                        user.getUsername(),
+                        activityName
+                );
+            }
+        });
     }
 
     public Page<ReservationResponseDTO> findAll(Pageable pageable) {

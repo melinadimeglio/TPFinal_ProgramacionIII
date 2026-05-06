@@ -201,8 +201,9 @@ public class ReservationController {
     })
     @PreAuthorize("hasAuthority('CANCELAR_RESERVA')")
     @PutMapping("/{id}/cancel")
-    public ResponseEntity<Void> cancelReservation(@PathVariable Long id) {
-        reservationService.cancelReservation(id);
+    public ResponseEntity<Void> cancelReservation(@PathVariable Long id,
+                                                  @AuthenticationPrincipal CredentialEntity credential) {
+        reservationService.cancelReservation(id, credential.getUser().getId());
         return ResponseEntity.ok().build();
     }
 

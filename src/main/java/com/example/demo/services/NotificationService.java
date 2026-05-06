@@ -101,7 +101,7 @@ public class NotificationService {
                 .type(NotificationType.RESERVATION_CANCELLED)
                 .category(NotificationCategory.TRIPS)
                 .title("Reserva cancelada")
-                .body("Tu reserva para \"" + activityName + "\" fue cancelada por la empresa.")
+                .body("Tu reserva para \"" + activityName + "\" fue cancelada.")
                 .relatedEntityId(reservationId)
                 .relatedEntityType("RESERVATION")
                 .build());
