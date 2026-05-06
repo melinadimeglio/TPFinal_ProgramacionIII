@@ -115,7 +115,7 @@ public class ReviewService {
         Long total = reviewRepository.countByActivityId(activityId);
 
         Map<String, Object> result = new HashMap<>();
-        result.put("promedio", Math.round((average != null ? average : 0.0) * 10.0) / 10.0);
+        result.put("average", Math.round((average != null ? average : 0.0) * 10.0) / 10.0);
         result.put("total", total != null ? total : 0L);
         return result;
     }
