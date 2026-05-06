@@ -2,7 +2,9 @@ package com.example.demo.DTOs.Activity.Request;
 
 import com.example.demo.enums.ActivityCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -44,4 +46,11 @@ public class UserActivityCreateDTO {
 
     @Schema(description = "Lista de IDs de usuarios que también participan en la actividad", example = "[3, 5]")
     private Set<Long> sharedUserIds;
+
+    @Schema(
+            description = "URL de la imagen de la actividad almacenada en Cloudinary",
+            example = "https://res.cloudinary.com/tu-cloud/image/upload/v1234567890/travelplanner/actividad.jpg",
+            nullable = true
+    )
+    private String imageUrl;
 }

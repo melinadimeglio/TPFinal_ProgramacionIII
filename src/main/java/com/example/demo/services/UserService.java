@@ -3,27 +3,22 @@ package com.example.demo.services;
 import com.example.demo.DTOs.User.Request.UserCreateDTO;
 import com.example.demo.DTOs.User.Response.UserResponseDTO;
 import com.example.demo.DTOs.User.UserUpdateDTO;
-import com.example.demo.controllers.hateoas.UserModelAssembler;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.mappers.UserMapper;
-import com.example.demo.security.repositories.RoleRepository;
 import com.example.demo.repositories.UserRepository;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.security.entities.RoleEntity;
 import com.example.demo.security.enums.Role;
+import com.example.demo.security.repositories.CredentialRepository;
+import com.example.demo.security.repositories.RoleRepository;
 import com.example.demo.security.services.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.PagedModel;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.example.demo.security.repositories.CredentialRepository;
-
 
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -67,9 +62,8 @@ public class UserService {
     }
 
     public UserEntity findByIdAdmin(Long id) {
-        UserEntity user = userRepository.findById(id)
+        return userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
-        return user;
     }
 
     public UserResponseDTO save(UserCreateDTO user) {
@@ -103,10 +97,10 @@ public class UserService {
         UserEntity existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("User not found: " + id));
 
-        if(dto.getPassword() != null){
+        if (dto.getPassword() != null) {
             existingUser.getCredential().setPassword(passwordEncoder.encode(dto.getPassword()));
         }
-        if(dto.getEmail() != null){
+        if (dto.getEmail() != null) {
             existingUser.getCredential().setEmail(dto.getEmail());
         }
         userMapper.updateUserEntityFromDTO(dto, existingUser);
@@ -121,10 +115,10 @@ public class UserService {
 
         UserEntity existingUser = credential.getUser();
 
-        if(dto.getPassword() != null){
+        if (dto.getPassword() != null) {
             existingUser.getCredential().setPassword(passwordEncoder.encode(dto.getPassword()));
         }
-        if(dto.getEmail() != null){
+        if (dto.getEmail() != null) {
             existingUser.getCredential().setEmail(dto.getEmail());
         }
         userMapper.updateUserEntityFromDTO(dto, existingUser);
@@ -162,14 +156,14 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public UserResponseDTO getProfileByUsername(String username){
+    public UserResponseDTO getProfileByUsername(String username) {
         CredentialEntity credential = credentialRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
         UserEntity user = credential.getUser();
         return userMapper.toDTO(user);
     }
 
-    public String assignRole(Long id){
+    public String assignRole(Long id) {
         UserEntity user = findByIdAdmin(id);
         CredentialEntity credential = user.getCredential();
         RoleEntity userRole = roleRepository.findByRole(Role.ROLE_ADMIN)
@@ -183,7 +177,7 @@ public class UserService {
         credentialRepository.save(credential);
 
 
-        if (!rolesUser.contains(userRole)){
+        if (!rolesUser.contains(userRole)) {
             return "The new role could not be assigned.";
         }
 

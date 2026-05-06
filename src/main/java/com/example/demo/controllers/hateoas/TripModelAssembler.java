@@ -1,10 +1,7 @@
 package com.example.demo.controllers.hateoas;
 
-import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
-import com.example.demo.controllers.ActivityController;
 import com.example.demo.controllers.TripController;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -21,7 +18,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
-public class TripModelAssembler implements RepresentationModelAssembler <TripResponseDTO, EntityModel<TripResponseDTO>> {
+public class TripModelAssembler implements RepresentationModelAssembler<TripResponseDTO, EntityModel<TripResponseDTO>> {
 
     @Override
     public EntityModel<TripResponseDTO> toModel(TripResponseDTO trip) {

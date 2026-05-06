@@ -4,8 +4,6 @@ import com.example.demo.enums.ActivityCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -42,6 +40,13 @@ public class CompanyActivityUpdateDTO {
 
     @Schema(description = "Cantidad de lugares disponibles en la actividad", example = "12")
     private Long available_quantity;
+
+    @Schema(
+            description = "URL de la imagen de la actividad almacenada en Cloudinary",
+            example = "https://res.cloudinary.com/tu-cloud/image/upload/v1234567890/travelplanner/actividad.jpg",
+            nullable = true
+    )
+    private String imageUrl;
 
 }
 

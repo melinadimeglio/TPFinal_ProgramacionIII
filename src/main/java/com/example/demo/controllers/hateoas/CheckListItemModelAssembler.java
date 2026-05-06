@@ -1,8 +1,6 @@
 package com.example.demo.controllers.hateoas;
 
-import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.DTOs.CheckList.Response.CheckListItemResponseDTO;
-import com.example.demo.controllers.ActivityController;
 import com.example.demo.controllers.CheckListItemController;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.CollectionModel;
@@ -33,7 +31,7 @@ public class CheckListItemModelAssembler implements RepresentationModelAssembler
         }
 
         if (permisos.contains("VER_TODOS_CHECKLISTITEM")) {
-            model.add(linkTo((methodOn(CheckListItemController.class).getAll(PageRequest.of(0,10), null))).withRel("all-checklist-items"));
+            model.add(linkTo((methodOn(CheckListItemController.class).getAll(PageRequest.of(0, 10), null))).withRel("all-checklist-items"));
         }
 
         return model;

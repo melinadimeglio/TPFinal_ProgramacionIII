@@ -1,8 +1,6 @@
 package com.example.demo.DTOs.Itinerary.Response;
 
 import com.example.demo.DTOs.Activity.Response.ActivityResumeDTO;
-
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 

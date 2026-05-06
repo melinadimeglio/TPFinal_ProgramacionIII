@@ -39,4 +39,11 @@ public class ActivityCompanyResponseDTO {
 
     @Schema(description = "Cantidad de lugares disponibles", example = "10")
     private Long available_quantity;
+
+    @Schema(
+            description = "URL de la imagen de la actividad almacenada en Cloudinary",
+            example = "https://res.cloudinary.com/tu-cloud/image/upload/v1234567890/travelplanner/actividad.jpg",
+            nullable = true
+    )
+    private String imageUrl;
 }

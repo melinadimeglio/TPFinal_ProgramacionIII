@@ -3,7 +3,6 @@ package com.example.demo.DTOs.Activity;
 import com.example.demo.enums.ActivityCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -50,4 +49,11 @@ public class ActivityUpdateDTO {
 
     @Schema(description = "ID del itinerario al que se quiere asociar la actividad", example = "3")
     private Long itineraryId;
+
+    @Schema(
+            description = "URL de la imagen de la actividad almacenada en Cloudinary",
+            example = "https://res.cloudinary.com/tu-cloud/image/upload/v1234567890/travelplanner/actividad.jpg",
+            nullable = true
+    )
+    private String imageUrl;
 }

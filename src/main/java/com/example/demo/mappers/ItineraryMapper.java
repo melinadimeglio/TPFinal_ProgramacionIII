@@ -1,8 +1,8 @@
 package com.example.demo.mappers;
 
+import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
 import com.example.demo.DTOs.Itinerary.Request.ItineraryCreateDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
-import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
 import com.example.demo.entities.ItineraryEntity;
 import org.mapstruct.*;
 

@@ -20,7 +20,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class ActivityModelAssemblerDif implements RepresentationModelAssembler<ActivityCreateResponseDTO, EntityModel<ActivityCreateResponseDTO>> {
 
     @Override
-    public EntityModel<ActivityCreateResponseDTO> toModel (ActivityCreateResponseDTO activity) {
+    public EntityModel<ActivityCreateResponseDTO> toModel(ActivityCreateResponseDTO activity) {
         EntityModel<ActivityCreateResponseDTO> model = EntityModel.of(activity);
         Set<String> permisos = getAuthorities();
 

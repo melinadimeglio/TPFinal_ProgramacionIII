@@ -1,16 +1,13 @@
 package com.example.demo.services;
 
-import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
 import com.example.demo.DTOs.Filter.ItineraryFilterDTO;
+import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
 import com.example.demo.DTOs.Itinerary.Request.ItineraryCreateDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
-import com.example.demo.DTOs.Itinerary.ItineraryUpdateDTO;
-import com.example.demo.SpecificationAPI.ItinerarySpecification;
 import com.example.demo.entities.ActivityEntity;
 import com.example.demo.entities.ItineraryEntity;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
-import com.example.demo.mappers.ActivityMapper;
 import com.example.demo.mappers.ItineraryMapper;
 import com.example.demo.repositories.ActivityRepository;
 import com.example.demo.repositories.ItineraryRepository;
@@ -27,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 @Service
 public class ItineraryService {
@@ -36,29 +32,27 @@ public class ItineraryService {
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
     private final ActivityRepository activityRepository;
-    private final ActivityMapper activityMapper;
 
     @Autowired
-    public ItineraryService(ItineraryRepository itineraryRepository, ItineraryMapper itineraryMapper, TripRepository tripRepository, UserRepository userRepository, ActivityRepository activityRepository, ActivityMapper activityMapper) {
+    public ItineraryService(ItineraryRepository itineraryRepository, ItineraryMapper itineraryMapper, TripRepository tripRepository, UserRepository userRepository, ActivityRepository activityRepository) {
         this.itineraryRepository = itineraryRepository;
         this.itineraryMapper = itineraryMapper;
         this.tripRepository = tripRepository;
         this.userRepository = userRepository;
         this.activityRepository = activityRepository;
-        this.activityMapper = activityMapper;
     }
 
-    public Page<ItineraryResponseDTO> findAll(Pageable pageable){
+    public Page<ItineraryResponseDTO> findAll(Pageable pageable) {
         return itineraryRepository.findAllByActiveTrue(pageable)
                 .map(itineraryMapper::toDTO);
     }
 
-    public Page<ItineraryResponseDTO> findAllInactive(Pageable pageable){
+    public Page<ItineraryResponseDTO> findAllInactive(Pageable pageable) {
         return itineraryRepository.findAllByActiveFalse(pageable)
                 .map(itineraryMapper::toDTO);
     }
 
-    public boolean addActivity (Long itineraryId, Long userId, Long activityId){
+    public boolean addActivity(Long itineraryId, Long userId, Long activityId) {
 
         ItineraryEntity itinerary = itineraryRepository.findById(itineraryId)
                 .orElseThrow(() -> new NoSuchElementException("Itinerary not found."));
@@ -80,7 +74,7 @@ public class ItineraryService {
         return true;
     }
 
-    public ItineraryResponseDTO findById(Long id){
+    public ItineraryResponseDTO findById(Long id) {
         ItineraryEntity itinerary = itineraryRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Itinerary not found."));
 
@@ -123,7 +117,6 @@ public class ItineraryService {
     }
 
 
-
     public ItineraryEntity getEntityById(Long id) {
         return itineraryRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Itinerary not found."));
@@ -147,7 +140,7 @@ public class ItineraryService {
         boolean belongsToUser = trip.getUsers().stream()
                 .anyMatch(u -> u.getId().equals(myUserId));
 
-        if(dto.getItineraryDate().isBefore(trip.getStartDate()) || dto.getItineraryDate().isAfter(trip.getEndDate())){
+        if (dto.getItineraryDate().isBefore(trip.getStartDate()) || dto.getItineraryDate().isAfter(trip.getEndDate())) {
             throw new IllegalArgumentException("The itinerary date does not correspond to the travel date range.");
         }
 
@@ -186,7 +179,6 @@ public class ItineraryService {
     }
 
 
-
     public ItineraryResponseDTO updateAndReturnIfOwned(Long id, ItineraryUpdateDTO dto, Long userId) {
         ItineraryEntity entity = itineraryRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Itinerary not found."));
@@ -198,7 +190,7 @@ public class ItineraryService {
         TripEntity trip = tripRepository.findById(entity.getTrip().getId())
                 .orElseThrow(() -> new NoSuchElementException("Trip not found."));
 
-        if(dto.getItineraryDate().isBefore(trip.getStartDate()) || dto.getItineraryDate().isAfter(trip.getEndDate())){
+        if (dto.getItineraryDate().isBefore(trip.getStartDate()) || dto.getItineraryDate().isAfter(trip.getEndDate())) {
             throw new IllegalArgumentException("The itinerary date does not correspond to the travel date range.");
         }
 

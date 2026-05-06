@@ -11,8 +11,6 @@ import com.example.demo.controllers.hateoas.TripModelAssembler;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.exceptions.OwnershipException;
-import com.example.demo.repositories.TripRepository;
-import com.example.demo.repositories.UserRepository;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.RecommendationService;
 import com.example.demo.services.TripService;
@@ -21,7 +19,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,20 +28,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.AccessDeniedException;
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -55,18 +50,14 @@ public class TripController {
 
     private final TripService tripService;
     private final RecommendationService recommendationService;
-    private final UserRepository userRepository;
-    private final TripRepository tripRepository;
     private final TripModelAssembler assembler;
     private final PagedResourcesAssembler<TripResponseDTO> pagedResourcesAssembler;
     private final PagedResourcesAssembler<RecommendationDTO> pagedResourcesAssemblerRec;
 
     @Autowired
-    public TripController(TripService tripService, RecommendationService recommendationService, UserRepository userRepository, TripRepository tripRepository, TripModelAssembler assembler, PagedResourcesAssembler<TripResponseDTO> pagedResourcesAssembler, PagedResourcesAssembler<RecommendationDTO> pagedResourcesAssemblerRec) {
+    public TripController(TripService tripService, RecommendationService recommendationService, TripModelAssembler assembler, PagedResourcesAssembler<TripResponseDTO> pagedResourcesAssembler, PagedResourcesAssembler<RecommendationDTO> pagedResourcesAssemblerRec) {
         this.tripService = tripService;
         this.recommendationService = recommendationService;
-        this.userRepository = userRepository;
-        this.tripRepository = tripRepository;
         this.assembler = assembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
         this.pagedResourcesAssemblerRec = pagedResourcesAssemblerRec;
@@ -240,14 +231,15 @@ public class TripController {
             )
     })
     @PreAuthorize("hasAuthority('CREAR_VIAJE')")
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<TripResponseDTO> createTrip(
-            @org.springframework.web.bind.annotation.RequestBody @Valid TripCreateDTO tripCreateDTO,
+            @RequestPart("trip") @Valid TripCreateDTO tripCreateDTO,
+            @RequestPart(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal CredentialEntity credential) {
 
         Long myUserId = credential.getUser().getId();
 
-        TripResponseDTO responseDTO = tripService.save(tripCreateDTO, myUserId);
+        TripResponseDTO responseDTO = tripService.save(tripCreateDTO, myUserId, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
@@ -337,15 +329,16 @@ public class TripController {
             )
     })
     @PreAuthorize("hasAuthority('MODIFICAR_VIAJE')")
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<TripResponseDTO> updateTrip(
             @Parameter(description = "ID of the trip to update", required = true)
             @PathVariable Long id,
-            @org.springframework.web.bind.annotation.RequestBody @Valid TripUpdateDTO tripUpdateDTO,
+            @RequestPart("trip") @Valid TripUpdateDTO tripUpdateDTO,
+            @RequestPart(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal CredentialEntity credential) {
 
         Long userId = credential.getUser().getId();
-        TripResponseDTO updatedTrip = tripService.updateIfBelongsToUser(id, tripUpdateDTO, userId);
+        TripResponseDTO updatedTrip = tripService.updateIfBelongsToUser(id, tripUpdateDTO, userId, file);
         return ResponseEntity.ok(updatedTrip);
     }
 
@@ -455,7 +448,7 @@ public class TripController {
     @GetMapping("/{id}/{tripId}/recommendations")
     public ResponseEntity<PagedModel<EntityModel<RecommendationDTO>>> getRecommendations(@PathVariable Long tripId, @PathVariable Long id,
                                                                                          @AuthenticationPrincipal CredentialEntity credential,
-                                                                                         Pageable pageable){
+                                                                                         Pageable pageable) {
         if (credential.getUser() == null || !credential.getUser().getId().equals(id)) {
             throw new OwnershipException("You do not have permission to access this resource.");
         }
@@ -505,7 +498,7 @@ public class TripController {
     @GetMapping("/{id}/{tripId}/recommendations/filtered")
     public ResponseEntity<?> getFilteredRecommendations(@PathVariable Long tripId, @PathVariable Long id,
                                                         @AuthenticationPrincipal CredentialEntity credential,
-                                                        Pageable pageable){
+                                                        Pageable pageable) {
         if (credential.getUser() == null || !credential.getUser().getId().equals(id)) {
             throw new OwnershipException("You do not have permission to access this resource.");
         }

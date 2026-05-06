@@ -21,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.nio.file.AccessDeniedException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,12 +38,12 @@ public class RecommendationService {
     private final CategoryRepository categoryRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public Page<RecommendationDTO> getRecommendationsForTrip(Long tripId, Long userId, Pageable pageable){
+    public Page<RecommendationDTO> getRecommendationsForTrip(Long tripId, Long userId, Pageable pageable) {
         TripEntity trip = tripService.getTripById(tripId);
         boolean isUserInTrip = trip.getUsers()
                 .stream()
                 .anyMatch(user -> user.getId().equals(userId));
-        if(!isUserInTrip){
+        if (!isUserInTrip) {
             throw new OwnershipException("You do not have permission to view this trip..");
         }
         Coordinates coords = geocodingService.getCoordinates(trip.getDestination());
@@ -58,6 +57,7 @@ public class RecommendationService {
         );
 
         ResponseEntity<PlacesResponse> response = restTemplate.exchange(url, HttpMethod.GET, null, PlacesResponse.class);
+        assert response.getBody() != null;
         List<Feature> features = response.getBody().getFeatures();
 
         if (features == null || features.isEmpty()) {
@@ -97,9 +97,11 @@ public class RecommendationService {
 
         return Arrays.stream(kinds.split(","))
                 .map(String::trim)
-                .map(kind -> {String name = kind.contains(".")?
-                kind.substring(kind.lastIndexOf('.') + 1) : kind;
-                return getOrCreateCategory(name);})
+                .map(kind -> {
+                    String name = kind.contains(".") ?
+                            kind.substring(kind.lastIndexOf('.') + 1) : kind;
+                    return getOrCreateCategory(name);
+                })
                 .collect(Collectors.toSet());
     }
 

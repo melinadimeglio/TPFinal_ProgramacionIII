@@ -1,7 +1,6 @@
 package com.example.demo.controllers.hateoas;
-import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
+
 import com.example.demo.DTOs.CheckList.Response.CheckListResponseDTO;
-import com.example.demo.controllers.ActivityController;
 import com.example.demo.controllers.CheckListController;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.CollectionModel;
@@ -65,7 +64,8 @@ public class CheckListModelAssembler implements RepresentationModelAssembler<Che
 
         if (permisos.contains("VER_CHECKLIST_USER")) {
             collection.add(
-                    linkTo(methodOn(CheckListController.class).getByUser(userId, null, null, PageRequest.of(0, 10))).withSelfRel());        }
+                    linkTo(methodOn(CheckListController.class).getByUser(userId, null, null, PageRequest.of(0, 10))).withSelfRel());
+        }
 
         if (permisos.contains("VER_TODOS_CHECKLIST")) {
             collection.add(linkTo(methodOn(CheckListController.class).getAll(PageRequest.of(0, 10))).withRel("all-checklists")

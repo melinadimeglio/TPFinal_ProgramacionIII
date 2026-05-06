@@ -12,20 +12,20 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import java.util.List;
 
 @Mapper(componentModel = "spring", uses = TripMapper.class,
-nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface UserMapper {
 
     @Mapping(source = "trips", target = "destinos")
     @Mapping(target = "email", expression = "java(user.getCredential() != null ? user.getCredential().getEmail() : null)")
     UserResponseDTO toDTO(UserEntity user);
 
-    UserEntity toUserEntity (UserCreateDTO userDTO);
+    UserEntity toUserEntity(UserCreateDTO userDTO);
 
     List<UserResponseDTO> toDTOList(List<UserEntity> entities);
 
     UserCreateDTO toResponseDTO(UserEntity user);
 
     @Mapping(target = "id", ignore = true)
-    void updateUserEntityFromDTO (UserUpdateDTO dto, @MappingTarget UserEntity user);
+    void updateUserEntityFromDTO(UserUpdateDTO dto, @MappingTarget UserEntity user);
 
 }

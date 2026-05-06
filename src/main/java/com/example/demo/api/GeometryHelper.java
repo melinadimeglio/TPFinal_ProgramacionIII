@@ -11,12 +11,12 @@ public class GeometryHelper {
     @Named("extractLat")
     public static Double extractLat(Geometry geometry) {
 
-        if (geometry == null){
+        if (geometry == null) {
             return null;
         }
 
         List<Double> coordinates = geometry.getCoordinates();
-        if (coordinates.size() > 1){
+        if (coordinates.size() > 1) {
             return coordinates.get(1);
         }
 
@@ -26,12 +26,12 @@ public class GeometryHelper {
     @Named("extractLon")
     public static Double extractLon(Geometry geometry) {
 
-        if (geometry == null){
+        if (geometry == null) {
             return null;
         }
 
         List<Double> coordinates = geometry.getCoordinates();
-        if (coordinates.size() > 0){
+        if (coordinates.size() > 0) {
             return coordinates.get(0);
         }
 

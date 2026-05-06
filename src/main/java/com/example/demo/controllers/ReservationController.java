@@ -3,10 +3,7 @@ package com.example.demo.controllers;
 import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
 import com.example.demo.DTOs.Reservation.Request.ReservationCreateDTO;
 import com.example.demo.DTOs.Reservation.Response.ReservationResponseDTO;
-import com.example.demo.entities.ReservationEntity;
-import com.example.demo.exceptions.ReservationException;
 import com.example.demo.security.entities.CredentialEntity;
-import com.example.demo.services.MPService;
 import com.example.demo.services.ReservationService;
 import com.mercadopago.client.payment.PaymentClient;
 import com.mercadopago.exceptions.MPApiException;
@@ -142,24 +139,23 @@ public class ReservationController {
                                                 @AuthenticationPrincipal CredentialEntity credential, Pageable pageable) throws MPException, MPApiException {
 
 
-
         Long myUserId = credential.getUser().getId();
         Set<ReservationResponseDTO> reservas = reservationService.findByUserId(myUserId, pageable).toSet();
         List<Long> idReservas = reservas.stream()
                 .map(ReservationResponseDTO::getId)
                 .toList();
 
-        if (idReservas.contains(external_reference)){
-                PaymentClient paymentClient = new PaymentClient();
-                Payment payment = paymentClient.get(payment_id);
+        if (idReservas.contains(external_reference)) {
+            PaymentClient paymentClient = new PaymentClient();
+            Payment payment = paymentClient.get(payment_id);
 
-                if(payment.getStatus().equalsIgnoreCase("approved")){
-                    reservationService.paidReservation(external_reference, myUserId, pageable);
-                    return ResponseEntity.ok("Reservation marked as paid.");
-                }else{
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("The payment was not approved.");
-                }
+            if (payment.getStatus().equalsIgnoreCase("approved")) {
+                reservationService.paidReservation(external_reference, myUserId, pageable);
+                return ResponseEntity.ok("Reservation marked as paid.");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("The payment was not approved.");
+            }
 
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

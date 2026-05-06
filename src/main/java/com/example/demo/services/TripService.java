@@ -16,15 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -33,12 +31,14 @@ public class TripService {
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
     private final TripMapper tripMapper;
+    private final CloudinaryService cloudinaryService;
 
     @Autowired
-    public TripService(TripRepository tripRepository, UserRepository userRepository, TripMapper tripMapper) {
+    public TripService(TripRepository tripRepository, UserRepository userRepository, TripMapper tripMapper, CloudinaryService cloudinaryService) {
         this.tripRepository = tripRepository;
         this.userRepository = userRepository;
         this.tripMapper = tripMapper;
+        this.cloudinaryService = cloudinaryService;
     }
 
     public Page<TripResponseDTO> findAll(Pageable pageable) {
@@ -73,7 +73,7 @@ public class TripService {
     }
 
 
-    public TripResponseDTO save(TripCreateDTO dto, Long myUserId) {
+    public TripResponseDTO save(TripCreateDTO dto, Long myUserId, MultipartFile file) {
 
         Set<UserEntity> users = new HashSet<>();
 
@@ -87,10 +87,10 @@ public class TripService {
                         .orElseThrow(() -> new RuntimeException("Shared user not found."));
 
                 if (sharedUser.getCredential().getAuthorities().stream()
-                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))){
-                        throw new ReservationException("You cannot add Admin type users.");
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+                    throw new ReservationException("You cannot add Admin type users.");
                 } else if (sharedUser.getCredential().getAuthorities().stream()
-                        .anyMatch(a -> a.getAuthority().equals("ROLE_COMPANY"))){
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_COMPANY"))) {
                     throw new ReservationException("You cannot add Company type users.");
                 }
                 users.add(sharedUser);
@@ -117,11 +117,18 @@ public class TripService {
         }
 
         TripEntity savedTrip = tripRepository.save(trip);
+
+        if (file != null && !file.isEmpty()) {
+            String url = cloudinaryService.uploadImage(file);
+            savedTrip.setImageUrl(url);
+            tripRepository.save(savedTrip);
+        }
+
         return tripMapper.toDTO(savedTrip);
     }
 
     @Transactional
-    public TripResponseDTO updateIfBelongsToUser(Long tripId, TripUpdateDTO dto, Long userId) {
+    public TripResponseDTO updateIfBelongsToUser(Long tripId, TripUpdateDTO dto, Long userId, MultipartFile file) {
         TripEntity trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new ResourceNotFoundException("Trip not found"));
 
@@ -166,6 +173,16 @@ public class TripService {
         }
 
         TripEntity updated = tripRepository.save(trip);
+
+        if (file != null && !file.isEmpty()) {
+            if (updated.getImageUrl() != null) {
+                cloudinaryService.deleteImage(updated.getImageUrl());
+            }
+            String url = cloudinaryService.uploadImage(file);
+            updated.setImageUrl(url);
+            tripRepository.save(updated);
+        }
+
         return tripMapper.toDTO(updated);
     }
 
@@ -208,16 +225,13 @@ public class TripService {
     public Page<TripResponseDTO> findByUserId(Long userId, String destination, LocalDate date, Pageable pageable) {
         Page<TripEntity> tripEntity;
 
-        if(destination != null && date != null){
+        if (destination != null && date != null) {
             tripEntity = tripRepository.findByDestinationContainsIgnoreCaseAndStartDateAndId(destination, date, userId, pageable);
-        }
-        else if (destination != null){
+        } else if (destination != null) {
             tripEntity = tripRepository.findByDestinationContainsIgnoreCaseAndId(destination, userId, pageable);
-        }
-        else if(date != null){
+        } else if (date != null) {
             tripEntity = tripRepository.findByStartDateAndId(date, userId, pageable);
-        }
-        else {
+        } else {
             tripEntity = tripRepository.findByUsersId(userId, pageable);
         }
         return tripEntity.map(tripMapper::toDTO);

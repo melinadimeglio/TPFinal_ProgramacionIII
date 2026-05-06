@@ -2,11 +2,9 @@ package com.example.demo.DTOs.User;
 
 import com.example.demo.DTOs.Trip.Response.TripResumeDTO;
 import com.example.demo.enums.UserPreferences;
-import com.example.demo.security.enums.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;

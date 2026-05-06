@@ -1,11 +1,13 @@
 package com.example.demo.DTOs.Trip.Request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -13,7 +15,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
 public class TripCreateDTO {
 
     @Schema(description = "Nombre del viaje", example = "Vacaciones en Europa")
@@ -43,4 +44,9 @@ public class TripCreateDTO {
 
     @Schema(description = "Lista de IDs de los usuarios acompañantes (opcional)", example = "[2, 5]", nullable = true)
     private Set<Long> sharedUserIds;
+
+    @Schema(description = "URL de la imagen del viaje almacenada en Cloudinary",
+            example = "https://res.cloudinary.com/tu-cloud/image/upload/v1234567890/travelplanner/imagen.jpg",
+            nullable = true)
+    private String imageUrl;
 }

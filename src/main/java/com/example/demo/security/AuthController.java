@@ -52,7 +52,7 @@ public class AuthController {
 
     @PostMapping()
     public ResponseEntity<AuthResponse> authenticateUser(@RequestBody
-                                                         AuthRequest authRequest){
+                                                         AuthRequest authRequest) {
         UserDetails user = authService.authenticate(authRequest);
         String token = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
@@ -77,7 +77,7 @@ public class AuthController {
     })
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refreshToken(@RequestBody
-                                                     RefreshTokenRequest request){
+                                                     RefreshTokenRequest request) {
         AuthResponse response =
                 authService.refreshAccessToken(request.getRefreshToken());
         return ResponseEntity.ok(response);
@@ -92,16 +92,15 @@ public class AuthController {
             @ApiResponse(responseCode = "400", description = "No valid token provided")
     })
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(HttpServletRequest httpServletRequest){
+    public ResponseEntity<String> logout(HttpServletRequest httpServletRequest) {
         String auth = httpServletRequest.getHeader("Authorization");
-        if(auth != null && auth.startsWith("Bearer")){
+        if (auth != null && auth.startsWith("Bearer")) {
             String token = auth.substring(7);
             tokenBlacklistService.blacklist(token);
             return ResponseEntity.ok("Logged out successfully.");
         }
         return ResponseEntity.badRequest().body("No valid token provided.");
     }
-
 
 
 }

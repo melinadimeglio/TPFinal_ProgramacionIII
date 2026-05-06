@@ -3,6 +3,7 @@ package com.example.demo.entities;
 import com.example.demo.enums.ReservationStatus;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity

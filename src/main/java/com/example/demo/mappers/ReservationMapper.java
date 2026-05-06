@@ -2,10 +2,11 @@ package com.example.demo.mappers;
 
 import com.example.demo.DTOs.Reservation.Request.ReservationCreateDTO;
 import com.example.demo.DTOs.Reservation.Response.ReservationResponseDTO;
+import com.example.demo.entities.ActivityEntity;
 import com.example.demo.entities.ReservationEntity;
 import com.example.demo.entities.UserEntity;
-import com.example.demo.entities.ActivityEntity;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface ReservationMapper {

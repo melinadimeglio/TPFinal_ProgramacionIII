@@ -1,15 +1,14 @@
 package com.example.demo.services;
 
+import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
 import com.example.demo.DTOs.Activity.CompanyActivityUpdateDTO;
-import com.example.demo.DTOs.Activity.Response.ActivityCreateResponseDTO;
-import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
-import com.example.demo.DTOs.Filter.ActivityFilterDTO;
 import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityCompanyResponseDTO;
+import com.example.demo.DTOs.Activity.Response.ActivityCreateResponseDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
-import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
-
+import com.example.demo.DTOs.Expense.Request.ExpenseCreateDTO;
+import com.example.demo.DTOs.Filter.ActivityFilterDTO;
 import com.example.demo.SpecificationAPI.ActivitySpecification;
 import com.example.demo.entities.*;
 import com.example.demo.enums.ActivityCategory;
@@ -20,16 +19,14 @@ import com.example.demo.repositories.ActivityRepository;
 import com.example.demo.repositories.CompanyRepository;
 import com.example.demo.repositories.ItineraryRepository;
 import com.example.demo.repositories.UserRepository;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -48,13 +45,14 @@ public class ActivityService {
     private final ItineraryService itineraryService;
     private final ExpenseService expenseService;
     private final TripService tripService;
+    private final CloudinaryService cloudinaryService;
 
     @Autowired
     public ActivityService(ActivityRepository activityRepository,
                            ActivityMapper activityMapper,
                            UserRepository userRepository,
                            CompanyRepository companyRepository,
-                           ItineraryRepository itineraryRepository, ItineraryService itineraryService, ExpenseService expenseService, TripService tripService) {
+                           ItineraryRepository itineraryRepository, ItineraryService itineraryService, ExpenseService expenseService, TripService tripService, CloudinaryService cloudinaryService) {
         this.activityRepository = activityRepository;
         this.activityMapper = activityMapper;
         this.userRepository = userRepository;
@@ -63,9 +61,10 @@ public class ActivityService {
         this.itineraryService = itineraryService;
         this.expenseService = expenseService;
         this.tripService = tripService;
+        this.cloudinaryService = cloudinaryService;
     }
 
-    public ActivityCreateResponseDTO createFromUser(UserActivityCreateDTO dto, Long myUserId, Long itineraryId) {
+    public ActivityCreateResponseDTO createFromUser(UserActivityCreateDTO dto, Long myUserId, Long itineraryId, MultipartFile file) {
         ActivityEntity entity = activityMapper.toEntity(dto);
         entity.setAvailable(true);
 
@@ -82,6 +81,8 @@ public class ActivityService {
             entity.setItinerary(itinerary);
         }
 
+
+        assert itinerary != null;
         TripEntity trip = tripService.getTripById(itinerary.getTrip().getId());
 
         Set<UserEntity> users = new HashSet<>();
@@ -96,14 +97,14 @@ public class ActivityService {
                         .orElseThrow(() -> new RuntimeException("Shared user not found."));
 
                 if (sharedUser.getCredential().getAuthorities().stream()
-                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))){
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
                     throw new ReservationException("You cannot add Admin type users.");
                 }
                 users.add(sharedUser);
             }
         }
 
-        if (trip != null){
+        if (trip != null) {
             Set<UserEntity> usersTrip = trip.getUsers();
 
             if (users.size() > 1 && !usersTrip.containsAll(users)) {
@@ -114,13 +115,13 @@ public class ActivityService {
         entity.setUsers(users);
 
         ActivityEntity saved = activityRepository.save(entity);
-        if (!itineraryService.addActivity(itineraryId, myUserId, saved.getId())){
+        if (!itineraryService.addActivity(itineraryId, myUserId, saved.getId())) {
             throw new ReservationException("The activity could not be created.");
         }
 
         Set<Long> usersIds = users.stream()
-                        .map(UserEntity::getId)
-                                .collect(Collectors.toSet());
+                .map(UserEntity::getId)
+                .collect(Collectors.toSet());
 
         expenseService.save(ExpenseCreateDTO.builder()
                 .amount(dto.getPrice())
@@ -131,24 +132,30 @@ public class ActivityService {
                 .sharedUserIds(usersIds)
                 .build(), myUserId);
 
+        if (file != null && !file.isEmpty()) {
+            String url = cloudinaryService.uploadImage(file);
+            saved.setImageUrl(url);
+            activityRepository.save(saved);
+        }
+
         return activityMapper.toDTOCreated(saved);
     }
 
-    public boolean updateCapacity (Long activityId, int quantity){
+    public boolean updateCapacity(Long activityId, int quantity) {
 
         ActivityEntity activity = activityRepository.findById(activityId)
                 .orElseThrow(() -> new NoSuchElementException("Activity not found."));
 
-        if (activity.getAvailable_quantity() != null && activity.getAvailable_quantity()-quantity >= 0){
+        if (activity.getAvailable_quantity() != null && activity.getAvailable_quantity() - quantity >= 0) {
             activity.setAvailable_quantity(activity.getAvailable_quantity() - quantity);
             activityRepository.save(activity);
             return true;
-        }else {
+        } else {
             return false;
         }
     }
 
-    public ActivityCompanyResponseDTO createFromCompanyService(CompanyActivityCreateDTO dto, Long companyId) {
+    public ActivityCompanyResponseDTO createFromCompanyService(CompanyActivityCreateDTO dto, Long companyId, MultipartFile file) {
 
         System.out.println("ID DE COMPANY DENTRO DE CREATE FROM COMPANY: " + companyId);
 
@@ -160,6 +167,13 @@ public class ActivityService {
         entity.setAvailable(true);
 
         ActivityEntity saved = activityRepository.save(entity);
+
+        if (file != null && !file.isEmpty()) {
+            String url = cloudinaryService.uploadImage(file);
+            saved.setImageUrl(url);
+            activityRepository.save(saved);
+        }
+
         return activityMapper.toCompanyResponseDTO(saved);
     }
 
@@ -180,7 +194,7 @@ public class ActivityService {
                 .map(activityMapper::toDTO);
     }
 
-    public Page<ActivityResponseDTO> findAllCompany (Pageable pageable){
+    public Page<ActivityResponseDTO> findAllCompany(Pageable pageable) {
         Page<ActivityEntity> activities = activityRepository.findAllByAvailableTrue(pageable);
         List<ActivityEntity> activitiesList = activities.stream()
                 .toList();
@@ -204,7 +218,7 @@ public class ActivityService {
                 .map(activityMapper::toDTO);
     }
 
-    public ActivityCreateResponseDTO updateAndReturnIfOwned(Long id, ActivityUpdateDTO dto, Long myUserId) {
+    public ActivityCreateResponseDTO updateAndReturnIfOwned(Long id, ActivityUpdateDTO dto, Long myUserId, MultipartFile file) {
         ActivityEntity entity = activityRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Activity not found."));
 
@@ -220,7 +234,7 @@ public class ActivityService {
             }
         }
 
-        ItineraryEntity newItinerary = null;
+        ItineraryEntity newItinerary;
 
         if (dto.getItineraryId() != null) {
             newItinerary = itineraryRepository.findById(dto.getItineraryId())
@@ -260,6 +274,15 @@ public class ActivityService {
 
         ActivityEntity saved = activityRepository.save(entity);
 
+        if (file != null && !file.isEmpty()) {
+            if (saved.getImageUrl() != null) {
+                cloudinaryService.deleteImage(saved.getImageUrl());
+            }
+            String url = cloudinaryService.uploadImage(file);
+            saved.setImageUrl(url);
+            activityRepository.save(saved);
+        }
+
         return activityMapper.toDTOCreated(saved);
     }
 
@@ -294,8 +317,7 @@ public class ActivityService {
             if (!itinerary.getUser().getId().equals(myUserId)) {
                 throw new AccessDeniedException("You do not have permission to restore this activity (you do not own the itinerary).");
             }
-        }
-        else {
+        } else {
             boolean belongsToUser = activity.getUsers().stream()
                     .anyMatch(user -> user.getId().equals(myUserId));
             if (!belongsToUser) {
@@ -307,7 +329,7 @@ public class ActivityService {
         activityRepository.save(activity);
     }
 
-    public ActivityResponseDTO updateActivityByCompany(Long companyId, Long activityId, CompanyActivityUpdateDTO dto) {
+    public ActivityResponseDTO updateActivityByCompany(Long companyId, Long activityId, CompanyActivityUpdateDTO dto, MultipartFile file) {
         ActivityEntity activity = activityRepository.findById(activityId)
                 .orElseThrow(() -> new NoSuchElementException("Activity not found."));
 
@@ -317,6 +339,15 @@ public class ActivityService {
 
         activityMapper.updateEntityFromCompanyDTO(dto, activity);
         activityRepository.save(activity);
+
+        if (file != null && !file.isEmpty()) {
+            if (activity.getImageUrl() != null) {
+                cloudinaryService.deleteImage(activity.getImageUrl());
+            }
+            String url = cloudinaryService.uploadImage(file);
+            activity.setImageUrl(url);
+            activityRepository.save(activity);
+        }
 
         return activityMapper.toDTO(activity);
     }
@@ -376,7 +407,6 @@ public class ActivityService {
         Page<ActivityEntity> result = activityRepository.findAll(spec, pageable);
         return result.map(activityMapper::toCompanyResponseDTO);
     }
-
 
 
 }

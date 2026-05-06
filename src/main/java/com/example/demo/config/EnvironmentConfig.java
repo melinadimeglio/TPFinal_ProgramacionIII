@@ -16,5 +16,10 @@ public class EnvironmentConfig {
         System.setProperty("API_KEY", Objects.requireNonNull(dotenv.get("API_KEY")));
         System.setProperty("jwt_secret", Objects.requireNonNull(dotenv.get("JWT_SECRET")));
         System.setProperty("access_token", Objects.requireNonNull(dotenv.get("PROD_ACCESS_TOKEN")));
+        System.setProperty("CLOUD_NAME", Objects.requireNonNull(dotenv.get("CLOUD_NAME")));
+        System.setProperty("CLOUD_API_KEY", Objects.requireNonNull(dotenv.get("CLOUD_API_KEY")));
+        System.setProperty("CLOUD_API_SECRET", Objects.requireNonNull(dotenv.get("CLOUD_API_SECRET")));
+        System.setProperty("EMAIL", Objects.requireNonNull(dotenv.get("EMAIL")));
+        System.setProperty("EMAIL_PASSWORD", Objects.requireNonNull(dotenv.get("EMAIL_PASSWORD")));
     }
 }

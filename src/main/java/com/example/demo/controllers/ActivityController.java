@@ -2,12 +2,12 @@ package com.example.demo.controllers;
 
 import com.example.demo.DTOs.Activity.ActivityUpdateDTO;
 import com.example.demo.DTOs.Activity.CompanyActivityUpdateDTO;
-import com.example.demo.DTOs.Activity.Response.ActivityCreateResponseDTO;
-import com.example.demo.DTOs.Filter.ActivityFilterDTO;
 import com.example.demo.DTOs.Activity.Request.CompanyActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Request.UserActivityCreateDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityCompanyResponseDTO;
+import com.example.demo.DTOs.Activity.Response.ActivityCreateResponseDTO;
 import com.example.demo.DTOs.Activity.Response.ActivityResponseDTO;
+import com.example.demo.DTOs.Filter.ActivityFilterDTO;
 import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.controllers.hateoas.ActivityCompanyModelAssembler;
@@ -18,7 +18,6 @@ import com.example.demo.entities.UserEntity;
 import com.example.demo.enums.ActivityCategory;
 import com.example.demo.exceptions.OwnershipException;
 import com.example.demo.exceptions.ReservationException;
-import com.example.demo.repositories.ItineraryRepository;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.ActivityService;
 import com.example.demo.services.ItineraryService;
@@ -32,23 +31,22 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.hateoas.PagedModel;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @Tag(name = "Activities", description = "Operations related to users and companies activities")
 @RestController
@@ -61,12 +59,11 @@ public class ActivityController {
     private final PagedResourcesAssembler<ActivityCompanyResponseDTO> pagedResourcesAssemblerCompany;
     private final PagedResourcesAssembler<ActivityCreateResponseDTO> pagedResourcesAssemblerActivity;
     private final ItineraryService itineraryService;
-    private final ItineraryRepository itineraryRepository;
     private final ActivityCompanyModelAssembler activityCompanyAssembler;
     private final ActivityModelAssemblerDif activityModelAssemblerDif;
 
     @Autowired
-    public ActivityController(ActivityService activityService, ActivityModelAssembler assembler, PagedResourcesAssembler<ActivityResponseDTO> pagedResourcesAssembler, PagedResourcesAssembler<ActivityCompanyResponseDTO> pagedResourcesAssemblerCompany, PagedResourcesAssembler<ActivityCreateResponseDTO> pagedResourcesAssemblerActivity, ItineraryService itineraryService, ItineraryRepository itineraryRepository,
+    public ActivityController(ActivityService activityService, ActivityModelAssembler assembler, PagedResourcesAssembler<ActivityResponseDTO> pagedResourcesAssembler, PagedResourcesAssembler<ActivityCompanyResponseDTO> pagedResourcesAssemblerCompany, PagedResourcesAssembler<ActivityCreateResponseDTO> pagedResourcesAssemblerActivity, ItineraryService itineraryService,
                               ActivityCompanyModelAssembler activityCompanyAssembler, ActivityModelAssemblerDif activityModelAssemblerDif) {
         this.activityService = activityService;
         this.assembler = assembler;
@@ -74,8 +71,7 @@ public class ActivityController {
         this.pagedResourcesAssemblerCompany = pagedResourcesAssemblerCompany;
         this.pagedResourcesAssemblerActivity = pagedResourcesAssemblerActivity;
         this.itineraryService = itineraryService;
-        this.itineraryRepository = itineraryRepository;
-        this.activityCompanyAssembler = activityCompanyAssembler ;
+        this.activityCompanyAssembler = activityCompanyAssembler;
         this.activityModelAssemblerDif = activityModelAssemblerDif;
     }
 
@@ -125,9 +121,10 @@ public class ActivityController {
             )
     })
     @PreAuthorize("hasAuthority('CREAR_ACTIVIDAD_USUARIO')")
-    @PostMapping("/user")
+    @PostMapping(value = "/user", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ActivityCreateResponseDTO> createFromUser(
-            @RequestBody @Valid UserActivityCreateDTO dto,
+            @RequestPart("activity") @Valid UserActivityCreateDTO dto,
+            @RequestPart(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal CredentialEntity credential, Pageable pageable) {
 
         Long myUserId = credential.getUser().getId();
@@ -137,11 +134,11 @@ public class ActivityController {
                 .filter(itinerary -> itinerary.getItineraryDate().equals(dto.getDate()))
                 .findFirst();
 
-        if (itinerario.isEmpty()){
+        if (itinerario.isEmpty()) {
             throw new ReservationException("There is no itinerary for the activity date. Please create one first..");
         }
 
-        ActivityCreateResponseDTO createdActivity = activityService.createFromUser(dto, myUserId, itinerario.get().getId());
+        ActivityCreateResponseDTO createdActivity = activityService.createFromUser(dto, myUserId, itinerario.get().getId(), file);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdActivity);
     }
 
@@ -198,9 +195,10 @@ public class ActivityController {
             )
     })
     @PreAuthorize("hasAuthority('CREAR_ACTIVIDAD_EMPRESA')")
-    @PostMapping("/company")
+    @PostMapping(value = "/company", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ActivityCompanyResponseDTO> createActivityFromCompany(
-            @RequestBody @Valid CompanyActivityCreateDTO dto,
+            @RequestPart("activity") @Valid CompanyActivityCreateDTO dto,
+            @RequestPart(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal CredentialEntity credential) {
 
         Long companyId = 0L;
@@ -210,16 +208,16 @@ public class ActivityController {
                 .map(Object::toString)
                 .toList();
 
-        if (authorities.contains("ROLE_ADMIN")){
+        if (authorities.contains("ROLE_ADMIN")) {
             companyId = dto.getCompanyId();
-        }else if (authorities.contains("ROLE_COMPANY")){
+        } else if (authorities.contains("ROLE_COMPANY")) {
             if (credential.getCompany() == null) {
                 throw new RuntimeException("The company is not associated with the user COMPANY.");
             }
             companyId = credential.getCompany().getId();
         }
 
-        ActivityCompanyResponseDTO response = activityService.createFromCompanyService(dto, companyId);
+        ActivityCompanyResponseDTO response = activityService.createFromCompanyService(dto, companyId, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -274,7 +272,7 @@ public class ActivityController {
             @AuthenticationPrincipal CredentialEntity credential,
             Pageable pageable) {
 
-        Optional <CompanyEntity> myCompanyId = Optional.ofNullable(credential.getCompany());
+        Optional<CompanyEntity> myCompanyId = Optional.ofNullable(credential.getCompany());
         boolean isAdmin = credential.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
@@ -512,9 +510,9 @@ public class ActivityController {
         boolean isAdmin = credential.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-        System.out.println("TIENE COMPANY ID: " + activity.getCompanyId() != null);
+        System.out.println("TIENE COMPANY ID: " + (activity.getCompanyId() != null));
         boolean isCompanyActivity = activity.getCompanyId() != null;
-        
+
         if (!isUserOwner && !isAdmin && !isCompanyActivity) {
             throw new OwnershipException("You do not have permission to access this resource.");
         }
@@ -577,7 +575,7 @@ public class ActivityController {
             ActivityFilterDTO filters,
             Pageable pageable) {
 
-        Optional <UserEntity> myUserId = Optional.ofNullable(credential.getUser());
+        Optional<UserEntity> myUserId = Optional.ofNullable(credential.getUser());
         boolean isAdmin = credential.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
@@ -626,14 +624,15 @@ public class ActivityController {
             )
     })
     @PreAuthorize("hasAuthority('MODIFICAR_ACTIVIDADES_USUARIO')")
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ActivityCreateResponseDTO> updateActivity(
             @PathVariable Long id,
-            @RequestBody @Valid ActivityUpdateDTO dto,
+            @RequestPart("activity") @Valid ActivityUpdateDTO dto,
+            @RequestPart(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal CredentialEntity credential
     ) {
         Long myUserId = credential.getUser().getId();
-        ActivityCreateResponseDTO updated = activityService.updateAndReturnIfOwned(id, dto, myUserId);
+        ActivityCreateResponseDTO updated = activityService.updateAndReturnIfOwned(id, dto, myUserId, file);
         return ResponseEntity.ok(updated);
     }
 
@@ -753,11 +752,12 @@ public class ActivityController {
             )
     })
     @PreAuthorize("hasAuthority('MODIFICAR_ACTIVIDADES_EMPRESA')")
-    @PutMapping("/company/{companyId}/activities/{activityId}")
+    @PutMapping(value = "/company/{companyId}/activities/{activityId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ActivityResponseDTO> updateActivityByCompany(
             @PathVariable Long companyId,
             @PathVariable Long activityId,
-            @RequestBody @Valid CompanyActivityUpdateDTO dto,
+            @RequestPart("activity") @Valid CompanyActivityUpdateDTO dto,
+            @RequestPart(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal CredentialEntity credential) {
 
         Long myCompanyId = credential.getCompany().getId();
@@ -766,7 +766,7 @@ public class ActivityController {
             throw new OwnershipException("You do not have permission to access this resource.");
         }
 
-        ActivityResponseDTO updated = activityService.updateActivityByCompany(myCompanyId, activityId, dto);
+        ActivityResponseDTO updated = activityService.updateActivityByCompany(myCompanyId, activityId, dto, file);
         return ResponseEntity.ok(updated);
     }
 

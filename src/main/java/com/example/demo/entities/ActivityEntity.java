@@ -27,6 +27,8 @@ public class ActivityEntity {
 
     private String description;
 
+    private String imageUrl;
+
     @Column(nullable = false)
     private boolean available = true;
 
