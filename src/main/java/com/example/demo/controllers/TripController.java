@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -445,14 +446,14 @@ public class TripController {
             )
     })
     @PreAuthorize("hasAuthority('OBTENER_RECOMENDACIONES_VIAJE')")
-    @GetMapping("/{id}/{tripId}/recommendations")
-    public ResponseEntity<PagedModel<EntityModel<RecommendationDTO>>> getRecommendations(@PathVariable Long tripId, @PathVariable Long id,
+    @GetMapping("/{tripId}/{userId}/recommendations")
+    public ResponseEntity<PagedModel<EntityModel<RecommendationDTO>>> getRecommendations(@PathVariable("tripId") Long tripId, @PathVariable("userId") Long userId,
                                                                                          @AuthenticationPrincipal CredentialEntity credential,
                                                                                          Pageable pageable) {
-        if (credential.getUser() == null || !credential.getUser().getId().equals(id)) {
+        if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
             throw new OwnershipException("You do not have permission to access this resource.");
         }
-        Page<RecommendationDTO> recomemendations = recommendationService.getRecommendationsForTrip(tripId, id, pageable);
+        Page<RecommendationDTO> recomemendations = recommendationService.getRecommendationsForTrip(tripId, userId, pageable);
         return ResponseEntity.ok(pagedResourcesAssemblerRec.toModel(recomemendations));
     }
 
@@ -495,50 +496,47 @@ public class TripController {
             )
     })
     @PreAuthorize("hasAuthority('OBTENER_RECOMENDACIONES_FILTRADAS')")
-    @GetMapping("/{id}/{tripId}/recommendations/filtered")
-    public ResponseEntity<?> getFilteredRecommendations(@PathVariable Long tripId, @PathVariable Long id,
-                                                        @AuthenticationPrincipal CredentialEntity credential,
-                                                        Pageable pageable) {
-        if (credential.getUser() == null || !credential.getUser().getId().equals(id)) {
+    @GetMapping("/{tripId}/{userId}/recommendations/filtered")
+    public ResponseEntity<PagedModel<EntityModel<RecommendationDTO>>> getFilteredRecommendations(
+            @PathVariable("tripId") Long tripId,
+            @PathVariable("userId") Long userId,
+            @AuthenticationPrincipal CredentialEntity credential,
+            Pageable pageable) {
+
+        if (credential.getUser() == null || !credential.getUser().getId().equals(userId)) {
             throw new OwnershipException("You do not have permission to access this resource.");
         }
-        Page<RecommendationDTO> recomendations = recommendationService.getRecommendationsForTrip(tripId, id, pageable);
-        if (recomendations.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.OK).body("No recommendations found.");
+
+        Page<RecommendationDTO> allRecommendations = recommendationService.getRecommendationsForTrip(tripId, userId, Pageable.unpaged());
+
+        if (allRecommendations.isEmpty()) {
+            return ResponseEntity.ok(pagedResourcesAssemblerRec.toModel(Page.empty(pageable)));
         }
+
         TripEntity trip = tripService.getTripById(tripId);
-
-        Set<UserEntity> users = trip.getUsers();
-
-        Set<String> allPreferences = users.stream()
+        Set<String> allPreferences = trip.getUsers().stream()
                 .flatMap(user -> user.getPreferencias().stream())
-                .map(pref -> pref.getKindApi().toLowerCase())
+                .map(pref -> pref.getKindApi().toLowerCase().trim())
                 .collect(Collectors.toSet());
 
         if (allPreferences.isEmpty()) {
-            System.out.println("No preferences found for any users in tripId=" + tripId);
-            return ResponseEntity.status(HttpStatus.OK).body("No preferences defined for any user.");
+            return ResponseEntity.ok(pagedResourcesAssemblerRec.toModel(Page.empty(pageable)));
         }
 
-        System.out.println("Usuarios del viaje: " + users.size());
-        users.forEach(u -> System.out.println(u.getPreferencias()));
-
-        List<RecommendationDTO> filteredRecommendations = recomendations.stream()
+        List<RecommendationDTO> filteredList = allRecommendations.getContent().stream()
                 .filter(rec -> rec.getCategories().stream()
-                        .map(cat -> cat.getName().toLowerCase())
+                        .map(cat -> cat.getName().toLowerCase().trim())
                         .anyMatch(allPreferences::contains))
                 .collect(Collectors.toList());
 
-        if (filteredRecommendations.isEmpty()) {
-            System.out.println("Recommendations found but none match preferences for tripId=" + tripId);
-            return ResponseEntity.status(HttpStatus.OK).body("No recommendations matched user preferences.");
-        }
-
         int start = (int) pageable.getOffset();
-        int end = Math.min(start + pageable.getPageSize(), filteredRecommendations.size());
-        List<RecommendationDTO> paged = filteredRecommendations.subList(start, end);
+        int end = Math.min(start + pageable.getPageSize(), filteredList.size());
 
-        Page<RecommendationDTO> pagedResult = new PageImpl<>(paged, pageable, filteredRecommendations.size());
+        List<RecommendationDTO> pagedList = (start < filteredList.size())
+                ? filteredList.subList(start, end)
+                : Collections.emptyList();
+
+        Page<RecommendationDTO> pagedResult = new PageImpl<>(pagedList, pageable, filteredList.size());
 
         return ResponseEntity.ok(pagedResourcesAssemblerRec.toModel(pagedResult));
     }

@@ -69,6 +69,7 @@ public class RecommendationService {
                 .map(feature -> {
                     RecommendationEntity entity = recommendationMapper.toEntity(feature);
                     entity.setTrip(trip);
+                    entity.setActive(true);
                     Set<CategoryEntity> categories = getOrCreateCategories(feature.getProperties().getKinds());
                     entity.setCategories(categories);
                     return entity;
