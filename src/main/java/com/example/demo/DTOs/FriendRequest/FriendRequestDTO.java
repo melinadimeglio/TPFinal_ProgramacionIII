@@ -17,6 +17,6 @@ public class FriendRequestDTO {
     private String senderUsername;
 
     @Schema(description = "Estado de la solicitud de amistad", example = "ACCEPTED")
-    private FriendRequestStatus status;
+    private FriendRequestStatus friendRequestStatus;
 
 }

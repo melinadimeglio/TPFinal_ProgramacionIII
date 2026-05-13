@@ -553,6 +553,17 @@ public class TripController {
         return ResponseEntity.notFound().build();
     }
 
+    @PreAuthorize("hasAuthority('VER_VIAJES_AMIGO')")
+    @GetMapping("/friends/{friendId}")
+    public ResponseEntity<List<TripResponseDTO>> getFriendTrips(
+            @PathVariable Long friendId,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long myId = credential.getUser().getId();
+        List<TripResponseDTO> trips = tripService.getFriendTrips(friendId, myId);
+        return ResponseEntity.ok(trips);
+    }
+
 }
 
 

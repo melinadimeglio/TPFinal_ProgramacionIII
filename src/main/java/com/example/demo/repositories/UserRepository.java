@@ -18,4 +18,5 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     Page<UserEntity> findAllByActiveFalse(Pageable pageable);
 
+    Page<UserEntity> findByUsernameContainingIgnoreCaseAndActiveTrue(String username, Pageable pageable);
 }

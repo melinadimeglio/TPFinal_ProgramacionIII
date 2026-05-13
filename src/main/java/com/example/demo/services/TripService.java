@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -251,6 +252,25 @@ public class TripService {
 
         Page<TripEntity> result = tripRepository.findAll(spec, pageable);
         return result.map(tripMapper::toDTO);
+    }
+
+    public List<TripResponseDTO> getFriendTrips(Long friendId, Long myId) {
+        UserEntity user = userRepository.findById(myId)
+                .orElseThrow(() -> new NoSuchElementException("User not found: " + myId));
+
+        boolean isFriend = user.getFriends().stream()
+                .anyMatch(f -> f.getId().equals(friendId));
+
+        if (!isFriend) {
+            throw new IllegalArgumentException("This user is not your friend.");
+        }
+
+        UserEntity friend = userRepository.findById(friendId)
+                .orElseThrow(() -> new NoSuchElementException("User not found: " + friendId));
+
+        return friend.getTrips().stream()
+                .map(tripMapper::toDTO)
+                .toList();
     }
 }
 

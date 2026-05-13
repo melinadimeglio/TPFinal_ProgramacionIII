@@ -105,7 +105,17 @@ public class RolePermitMapping {
 
                 //REVIEWS
                 Permit.CREAR_RESENIA,
-                Permit.VER_RESENIAS
+                Permit.VER_RESENIAS,
+
+                // SOLICITUD DE AMISTAD
+                Permit.ENVIAR_SOLICITUD,
+                Permit.VER_SOLICITUDES_PENDIENTES,
+                Permit.ACEPTAR_SOLICITUD,
+                Permit.RECHAZAR_SOLICITUD,
+                Permit.BUSCAR_POR_USERNAME,
+                Permit.VER_AMIGOS,
+                Permit.VER_PERFIL_AMIGO,
+                Permit.VER_VIAJES_AMIGO
         ));
 
         // COMPANY

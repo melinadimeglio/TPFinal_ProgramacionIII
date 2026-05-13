@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -182,5 +183,34 @@ public class UserService {
         }
 
         return "Role assigned successfully.";
+    }
+
+    public Page<UserResponseDTO> searchByUsername(String username, Pageable pageable) {
+        return userRepository.findByUsernameContainingIgnoreCaseAndActiveTrue(username, pageable)
+                .map(userMapper::toDTO);
+    }
+
+    public List<UserResponseDTO> getFriends(String email) {
+        UserEntity user = credentialRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email))
+                .getUser();
+
+        return user.getFriends().stream()
+                .map(userMapper::toDTO)
+                .toList();
+    }
+
+    public UserResponseDTO findByIdIfFriend(Long friendId, Long myId) {
+        UserEntity me = userRepository.findById(myId)
+                .orElseThrow(() -> new NoSuchElementException("User not found: " + myId));
+
+        boolean isFriend = me.getFriends().stream()
+                .anyMatch(f -> f.getId().equals(friendId));
+
+        if (!isFriend) {
+            throw new IllegalArgumentException("This user is not your friend.");
+        }
+
+        return findById(friendId);
     }
 }
