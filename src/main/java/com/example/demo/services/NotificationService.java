@@ -236,4 +236,16 @@ public class NotificationService {
                 .existsByUserIdAndTypeAndRelatedEntityIdAndCreatedAtAfter(userId, type, entityId, since);
     }
 
+    public void notifyTripInvitationAccepted(Long userId, String accepterName, Long tripId) {
+        create(NotificationCreateDTO.builder()
+                .userId(userId)
+                .type(NotificationType.TRIP_INVITE)
+                .category(NotificationCategory.TRIPS)
+                .title("Invitación aceptada")
+                .body(accepterName + " aceptó tu invitación al viaje.")
+                .relatedEntityId(tripId)
+                .relatedEntityType("TRIP")
+                .build());
+    }
+
 }

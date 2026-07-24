@@ -28,6 +28,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/users")
 @Tag(name = "Users", description = "Operations related to user management")
@@ -457,4 +459,36 @@ public class UserController {
 
         return ResponseEntity.ok(mensaje);
     }
+
+    @PreAuthorize("hasAuthority('BUSCAR_POR_USERNAME')")
+    @GetMapping("/search")
+    public ResponseEntity<Page<UserResponseDTO>> searchByUsername(
+            @RequestParam String username,
+            Pageable pageable) {
+
+        Page<UserResponseDTO> result = userService.searchByUsername(username, pageable);
+        return ResponseEntity.ok(result);
+    }
+
+    @PreAuthorize("hasAuthority('VER_AMIGOS')")
+    @GetMapping("/friends")
+    public ResponseEntity<List<UserResponseDTO>> getFriends(
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        String email = credential.getEmail();
+        List<UserResponseDTO> friends = userService.getFriends(email);
+        return ResponseEntity.ok(friends);
+    }
+
+    @PreAuthorize("hasAuthority('VER_PERFIL_AMIGO')")
+    @GetMapping("/friends/{friendId}")
+    public ResponseEntity<UserResponseDTO> getFriendProfile(
+            @PathVariable Long friendId,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long myId = credential.getUser().getId();
+        UserResponseDTO friend = userService.findByIdIfFriend(friendId, myId);
+        return ResponseEntity.ok(friend);
+    }
+
 }

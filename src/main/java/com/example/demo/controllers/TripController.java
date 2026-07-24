@@ -543,7 +543,6 @@ public class TripController {
         return ResponseEntity.ok(pagedResourcesAssemblerRec.toModel(pagedResult));
     }
 
-    //solo para hateoas
     @Operation(summary = "Get all trips (paged - HATEOAS only)", description = "Retrieves all trips in paginated format using HATEOAS structure. Currently not implemented.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "404", description = "Endpoint not yet implemented")
@@ -551,6 +550,17 @@ public class TripController {
     @GetMapping("/paged")
     public ResponseEntity<PagedModel<EntityModel<TripResponseDTO>>> getAllTrips() {
         return ResponseEntity.notFound().build();
+    }
+
+    @PreAuthorize("hasAuthority('VER_VIAJES_AMIGO')")
+    @GetMapping("/friends/{friendId}")
+    public ResponseEntity<List<TripResponseDTO>> getFriendTrips(
+            @PathVariable Long friendId,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long myId = credential.getUser().getId();
+        List<TripResponseDTO> trips = tripService.getFriendTrips(friendId, myId);
+        return ResponseEntity.ok(trips);
     }
 
 }

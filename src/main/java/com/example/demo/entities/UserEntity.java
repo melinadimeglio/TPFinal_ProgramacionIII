@@ -45,9 +45,21 @@ public class UserEntity {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "trip_id")
     )
+    @Builder.Default
     private Set<TripEntity> trips = new HashSet<>();
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private CredentialEntity credential;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_friends",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "friend_id")
+    )
+    @Builder.Default
+    private Set<UserEntity> friends = new HashSet<>();
+
+
 
 }
