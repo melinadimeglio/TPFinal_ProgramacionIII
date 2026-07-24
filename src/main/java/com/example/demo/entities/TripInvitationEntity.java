@@ -8,13 +8,12 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "FriendRequest")
+@Table
 @Getter
-@Setter
-@NoArgsConstructor
+@Setter@NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FriendRequestEntity {
+public class TripInvitationEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,10 +27,14 @@ public class FriendRequestEntity {
     @JoinColumn(name = "receiver_id")
     private UserEntity receiver;
 
+    @ManyToOne
+    @JoinColumn(name = "trip_id")
+    private TripEntity trip;
+
     @CreationTimestamp
-    private LocalDateTime friendshipDate;
+    private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)
-    private RequestStatus friendRequestStatus;
+    private RequestStatus invitationStatus;
 
 }

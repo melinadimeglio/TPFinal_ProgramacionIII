@@ -3,11 +3,10 @@ package com.example.demo.services;
 import com.example.demo.DTOs.FriendRequest.FriendRequestDTO;
 import com.example.demo.entities.FriendRequestEntity;
 import com.example.demo.entities.UserEntity;
-import com.example.demo.enums.FriendRequestStatus;
+import com.example.demo.enums.RequestStatus;
 import com.example.demo.repositories.FriendRequestRepository;
 import com.example.demo.repositories.UserRepository;
 import com.example.demo.security.repositories.CredentialRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -22,14 +21,19 @@ public class FriendRequestService {
     private final CredentialRepository credentialRepository;
     private final UserService userService;
     private final UserRepository userRepository;
-
+    private final NotificationService notificationService;
 
     @Autowired
-    public FriendRequestService(FriendRequestRepository friendRequestRepository, CredentialRepository credentialRepository, UserService userService, UserRepository userRepository) {
+    public FriendRequestService(FriendRequestRepository friendRequestRepository,
+                                CredentialRepository credentialRepository,
+                                UserService userService,
+                                UserRepository userRepository,
+                                NotificationService notificationService) {
         this.friendRequestRepository = friendRequestRepository;
         this.credentialRepository = credentialRepository;
         this.userService = userService;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     private UserEntity getLoggedUser (String email){
@@ -57,17 +61,18 @@ public class FriendRequestService {
         FriendRequestEntity request = FriendRequestEntity.builder()
                 .sender(sender)
                 .receiver(receiver)
-                .friendRequestStatus(FriendRequestStatus.PENDING)
+                .friendRequestStatus(RequestStatus.PENDING)
                 .build();
 
         friendRequestRepository.save(request);
+        notificationService.notifyFriendRequest(receiver.getId(), sender.getUsername(), sender.getId());
     }
 
 
     public List<FriendRequestDTO> getPendingRequest (String email){
         UserEntity receiver = getLoggedUser(email);
 
-        return friendRequestRepository.findAllByReceiverAndFriendRequestStatus(receiver, FriendRequestStatus.PENDING)
+        return friendRequestRepository.findAllByReceiverAndFriendRequestStatus(receiver, RequestStatus.PENDING)
                 .stream()
                 .map(r -> new FriendRequestDTO(
                         r.getId(),
@@ -82,7 +87,7 @@ public class FriendRequestService {
         UserEntity receiver = getLoggedUser(email);
         FriendRequestEntity request = findAndValidate(requestId, receiver);
 
-        request.setFriendRequestStatus(FriendRequestStatus.ACCEPTED);
+        request.setFriendRequestStatus(RequestStatus.ACCEPTED);
 
         receiver.getFriends().add(request.getSender());
         request.getSender().getFriends().add(receiver);
@@ -90,6 +95,7 @@ public class FriendRequestService {
         friendRequestRepository.save(request);
         userService.update(receiver);
         userService.update(request.getSender());
+        notificationService.notifyFriendRequestAccepted(request.getSender().getId(), receiver.getUsername(), receiver.getId());
     }
 
     public void denyRequest (String email, Long requestId){
@@ -108,7 +114,7 @@ public class FriendRequestService {
             throw new IllegalArgumentException("You do not have permission to respond to this request.");
         }
 
-        if (!request.getFriendRequestStatus().equals(FriendRequestStatus.PENDING)){
+        if (!request.getFriendRequestStatus().equals(RequestStatus.PENDING)){
             throw new IllegalStateException("The request has already been processed.");
         }
 

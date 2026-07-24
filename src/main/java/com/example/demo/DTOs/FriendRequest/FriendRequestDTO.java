@@ -1,5 +1,5 @@
 package com.example.demo.DTOs.FriendRequest;
-import com.example.demo.enums.FriendRequestStatus;
+import com.example.demo.enums.RequestStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -17,6 +17,6 @@ public class FriendRequestDTO {
     private String senderUsername;
 
     @Schema(description = "Estado de la solicitud de amistad", example = "ACCEPTED")
-    private FriendRequestStatus friendRequestStatus;
+    private RequestStatus friendRequestStatus;
 
 }

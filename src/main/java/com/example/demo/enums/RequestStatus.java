@@ -1,6 +1,6 @@
 package com.example.demo.enums;
 
-public enum FriendRequestStatus {
+public enum RequestStatus {
 
     ACCEPTED,
     DENIED,
