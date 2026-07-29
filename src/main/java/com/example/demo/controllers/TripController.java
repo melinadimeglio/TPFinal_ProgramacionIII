@@ -12,6 +12,7 @@ import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.exceptions.OwnershipException;
 import com.example.demo.security.entities.CredentialEntity;
+import com.example.demo.services.PdfService;
 import com.example.demo.services.RecommendationService;
 import com.example.demo.services.TripService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,6 +31,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -53,14 +55,16 @@ public class TripController {
     private final TripModelAssembler assembler;
     private final PagedResourcesAssembler<TripResponseDTO> pagedResourcesAssembler;
     private final PagedResourcesAssembler<RecommendationDTO> pagedResourcesAssemblerRec;
+    private final PdfService pdfService;
 
     @Autowired
-    public TripController(TripService tripService, RecommendationService recommendationService, TripModelAssembler assembler, PagedResourcesAssembler<TripResponseDTO> pagedResourcesAssembler, PagedResourcesAssembler<RecommendationDTO> pagedResourcesAssemblerRec) {
+    public TripController(TripService tripService, RecommendationService recommendationService, TripModelAssembler assembler, PagedResourcesAssembler<TripResponseDTO> pagedResourcesAssembler, PagedResourcesAssembler<RecommendationDTO> pagedResourcesAssemblerRec, PdfService pdfService) {
         this.tripService = tripService;
         this.recommendationService = recommendationService;
         this.assembler = assembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
         this.pagedResourcesAssemblerRec = pagedResourcesAssemblerRec;
+        this.pdfService = pdfService;
     }
 
     @Operation(
@@ -561,6 +565,23 @@ public class TripController {
         Long myId = credential.getUser().getId();
         List<TripResponseDTO> trips = tripService.getFriendTrips(friendId, myId);
         return ResponseEntity.ok(trips);
+    }
+
+    @PreAuthorize("hasAuthority('GENERAR_PDF')")
+    @GetMapping("/{tripId}/pdf")
+    public ResponseEntity<byte[]> generatePdf(
+            @PathVariable Long tripId,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        Long userId = credential.getUser().getId();
+
+        byte[] pdf = pdfService.generateItineraryPdf(tripId, userId);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=itinerario.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 
 }

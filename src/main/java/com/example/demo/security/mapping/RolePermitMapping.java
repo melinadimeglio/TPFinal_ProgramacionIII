@@ -123,8 +123,9 @@ public class RolePermitMapping {
                 Permit.RECHAZAR_INVITACION_VIAJE,
                 Permit.VER_INVITACIONES_PENDIENTES,
 
-                //DASHBOARD
-                Permit.VER_DASHBOARD
+                //DASHBOARD Y PDF
+                Permit.VER_DASHBOARD,
+                Permit.GENERAR_PDF
         ));
 
         // COMPANY
