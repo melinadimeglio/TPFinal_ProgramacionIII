@@ -121,7 +121,10 @@ public class RolePermitMapping {
                 Permit.ACEPTAR_INVITACION_VIAJE,
                 Permit.ENVIAR_INVITACION,
                 Permit.RECHAZAR_INVITACION_VIAJE,
-                Permit.VER_INVITACIONES_PENDIENTES
+                Permit.VER_INVITACIONES_PENDIENTES,
+
+                //DASHBOARD
+                Permit.VER_DASHBOARD
         ));
 
         // COMPANY
