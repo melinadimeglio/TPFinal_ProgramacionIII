@@ -1,9 +1,12 @@
 package com.example.demo.services;
 
+import com.example.demo.DTOs.Activity.Response.ActivityCompanyResponseDTO;
+import com.example.demo.DTOs.Company.CompanyPublicDTO;
 import com.example.demo.DTOs.Company.CompanyUpdateDTO;
 import com.example.demo.DTOs.Company.Request.CompanyCreateDTO;
 import com.example.demo.DTOs.Company.Response.CompanyResponseDTO;
 import com.example.demo.entities.CompanyEntity;
+import com.example.demo.mappers.ActivityMapper;
 import com.example.demo.mappers.CompanyMapper;
 import com.example.demo.repositories.CompanyRepository;
 import com.example.demo.security.entities.CredentialEntity;
@@ -19,9 +22,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.stylesheets.LinkStyle;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -33,18 +39,21 @@ public class CompanyService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final JWTService jwtService;
+    private final ActivityMapper activityMapper;
 
     @Autowired
     public CompanyService(CompanyRepository companyRepository,
                           CompanyMapper companyMapper,
                           CredentialRepository credentialRepository,
-                          PasswordEncoder passwordEncoder, RoleRepository roleRepository, JWTService jwtService) {
+                          PasswordEncoder passwordEncoder, RoleRepository roleRepository, JWTService jwtService,
+                          ActivityMapper activityMapper) {
         this.companyRepository = companyRepository;
         this.companyMapper = companyMapper;
         this.credentialRepository = credentialRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
         this.jwtService = jwtService;
+        this.activityMapper = activityMapper;
     }
 
     public CompanyResponseDTO save(CompanyCreateDTO dto) {
@@ -139,5 +148,25 @@ public class CompanyService {
         entity.getCredential().setActive(true);
         entity.getActivities().forEach(activityEntity -> activityEntity.setAvailable(true));
         companyRepository.save(entity);
+    }
+
+    public CompanyPublicDTO getPublicProfile (Long companyId){
+        CompanyEntity entity = companyRepository.findById(companyId)
+                .orElseThrow(() -> new NoSuchElementException("Company not found."));
+
+        List<ActivityCompanyResponseDTO> activeActivities = entity.getActivities()
+                .stream()
+                .filter(activityEntity -> activityEntity.isAvailable())
+                .map(activityMapper::toCompanyResponseDTO)
+                .collect(Collectors.toList());
+
+        return CompanyPublicDTO.builder()
+                .companyName(entity.getUsername())
+                .description(entity.getDescription())
+                .phone(entity.getPhone())
+                .location(entity.getLocation())
+                .taxId(entity.getTaxId())
+                .activities(activeActivities)
+                .build();
     }
 }

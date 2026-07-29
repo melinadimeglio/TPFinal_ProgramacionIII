@@ -115,7 +115,9 @@ public class RolePermitMapping {
                 Permit.BUSCAR_POR_USERNAME,
                 Permit.VER_AMIGOS,
                 Permit.VER_PERFIL_AMIGO,
-                Permit.VER_VIAJES_AMIGO
+                Permit.VER_VIAJES_AMIGO,
+                //Dashboard
+                Permit.VER_DASHBOARD
         ));
 
         // COMPANY

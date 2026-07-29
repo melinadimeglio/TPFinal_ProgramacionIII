@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTOs.Company.CompanyPublicDTO;
 import com.example.demo.DTOs.Company.CompanyUpdateDTO;
 import com.example.demo.DTOs.Company.Request.CompanyCreateDTO;
 import com.example.demo.DTOs.Company.Response.CompanyResponseDTO;
@@ -428,5 +429,11 @@ public class CompanyController {
     public ResponseEntity<Void> restoreCompany(@PathVariable Long id) {
         companyService.restore(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/public")
+    public ResponseEntity<CompanyPublicDTO> getPublicProfile(@PathVariable Long id) {
+        CompanyPublicDTO profile = companyService.getPublicProfile(id);
+        return ResponseEntity.ok(profile);
     }
 }

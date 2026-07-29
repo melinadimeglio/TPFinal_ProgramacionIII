@@ -37,4 +37,7 @@ public interface TripRepository extends JpaRepository<TripEntity, Long>, JpaSpec
             "FROM TripEntity t JOIN t.users u " +
             "WHERE t.active = true AND t.estimatedBudget > 0")
     List<TripBudget> findActiveTripsWithBudgetAndUsers();
+
+    List<TripEntity> findByUsersIdAndActiveTrue(Long userId);
+    long countByUsersIdAndActiveTrue(Long userId);
 }

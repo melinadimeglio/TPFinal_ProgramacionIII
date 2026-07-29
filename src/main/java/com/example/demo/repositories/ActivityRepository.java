@@ -30,6 +30,8 @@ public interface ActivityRepository extends JpaRepository<ActivityEntity, Long>,
 
     Page<ActivityEntity> findAllByAvailableFalse(Pageable pageable);
 
+    long countByUsers_Id(Long userId);
+
     @Query("SELECT a.id AS activityId, a.name AS activityName, a.date AS activityDate, u.id AS userId " +
             "FROM ActivityEntity a JOIN a.users u " +
             "WHERE a.available = true AND a.date = :targetDate")
