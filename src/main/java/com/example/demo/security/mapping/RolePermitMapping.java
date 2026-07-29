@@ -116,8 +116,12 @@ public class RolePermitMapping {
                 Permit.VER_AMIGOS,
                 Permit.VER_PERFIL_AMIGO,
                 Permit.VER_VIAJES_AMIGO,
-                //Dashboard
-                Permit.VER_DASHBOARD
+
+                //INVITACIONES DE VIAJES
+                Permit.ACEPTAR_INVITACION_VIAJE,
+                Permit.ENVIAR_INVITACION,
+                Permit.RECHAZAR_INVITACION_VIAJE,
+                Permit.VER_INVITACIONES_PENDIENTES
         ));
 
         // COMPANY

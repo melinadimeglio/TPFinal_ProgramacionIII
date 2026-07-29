@@ -37,7 +37,7 @@ public class TripInvitationController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PreAuthorize("hasAuthority('VER_INVITACIONES_VIAJES_PENDIENTES')")
+    @PreAuthorize("hasAuthority('VER_INVITACIONES_PENDIENTES')")
     @GetMapping("/pending")
     public ResponseEntity<List<TripInvitationDTO>> getTripInvitations (
             @AuthenticationPrincipal CredentialEntity credential
@@ -60,7 +60,7 @@ public class TripInvitationController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
-    @PreAuthorize("hasAuthority('RECHAZAR_SOLICITUD_VIAJE')")
+    @PreAuthorize("hasAuthority('RECHAZAR_INVITACION_VIAJE')")
     @PutMapping("/{invitationId}/deny")
     public ResponseEntity<Void> denyTripInvitation (
             @PathVariable Long invitationId,
