@@ -98,13 +98,13 @@ public class TripService {
             }
         }
 
-        if (dto.getCompanions() == null) {
+        /*if (dto.getCompanions() == null) {
             dto.setCompanions(0);
         }
 
         if (dto.getCompanions() != null && dto.getCompanions() != users.size() - 1) {
             throw new ReservationException("The number of companions does not match the number of users sharing the trip.");
-        }
+        }*/
 
         if (dto.getEndDate() != null && dto.getEndDate().isBefore(dto.getStartDate())) {
             throw new IllegalArgumentException("The end date cannot be earlier than the start date.");
