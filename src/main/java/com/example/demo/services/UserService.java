@@ -2,6 +2,7 @@ package com.example.demo.services;
 
 import com.example.demo.DTOs.User.Request.UserCreateDTO;
 import com.example.demo.DTOs.User.Response.UserResponseDTO;
+import com.example.demo.DTOs.User.Response.UserResumeDTO;
 import com.example.demo.DTOs.User.UserUpdateDTO;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.mappers.UserMapper;
@@ -185,9 +186,9 @@ public class UserService {
         return "Role assigned successfully.";
     }
 
-    public Page<UserResponseDTO> searchByUsername(String username, Pageable pageable) {
-        return userRepository.findByUsernameContainingIgnoreCaseAndActiveTrue(username, pageable)
-                .map(userMapper::toDTO);
+    public Page<UserResumeDTO> searchByUsername(String username, Pageable pageable) {
+        return userRepository.searchByUsernameExcludingAdminAndCompany(username, pageable)
+                .map(userMapper::toResumeDTO);
     }
 
     public List<UserResponseDTO> getFriends(String email) {

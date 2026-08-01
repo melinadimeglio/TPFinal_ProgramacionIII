@@ -3,6 +3,7 @@ package com.example.demo.controllers;
 import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
 import com.example.demo.DTOs.User.Request.UserCreateDTO;
 import com.example.demo.DTOs.User.Response.UserResponseDTO;
+import com.example.demo.DTOs.User.Response.UserResumeDTO;
 import com.example.demo.DTOs.User.UserUpdateDTO;
 import com.example.demo.controllers.hateoas.UserModelAssembler;
 import com.example.demo.exceptions.OwnershipException;
@@ -462,11 +463,11 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('BUSCAR_POR_USERNAME')")
     @GetMapping("/search")
-    public ResponseEntity<Page<UserResponseDTO>> searchByUsername(
+    public ResponseEntity<Page<UserResumeDTO>> searchByUsername(
             @RequestParam String username,
             Pageable pageable) {
 
-        Page<UserResponseDTO> result = userService.searchByUsername(username, pageable);
+        Page<UserResumeDTO> result = userService.searchByUsername(username, pageable);
         return ResponseEntity.ok(result);
     }
 

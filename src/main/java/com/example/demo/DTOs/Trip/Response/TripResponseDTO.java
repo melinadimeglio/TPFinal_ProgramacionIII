@@ -1,5 +1,6 @@
 package com.example.demo.DTOs.Trip.Response;
 
+import com.example.demo.DTOs.User.Response.UserResumeDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -38,8 +39,8 @@ public class TripResponseDTO {
     @Schema(description = "Indica si el viaje está activo", example = "true")
     private boolean active;
 
-    @Schema(description = "Lista de IDs de los usuarios que participan en el viaje", example = "[1, 2, 5]")
-    private List<Long> userIds;
+    @Schema(description = "Lista de informacion de los usuarios que participan en el viaje", example = "[1, 2, 5]")
+    private List<UserResumeDTO> users;
 
     @Schema(description = "URL de la imagen del viaje almacenada en Cloudinary",
             example = "https://res.cloudinary.com/tu-cloud/image/upload/v1234567890/travelplanner/imagen.jpg",

@@ -153,9 +153,10 @@ public class TripService {
             }
         }
 
+        /*
         if (dto.getCompanions() != null && dto.getCompanions() != newUsers.size() - 1) {
             throw new ReservationException("The number of companions does not match the number of users sharing the trip.");
-        }
+        }*/
 
         tripMapper.updateEntityFromDTO(dto, trip);
 

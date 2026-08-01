@@ -2,6 +2,7 @@ package com.example.demo.mappers;
 
 import com.example.demo.DTOs.User.Request.UserCreateDTO;
 import com.example.demo.DTOs.User.Response.UserResponseDTO;
+import com.example.demo.DTOs.User.Response.UserResumeDTO;
 import com.example.demo.DTOs.User.UserUpdateDTO;
 import com.example.demo.entities.UserEntity;
 import org.mapstruct.Mapper;
@@ -28,4 +29,7 @@ public interface UserMapper {
     @Mapping(target = "id", ignore = true)
     void updateUserEntityFromDTO(UserUpdateDTO dto, @MappingTarget UserEntity user);
 
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "username", source = "username")
+    UserResumeDTO toResumeDTO(UserEntity user);
 }

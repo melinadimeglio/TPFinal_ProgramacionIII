@@ -32,9 +32,9 @@ public class TripUpdateDTO {
     @PositiveOrZero(message = "El presupuesto debe ser cero o positivo.")
     private Double estimatedBudget;
 
-    @Schema(description = "Cantidad de acompañantes actualizada", example = "2")
+    /*@Schema(description = "Cantidad de acompañantes actualizada", example = "2")
     @Min(value = 0, message = "La cantidad de acompañantes no puede ser negativa.")
-    private Integer companions;
+    private Integer companions;*/
 
     @Schema(description = "Lista de IDs de los usuarios acompañantes (opcional)", example = "[2, 5]", nullable = true)
     private Set<Long> sharedUserIds;
