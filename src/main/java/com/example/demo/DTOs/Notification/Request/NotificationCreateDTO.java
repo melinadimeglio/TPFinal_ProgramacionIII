@@ -39,6 +39,9 @@ public class NotificationCreateDTO {
     @Schema(description = "ID de la entidad relacionada (reserva, gasto, viaje, etc.)", example = "15")
     private Long relatedEntityId;
 
+    @Schema(description = "ID del viaje relacionado.", example = "15")
+    private Long tripId;
+
     @Schema(description = "Tipo de la entidad relacionada", example = "RESERVATION",
             allowableValues = {"RESERVATION", "EXPENSE", "TRIP", "USER"})
     private String relatedEntityType;

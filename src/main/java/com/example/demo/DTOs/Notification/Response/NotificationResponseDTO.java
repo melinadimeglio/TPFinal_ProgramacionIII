@@ -2,6 +2,7 @@ package com.example.demo.DTOs.Notification.Response;
 
 import com.example.demo.enums.NotificationCategory;
 import com.example.demo.enums.NotificationType;
+import com.example.demo.enums.RequestStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -32,8 +33,14 @@ public class NotificationResponseDTO {
     @Schema(description = "ID de la entidad relacionada", example = "15")
     private Long relatedEntityId;
 
+    @Schema(description = "ID del viaje relacionado.", example = "15")
+    private Long tripId;
+
     @Schema(description = "Tipo de la entidad relacionada", example = "RESERVATION")
     private String relatedEntityType;
+
+    @Schema(description = "Estado de la invitación (solo para notificaciones de invitaciones a viajes)", example = "PENDING")
+    private RequestStatus invitationStatus;
 
     @Schema(description = "Indica si la notificación fue leída", example = "false")
     private boolean read;

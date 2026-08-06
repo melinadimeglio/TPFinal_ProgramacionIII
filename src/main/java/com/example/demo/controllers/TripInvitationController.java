@@ -47,21 +47,21 @@ public class TripInvitationController {
         return ResponseEntity.ok(pendingInvitations);
     }
 
-    @PreAuthorize("hasAuthority('ACEPTAR_SOLICITUD_VIAJE')")
-    @PutMapping("/{invitationId}/accept")
-    public ResponseEntity<Void> acceptTripInvitation (
+    @PreAuthorize("hasAuthority('ACEPTAR_INVITACION_VIAJE')")
+    @PutMapping("/accept/{invitationId}")
+    public ResponseEntity<Long> acceptTripInvitation (
             @PathVariable Long invitationId,
             @AuthenticationPrincipal CredentialEntity credential
     ){
 
         String email = credential.getEmail();
-        tripInvitationService.acceptInvitation(email, invitationId);
+        Long tripId = tripInvitationService.acceptInvitation(email, invitationId);
 
-        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+        return ResponseEntity.ok(tripId);
     }
 
     @PreAuthorize("hasAuthority('RECHAZAR_INVITACION_VIAJE')")
-    @PutMapping("/{invitationId}/deny")
+    @PutMapping("/deny/{invitationId}")
     public ResponseEntity<Void> denyTripInvitation (
             @PathVariable Long invitationId,
             @AuthenticationPrincipal CredentialEntity credential
@@ -71,6 +71,16 @@ public class TripInvitationController {
         tripInvitationService.denyInvitation(email, invitationId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasAuthority('VER_INVITACIONES_VIAJES_PENDIENTES')")
+    @GetMapping("/sent/{tripId}")
+    public ResponseEntity<List<TripInvitationDTO>> getSentInvitations(
+            @PathVariable Long tripId,
+            @AuthenticationPrincipal CredentialEntity credential) {
+
+        String email = credential.getEmail();
+        return ResponseEntity.ok(tripInvitationService.getSentInvitations(email, tripId));
     }
 
 }

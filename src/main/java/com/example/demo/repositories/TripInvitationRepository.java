@@ -15,5 +15,6 @@ public interface TripInvitationRepository extends JpaRepository <TripInvitationE
     List<TripInvitationEntity> findAllByReceiverAndInvitationStatus(UserEntity receiver, RequestStatus status);
     Boolean existsByReceiverAndTrip(UserEntity receiver, TripEntity trip);
     List<TripInvitationEntity> findAllByTrip(TripEntity trip);
+    List<TripInvitationEntity> findAllBySenderAndTrip(UserEntity sender, TripEntity trip);
 
 }

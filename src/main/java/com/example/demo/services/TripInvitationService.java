@@ -76,11 +76,12 @@ public class TripInvitationService {
                 receiver.getId(),
                 trip.getDestination(),
                 sender.getUsername(),
+                invitation.getId(),
                 trip.getId()
         );
     }
 
-    public void acceptInvitation(String email, Long invitationId) {
+    public Long acceptInvitation(String email, Long invitationId) {
         UserEntity receiver = getLoggedUser(email);
         TripInvitationEntity invitation = findAndValidate(invitationId, receiver);
 
@@ -98,6 +99,8 @@ public class TripInvitationService {
                 receiver.getUsername(),
                 trip.getId()
         );
+
+        return trip.getId();
     }
 
     public void denyInvitation(String email, Long invitationId) {
@@ -113,6 +116,7 @@ public class TripInvitationService {
                 .map(i -> new TripInvitationDTO(
                         i.getId(),
                         i.getSender().getUsername(),
+                        i.getReceiver().getId(),
                         i.getTrip().getId(),
                         i.getTrip().getDestination(),
                         i.getInvitationStatus()
@@ -139,6 +143,24 @@ public class TripInvitationService {
         return credentialRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email))
                 .getUser();
+    }
+
+    public List<TripInvitationDTO> getSentInvitations(String email, Long tripId) {
+        UserEntity sender = getLoggedUser(email);
+        TripEntity trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new NoSuchElementException("Trip not found: " + tripId));
+
+        return tripInvitationRepository.findAllBySenderAndTrip(sender, trip)
+                .stream()
+                .map(i -> new TripInvitationDTO(
+                        i.getId(),
+                        i.getSender().getUsername(),
+                        i.getReceiver().getId(),
+                        i.getTrip().getId(),
+                        i.getTrip().getDestination(),
+                        i.getInvitationStatus()
+                ))
+                .toList();
     }
 
 }

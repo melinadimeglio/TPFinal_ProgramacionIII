@@ -17,6 +17,9 @@ public class TripInvitationDTO {
     @Schema(description = "Nombre de usuario", example = "melinaD")
     private String senderUsername;
 
+    @Schema(description = "ID del receptor de la invitación", example = "5")
+    private Long receiverId;
+
     @Schema(description = "ID del viaje ", example = "15")
     private Long tripId;
 

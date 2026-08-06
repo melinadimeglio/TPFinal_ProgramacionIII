@@ -4,9 +4,12 @@ import com.example.demo.DTOs.Notification.Request.NotificationCreateDTO;
 import com.example.demo.DTOs.Notification.Response.NotificationResponseDTO;
 import com.example.demo.DTOs.Notification.Summary;
 import com.example.demo.entities.NotificationEntity;
+import com.example.demo.entities.TripInvitationEntity;
 import com.example.demo.enums.NotificationCategory;
 import com.example.demo.enums.NotificationType;
+import com.example.demo.enums.RequestStatus;
 import com.example.demo.repositories.NotificationRepository;
+import com.example.demo.repositories.TripInvitationRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +26,7 @@ public class NotificationService {
     private static final int DEFAULT_PAGE_SIZE = 30;
 
     private final NotificationRepository notificationRepository;
+    private final TripInvitationRepository tripInvitationRepository;
 
     public Summary getNotifications(Long userId, NotificationCategory category) {
         var pageable = PageRequest.of(0, DEFAULT_PAGE_SIZE);
@@ -66,6 +70,7 @@ public class NotificationService {
                 .title(request.getTitle())
                 .body(request.getBody())
                 .relatedEntityId(request.getRelatedEntityId())
+                .tripId(request.getTripId())
                 .relatedEntityType(request.getRelatedEntityType())
                 .build();
         return notificationRepository.save(notification);
@@ -131,15 +136,17 @@ public class NotificationService {
                 .build());
     }
 
-    public void notifyTripInvite(Long userId, String tripName, String inviterName, Long tripId) {
+    public void notifyTripInvite(Long userId, String tripName, String inviterName, Long invitationId, Long tripId) {
+
         create(NotificationCreateDTO.builder()
                 .userId(userId)
                 .type(NotificationType.TRIP_INVITE)
                 .category(NotificationCategory.TRIPS)
                 .title("Invitación a viaje")
                 .body(inviterName + " te invitó al viaje \"" + tripName + "\".")
-                .relatedEntityId(tripId)
-                .relatedEntityType("TRIP")
+                .relatedEntityId(invitationId)
+                .tripId(tripId)
+                .relatedEntityType("TRIP_INVITATION")
                 .build());
     }
 
@@ -216,6 +223,16 @@ public class NotificationService {
     }
 
     private NotificationResponseDTO toResponse(NotificationEntity n) {
+
+        RequestStatus invitationStatus = null;
+
+        if (n.getType() == NotificationType.TRIP_INVITE) {
+            invitationStatus = tripInvitationRepository
+                    .findById(n.getRelatedEntityId())
+                    .map(TripInvitationEntity::getInvitationStatus)
+                    .orElse(null);
+        }
+
         return NotificationResponseDTO.builder()
                 .id(n.getId())
                 .type(n.getType())
@@ -223,7 +240,9 @@ public class NotificationService {
                 .title(n.getTitle())
                 .body(n.getBody())
                 .relatedEntityId(n.getRelatedEntityId())
+                .tripId(n.getTripId())
                 .relatedEntityType(n.getRelatedEntityType())
+                .invitationStatus(invitationStatus)
                 .read(n.isRead())
                 .createdAt(n.getCreatedAt())
                 .readAt(n.getReadAt())
@@ -239,7 +258,7 @@ public class NotificationService {
     public void notifyTripInvitationAccepted(Long userId, String accepterName, Long tripId) {
         create(NotificationCreateDTO.builder()
                 .userId(userId)
-                .type(NotificationType.TRIP_INVITE)
+                .type(NotificationType.TRIP_INVITE_ACCEPTED)
                 .category(NotificationCategory.TRIPS)
                 .title("Invitación aceptada")
                 .body(accepterName + " aceptó tu invitación al viaje.")

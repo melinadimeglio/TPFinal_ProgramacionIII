@@ -43,6 +43,9 @@ public class NotificationEntity {
     @Column(name = "related_entity_id")
     private Long relatedEntityId;
 
+    @Column(name = "trip_id")
+    private Long tripId;
+
     @Column(name = "related_entity_type", length = 50)
     private String relatedEntityType;
 
