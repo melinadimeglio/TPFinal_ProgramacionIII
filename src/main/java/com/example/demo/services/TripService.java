@@ -33,6 +33,7 @@ public class TripService {
     private final UserRepository userRepository;
     private final TripMapper tripMapper;
     private final CloudinaryService cloudinaryService;
+    private static final String DEFAULT_IMAGE = "https://res.cloudinary.com/dnql0etvn/image/upload/v1786110015/IMAGEN_DEFAULT_TRAVELPLANNER_ju1288.png";
 
     @Autowired
     public TripService(TripRepository tripRepository, UserRepository userRepository, TripMapper tripMapper, CloudinaryService cloudinaryService) {
@@ -122,8 +123,11 @@ public class TripService {
         if (file != null && !file.isEmpty()) {
             String url = cloudinaryService.uploadImage(file);
             savedTrip.setImageUrl(url);
-            tripRepository.save(savedTrip);
+        } else {
+            savedTrip.setImageUrl(DEFAULT_IMAGE);
         }
+
+        tripRepository.save(savedTrip);
 
         return tripMapper.toDTO(savedTrip);
     }

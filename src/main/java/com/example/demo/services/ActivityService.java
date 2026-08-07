@@ -47,6 +47,8 @@ public class ActivityService {
     private final TripService tripService;
     private final CloudinaryService cloudinaryService;
 
+    private static final String DEFAULT_IMAGE = "https://res.cloudinary.com/dnql0etvn/image/upload/v1786110015/IMAGEN_DEFAULT_TRAVELPLANNER_ju1288.png";
+
     @Autowired
     public ActivityService(ActivityRepository activityRepository,
                            ActivityMapper activityMapper,
@@ -135,8 +137,11 @@ public class ActivityService {
         if (file != null && !file.isEmpty()) {
             String url = cloudinaryService.uploadImage(file);
             saved.setImageUrl(url);
-            activityRepository.save(saved);
+        } else {
+            saved.setImageUrl(DEFAULT_IMAGE);
         }
+
+        activityRepository.save(saved);
 
         return activityMapper.toDTOCreated(saved);
     }
@@ -171,8 +176,11 @@ public class ActivityService {
         if (file != null && !file.isEmpty()) {
             String url = cloudinaryService.uploadImage(file);
             saved.setImageUrl(url);
-            activityRepository.save(saved);
+        } else {
+            saved.setImageUrl(DEFAULT_IMAGE);
         }
+
+        activityRepository.save(saved);
 
         return activityMapper.toCompanyResponseDTO(saved);
     }

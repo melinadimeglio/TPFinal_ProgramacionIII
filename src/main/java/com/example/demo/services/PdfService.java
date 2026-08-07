@@ -36,7 +36,7 @@ public class PdfService {
     private static final DeviceRgb TEAL_DARK  = new DeviceRgb(20, 100, 96);
     private static final DeviceRgb GRAY       = new DeviceRgb(95, 94, 90);
 
-    public byte[] generateItineraryPdf(Long tripId, Long userId) {
+    public byte[] generatePdf(Long tripId, Long userId) {
         TripEntity trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new RuntimeException("Trip not found: " + tripId));
 
@@ -56,7 +56,6 @@ public class PdfService {
             Document document = new Document(pdf);
             document.setMargins(40, 50, 40, 50);
 
-            // Header
             document.add(new Paragraph("TravelPlanner")
                     .setFontSize(10)
                     .setFontColor(TEAL)
@@ -82,7 +81,7 @@ public class PdfService {
 
             document.add(new LineSeparator(new SolidLine()).setMarginBottom(16));
 
-            // Itinerarios
+
             if (trip.getItineraries() != null && !trip.getItineraries().isEmpty()) {
                 document.add(new Paragraph("Itinerario")
                         .setFontSize(16)
@@ -150,7 +149,7 @@ public class PdfService {
                 }
             }
 
-            // Gastos
+
             document.add(new LineSeparator(new SolidLine()).setMarginTop(20).setMarginBottom(10));
 
             document.add(new Paragraph("Gastos del viaje")

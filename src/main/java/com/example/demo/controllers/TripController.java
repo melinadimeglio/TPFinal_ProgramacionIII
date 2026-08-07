@@ -575,7 +575,7 @@ public class TripController {
 
         Long userId = credential.getUser().getId();
 
-        byte[] pdf = pdfService.generateItineraryPdf(tripId, userId);
+        byte[] pdf = pdfService.generatePdf(tripId, userId);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,

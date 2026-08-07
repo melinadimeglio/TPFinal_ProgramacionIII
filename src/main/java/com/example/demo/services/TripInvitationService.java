@@ -106,7 +106,10 @@ public class TripInvitationService {
     public void denyInvitation(String email, Long invitationId) {
         UserEntity receiver = getLoggedUser(email);
         TripInvitationEntity invitation = findAndValidate(invitationId, receiver);
-        tripInvitationRepository.delete(invitation);
+
+        invitation.setInvitationStatus(RequestStatus.DENIED);
+
+        tripInvitationRepository.save(invitation);
     }
 
     public List<TripInvitationDTO> getPendingInvitations(String email) {
