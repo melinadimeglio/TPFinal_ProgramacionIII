@@ -31,7 +31,8 @@ public class TripEntity {
 
     private Double estimatedBudget;
 
-    private Integer companions;
+    @Column (nullable = false)
+    private Integer companions = 0;
 
     private String imageUrl;
 

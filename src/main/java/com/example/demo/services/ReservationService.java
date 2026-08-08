@@ -153,7 +153,7 @@ public class ReservationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Activity not found"));
 
         TripEntity trip = tripService.getTripById(tripId);
-        int cant = trip.getCompanions() + 1;
+        int cant = 1;
 
         return activity.getAvailable_quantity() - cant >= 0;
     }
@@ -176,7 +176,7 @@ public class ReservationService {
         }
 
         TripEntity trip = tripService.getTripById(itineraryOptional.get().getTripId());
-        int cant = trip.getCompanions() + 1;
+        int cant = 1;
 
         if (!activityService.updateCapacity(activity.getId(), cant)) {
             throw new ReservationException("The activity cannot be saved because it does not have sufficient availability..");
