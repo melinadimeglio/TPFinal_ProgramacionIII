@@ -32,7 +32,7 @@ public class ReviewController {
 
     @Operation(
             summary = "Create a new review",
-            description = "Allows a user to create a review for an activity. Only allowed if the user has a COMPLETED reservation."
+            description = "Allows a user to create a review for an activity. Only allowed if the user has a PAID reservation."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -55,7 +55,7 @@ public class ReviewController {
             ),
             @ApiResponse(
                     responseCode = "403",
-                    description = "Forbidden - user has no completed reservation",
+                    description = "Forbidden - user has no paid reservation",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
             ),
             @ApiResponse(
@@ -64,7 +64,7 @@ public class ReviewController {
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
             )
     })
-    @PreAuthorize("hasAuthority('CREAR_RESEÑA')")
+    @PreAuthorize("hasAuthority('CREAR_RESENIA')")
     @PostMapping
     public ResponseEntity<ReviewResponseDTO> createReview(
             @AuthenticationPrincipal CredentialEntity credential,

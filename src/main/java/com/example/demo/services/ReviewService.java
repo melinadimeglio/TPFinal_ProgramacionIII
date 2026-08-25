@@ -38,13 +38,13 @@ public class ReviewService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Actividad no encontrada"));
 
 
-        boolean reservationCompleted = reservationRepository
-                .existsByUserIdAndActivity_IdAndActive(userId, dto.getActivityId(), false);
+        boolean hasPaidReservation = reservationRepository
+                .existsByUserIdAndActivity_IdAndPaidTrue(userId, dto.getActivityId());
 
-        if (!reservationCompleted) {
+        if (!hasPaidReservation) {
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
-                    "Solo podés reseñar actividades que hayas completado"
+                    "Solo podés reseñar actividades que hayas reservado y pagado"
             );
         }
 
