@@ -42,6 +42,7 @@ public interface ActivityMapper {
 
     @Mapping(target = "itineraryId", source = "itinerary.id")
     @Mapping(target = "companyId", source = "company.id")
+    @Mapping(target = "companyName", expression = "java(entity.getCompany() != null ? entity.getCompany().getUsername() : null)")
     @Mapping(target = "userIds", expression = "java(mapUsersToIds(entity.getUsers()))")
     ActivityResponseDTO toDTO(ActivityEntity entity);
 

@@ -5,6 +5,7 @@ import com.example.demo.DTOs.Company.CompanyPublicDTO;
 import com.example.demo.DTOs.Company.CompanyUpdateDTO;
 import com.example.demo.DTOs.Company.Request.CompanyCreateDTO;
 import com.example.demo.DTOs.Company.Response.CompanyResponseDTO;
+import com.example.demo.entities.ActivityEntity;
 import com.example.demo.entities.CompanyEntity;
 import com.example.demo.mappers.ActivityMapper;
 import com.example.demo.mappers.CompanyMapper;
@@ -166,6 +167,7 @@ public class CompanyService {
                 .phone(entity.getPhone())
                 .location(entity.getLocation())
                 .taxId(entity.getTaxId())
+                .totalActividades((int) entity.getActivities().stream().filter(ActivityEntity::isAvailable).count())
                 .activities(activeActivities)
                 .build();
     }

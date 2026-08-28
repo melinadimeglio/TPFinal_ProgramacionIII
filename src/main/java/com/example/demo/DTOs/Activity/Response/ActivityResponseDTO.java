@@ -52,6 +52,8 @@ public class ActivityResponseDTO {
     @Schema(description = "ID de la empresa que organiza la actividad", example = "7")
     private Long companyId;
 
+    private String companyName;
+
     @Schema(description = "Cantidad de lugares disponibles", example = "10")
     private Integer available_quantity;
 

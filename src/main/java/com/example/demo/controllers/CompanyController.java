@@ -431,7 +431,7 @@ public class CompanyController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}/public")
+    @GetMapping("/public/{id}")
     public ResponseEntity<CompanyPublicDTO> getPublicProfile(@PathVariable Long id) {
         CompanyPublicDTO profile = companyService.getPublicProfile(id);
         return ResponseEntity.ok(profile);

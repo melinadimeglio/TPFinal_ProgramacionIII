@@ -31,6 +31,8 @@ public class CompanyPublicDTO {
     @Schema(description = "Lugar fisico donde se encuentra la empresa", example = "Madrid")
     private String location;
 
+    private int totalActividades;
+
     @Schema(description = "Lista de actividades brindadas por la empresa", example = "13:00")
     private List<ActivityCompanyResponseDTO> activities;
 
