@@ -100,6 +100,12 @@ public class ReservationService {
             saved.setUrlPayment(link);
         } catch (MPApiException e) {
             System.out.println("MP API Error: {}" + e.getApiResponse().getContent());
+
+            notificationService.notifyPaymentFailed(user.getId(), activity.getName(), saved.getId());
+            if (user.getCredential() != null && user.getCredential().getEmail() != null) {
+                emailService.sendPaymentFailed(user.getCredential().getEmail(), user.getUsername(), activity.getName());
+            }
+
             throw new ReservationException("Error processing payment. Details: " + e.getApiResponse().getContent());
         }
 
