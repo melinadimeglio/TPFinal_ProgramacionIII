@@ -31,7 +31,8 @@ public class TripEntity {
 
     private Double estimatedBudget;
 
-    @Column (nullable = false)
+    @Column(nullable = false)
+    @Builder.Default
     private Integer companions = 0;
 
     private String imageUrl;
