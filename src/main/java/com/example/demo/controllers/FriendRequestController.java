@@ -44,6 +44,14 @@ public class FriendRequestController {
         return ResponseEntity.ok(pending);
     }
 
+    @PreAuthorize("hasAuthority('VER_SOLICITUDES_PENDIENTES')")
+    @GetMapping("/requests/sent")
+    public ResponseEntity<List<FriendRequestDTO>> getSentRequests(
+            @AuthenticationPrincipal CredentialEntity credential) {
+        String email = credential.getEmail();
+        return ResponseEntity.ok(friendRequestService.getSentRequests(email));
+    }
+
     @PreAuthorize("hasAuthority('ACEPTAR_SOLICITUD')")
     @PutMapping("/{requestId}/accept")
     public ResponseEntity<Void> acceptRequest(

@@ -77,6 +77,7 @@ public class FriendRequestService {
                 .map(r -> new FriendRequestDTO(
                         r.getId(),
                         r.getSender().getUsername(),
+                        r.getReceiver().getId(),
                         r.getFriendRequestStatus()
                 ))
                 .toList();
@@ -119,6 +120,19 @@ public class FriendRequestService {
         }
 
         return request;
+    }
+
+    public List<FriendRequestDTO> getSentRequests(String email) {
+        UserEntity sender = getLoggedUser(email);
+        return friendRequestRepository.findAllBySenderAndFriendRequestStatus(sender, RequestStatus.PENDING)
+                .stream()
+                .map(r -> new FriendRequestDTO(
+                        r.getId(),
+                        r.getSender().getUsername(),
+                        r.getReceiver().getId(),
+                        r.getFriendRequestStatus()
+                ))
+                .toList();
     }
 
 }

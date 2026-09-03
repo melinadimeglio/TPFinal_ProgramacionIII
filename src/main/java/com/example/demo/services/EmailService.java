@@ -25,7 +25,7 @@ public class EmailService {
             helper.setFrom(fromEmail);
             helper.setTo(to);
             helper.setSubject(subject);
-            helper.setText(htmlContent, true); // true = es HTML
+            helper.setText(htmlContent, true);
             mailSender.send(message);
         } catch (MessagingException e) {
             throw new RuntimeException("Error sending email", e);

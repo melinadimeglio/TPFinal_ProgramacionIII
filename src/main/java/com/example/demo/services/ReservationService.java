@@ -194,9 +194,9 @@ public class ReservationService {
             throw new ReservationException("The activity could not be added to the itinerary.");
         }
 
-        Set<Long> users = trip.getUsers().stream()
+        /*Set<Long> users = trip.getUsers().stream()
                 .map(UserEntity::getId)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toSet());*/
 
         expenseService.save(ExpenseCreateDTO.builder()
                 .amount(activity.getPrice())
@@ -204,7 +204,7 @@ public class ReservationService {
                 .date(activity.getDate())
                 .tripId(trip.getId())
                 .category(ExpenseCategory.ACTIVIDADES)
-                .sharedUserIds(users)
+                .sharedUserIds(null)
                 .build(), userId);
 
         reservation.setStatus(ReservationStatus.ACTIVE);
