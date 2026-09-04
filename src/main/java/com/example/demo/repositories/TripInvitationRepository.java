@@ -13,7 +13,11 @@ import java.util.List;
 public interface TripInvitationRepository extends JpaRepository <TripInvitationEntity, Long> {
 
     List<TripInvitationEntity> findAllByReceiverAndInvitationStatus(UserEntity receiver, RequestStatus status);
-    Boolean existsByReceiverAndTrip(UserEntity receiver, TripEntity trip);
+    boolean existsByReceiverAndTripAndInvitationStatus(
+            UserEntity receiver,
+            TripEntity trip,
+            RequestStatus status
+    );
     List<TripInvitationEntity> findAllByTrip(TripEntity trip);
     List<TripInvitationEntity> findAllBySenderAndTrip(UserEntity sender, TripEntity trip);
 

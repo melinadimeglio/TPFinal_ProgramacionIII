@@ -5,6 +5,7 @@ import com.example.demo.DTOs.Trip.Request.TripCreateDTO;
 import com.example.demo.DTOs.Trip.Response.TripResponseDTO;
 import com.example.demo.DTOs.Trip.TripUpdateDTO;
 import com.example.demo.SpecificationAPI.TripSpecification;
+import com.example.demo.entities.ExpenseEntity;
 import com.example.demo.entities.TripEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.exceptions.ReservationException;
@@ -33,14 +34,16 @@ public class TripService {
     private final UserRepository userRepository;
     private final TripMapper tripMapper;
     private final CloudinaryService cloudinaryService;
+    private final ExpenseService expenseService;
     private static final String DEFAULT_IMAGE = "https://res.cloudinary.com/dnql0etvn/image/upload/v1786110015/IMAGEN_DEFAULT_TRAVELPLANNER_ju1288.png";
 
     @Autowired
-    public TripService(TripRepository tripRepository, UserRepository userRepository, TripMapper tripMapper, CloudinaryService cloudinaryService) {
+    public TripService(TripRepository tripRepository, UserRepository userRepository, TripMapper tripMapper, CloudinaryService cloudinaryService, ExpenseService expenseService) {
         this.tripRepository = tripRepository;
         this.userRepository = userRepository;
         this.tripMapper = tripMapper;
         this.cloudinaryService = cloudinaryService;
+        this.expenseService = expenseService;
     }
 
     public Page<TripResponseDTO> findAll(Pageable pageable) {
@@ -208,8 +211,20 @@ public class TripService {
         }
 
         trip.setActive(false);
-        trip.getChecklist().forEach(checkListEntity -> checkListEntity.setActive(false));
-        trip.getItineraries().forEach(itineraryEntity -> itineraryEntity.setActive(false));
+
+        trip.getChecklist().forEach(checkListEntity ->
+                checkListEntity.setActive(false));
+
+        trip.getItineraries().forEach(itineraryEntity -> {
+            itineraryEntity.setActive(false);
+
+            itineraryEntity.getActivities().forEach(activityEntity ->
+                    activityEntity.setAvailable(false));
+        });
+
+        List<ExpenseEntity> expenseEntitiesFromTrip = expenseService.findByTripIfOwnedNoPag(tripId, userId);
+
+        expenseEntitiesFromTrip.forEach(expenseEntity -> expenseEntity.setActive(false));
 
         tripRepository.save(trip);
     }

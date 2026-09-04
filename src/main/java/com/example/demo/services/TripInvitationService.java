@@ -43,25 +43,39 @@ public class TripInvitationService {
     }
 
     public void sendInvitation(String senderEmail, Long receiverId, Long tripId) {
+
         UserEntity sender = getLoggedUser(senderEmail);
         UserEntity receiver = userService.findByIdAdmin(receiverId);
+
         TripEntity trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new NoSuchElementException("Trip not found: " + tripId));
 
         boolean isFriend = sender.getFriends().stream()
                 .anyMatch(f -> f.getId().equals(receiverId));
+
         if (!isFriend) {
             throw new IllegalArgumentException("You can only invite friends to a trip.");
         }
 
         boolean belongsToTrip = trip.getUsers().stream()
                 .anyMatch(u -> u.getId().equals(sender.getId()));
+
         if (!belongsToTrip) {
             throw new AccessDeniedException("You are not part of this trip.");
         }
 
-        if (tripInvitationRepository.existsByReceiverAndTrip(receiver, trip)) {
-            throw new IllegalStateException("An invitation has already been sent to this user for this trip.");
+        boolean pending = tripInvitationRepository.existsByReceiverAndTripAndInvitationStatus(
+                receiver, trip, RequestStatus.PENDING
+        );
+
+        boolean accepted = tripInvitationRepository.existsByReceiverAndTripAndInvitationStatus(
+                receiver, trip, RequestStatus.ACCEPTED
+        );
+
+        if (pending || accepted) {
+            throw new IllegalStateException(
+                    "An invitation has already been sent to this user for this trip."
+            );
         }
 
         TripInvitationEntity invitation = TripInvitationEntity.builder()
@@ -72,6 +86,7 @@ public class TripInvitationService {
                 .build();
 
         tripInvitationRepository.save(invitation);
+
         notificationService.notifyTripInvite(
                 receiver.getId(),
                 trip.getDestination(),

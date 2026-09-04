@@ -195,7 +195,6 @@ public class ExpenseService {
         expenseRepository.save(entity);
     }
 
-
     public void restoreIfOwned(Long id, Long myUserId) {
         ExpenseEntity entity = expenseRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Expense not found."));
@@ -257,6 +256,23 @@ public class ExpenseService {
 
         return expenseRepository.findByTripId(tripId, pageable)
                 .map(expenseMapper::toResumeDTO);
+    }
+
+    public List<ExpenseEntity> findByTripIfOwnedNoPag(Long tripId, Long myUserId){
+
+        TripEntity trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new NoSuchElementException("Trip not found."));
+
+        boolean belongsToUser = trip.getUsers().stream()
+                .anyMatch(user -> user.getId().equals(myUserId));
+
+        if (!belongsToUser) {
+            throw new AccessDeniedException("You are not allowed to view expenses for this trip.");
+        }
+
+        List<ExpenseEntity> expensesFromTrip = expenseRepository.findByTripId(trip.getId());
+
+        return expensesFromTrip;
     }
 
 
