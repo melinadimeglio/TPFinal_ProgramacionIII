@@ -64,6 +64,20 @@ public class ItineraryService {
         ActivityEntity activity = activityRepository.findById(activityId)
                 .orElseThrow(() -> new NoSuchElementException("It was not possible to find the activity to add to the itinerary."));
 
+        if (activity.getStartTime() != null && activity.getEndTime() != null) {
+            boolean superposicion = itinerary.getActivities() != null && itinerary.getActivities().stream()
+                    .filter(a -> !a.getId().equals(activity.getId()))
+                    .filter(a -> a.getStartTime() != null && a.getEndTime() != null)
+                    .anyMatch(a ->
+                            activity.getStartTime().isBefore(a.getEndTime()) &&
+                                    a.getStartTime().isBefore(activity.getEndTime())
+                    );
+
+            if (superposicion) {
+                throw new IllegalArgumentException("Ya existe una actividad que se superpone en ese horario.");
+            }
+        }
+
         activity.setItinerary(itinerary);
 
         List<ActivityEntity> activitiesItinerary = itinerary.getActivities();
@@ -148,32 +162,18 @@ public class ItineraryService {
             throw new AccessDeniedException("You do not have permission to use this itinerary.");
         }
 
+        boolean alreadyExists = trip.getItineraries() != null && trip.getItineraries().stream()
+                .anyMatch(it -> it.isActive() && it.getItineraryDate().equals(dto.getItineraryDate()));
+
+        if (alreadyExists) {
+            throw new IllegalArgumentException("Ya existe un itinerario para esa fecha en este viaje.");
+        }
 
         ItineraryEntity entity = itineraryMapper.toEntity(dto);
         entity.setUser(user);
         entity.setTrip(trip);
 
-
-        List<ActivityEntity> activities = activityRepository.findAll().stream()
-                .filter(activityEntity ->
-                        activityEntity.getUsers().stream()
-                                .anyMatch(userEntity -> userEntity.getId().equals(myUserId))
-                )
-                .toList();
-
-        if (!activities.isEmpty()) {
-            for (ActivityEntity activity : activities) {
-                activity.setItinerary(entity);
-            }
-            entity.setActivities(activities);
-        }
-
-
         ItineraryEntity saved = itineraryRepository.save(entity);
-
-        if (!activities.isEmpty()) {
-            activityRepository.saveAll(activities);
-        }
 
         return itineraryMapper.toDTO(saved);
     }

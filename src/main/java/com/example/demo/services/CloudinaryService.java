@@ -27,8 +27,11 @@ public class CloudinaryService {
     }
 
     public void deleteImage(String imageUrl) {
+        String publicId = extractPublicId(imageUrl);
+        if (publicId == null) {
+            return;
+        }
         try {
-            String publicId = extractPublicId(imageUrl);
             cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
         } catch (IOException e) {
             throw new RuntimeException("Error deleting image from Cloudinary", e);
@@ -36,7 +39,14 @@ public class CloudinaryService {
     }
 
     private String extractPublicId(String imageUrl) {
-        String withoutExtension = imageUrl.substring(0, imageUrl.lastIndexOf('.'));
-        return withoutExtension.substring(withoutExtension.indexOf("travelplanner/"));
+        if (imageUrl == null) return null;
+
+        int dotIndex = imageUrl.lastIndexOf('.');
+        String withoutExtension = dotIndex != -1 ? imageUrl.substring(0, dotIndex) : imageUrl;
+
+        int folderIndex = withoutExtension.indexOf("travelplanner/");
+        if (folderIndex == -1) return null;
+
+        return withoutExtension.substring(folderIndex);
     }
 }

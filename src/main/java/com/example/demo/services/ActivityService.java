@@ -67,6 +67,12 @@ public class ActivityService {
     }
 
     public ActivityCreateResponseDTO createFromUser(UserActivityCreateDTO dto, Long myUserId, Long itineraryId, MultipartFile file) {
+
+        if (dto.getStartTime() != null && dto.getEndTime() != null
+                && !dto.getEndTime().isAfter(dto.getStartTime())) {
+            throw new IllegalArgumentException("La hora de fin debe ser posterior a la hora de inicio.");
+        }
+
         ActivityEntity entity = activityMapper.toEntity(dto);
         entity.setAvailable(true);
 
@@ -162,7 +168,10 @@ public class ActivityService {
 
     public ActivityCompanyResponseDTO createFromCompanyService(CompanyActivityCreateDTO dto, Long companyId, MultipartFile file) {
 
-        System.out.println("ID DE COMPANY DENTRO DE CREATE FROM COMPANY: " + companyId);
+        if (dto.getStartTime() != null && dto.getEndTime() != null
+                && !dto.getEndTime().isAfter(dto.getStartTime())) {
+            throw new IllegalArgumentException("La hora de fin debe ser posterior a la hora de inicio.");
+        }
 
         CompanyEntity company = companyRepository.findById(companyId)
                 .orElseThrow(() -> new NoSuchElementException("Company not found"));
