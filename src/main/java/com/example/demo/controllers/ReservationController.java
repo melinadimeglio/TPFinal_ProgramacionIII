@@ -3,6 +3,7 @@ package com.example.demo.controllers;
 import com.example.demo.DTOs.GlobalError.ErrorResponseDTO;
 import com.example.demo.DTOs.Reservation.Request.ReservationCreateDTO;
 import com.example.demo.DTOs.Reservation.Response.ReservationResponseDTO;
+import com.example.demo.repositories.ReservationRepository;
 import com.example.demo.security.entities.CredentialEntity;
 import com.example.demo.services.ReservationService;
 import com.mercadopago.client.payment.PaymentClient;
@@ -38,10 +39,12 @@ public class ReservationController {
 
     private final ReservationService reservationService;
     private final PagedResourcesAssembler<ReservationResponseDTO> pagedResourcesAssembler;
+    private final ReservationRepository reservationRepository;
 
     @Autowired
-    public ReservationController(ReservationService reservationService, PagedResourcesAssembler<ReservationResponseDTO> pagedResourcesAssembler) {
+    public ReservationController(ReservationService reservationService, ReservationRepository reservationRepository, PagedResourcesAssembler<ReservationResponseDTO> pagedResourcesAssembler) {
         this.reservationService = reservationService;
+        this.reservationRepository = reservationRepository;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
@@ -146,11 +149,16 @@ public class ReservationController {
                 .toList();
 
         if (idReservas.contains(external_reference)) {
+            if (reservationRepository.existsByPaymentIdAndPaidTrue(String.valueOf(payment_id))) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body("Este comprobante de pago ya fue utilizado en otra reserva.");
+            }
+
             PaymentClient paymentClient = new PaymentClient();
             Payment payment = paymentClient.get(payment_id);
 
             if (payment.getStatus().equalsIgnoreCase("approved")) {
-                reservationService.paidReservation(external_reference, myUserId, pageable);
+                reservationService.paidReservation(external_reference, myUserId, pageable, String.valueOf(payment_id));
                 return ResponseEntity.ok("Reservation marked as paid.");
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)

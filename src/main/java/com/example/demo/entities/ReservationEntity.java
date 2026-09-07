@@ -39,6 +39,8 @@ public class ReservationEntity {
 
     private String urlPayment;
 
+    private String paymentId;
+
     @Builder.Default
     private boolean active = true;
 }

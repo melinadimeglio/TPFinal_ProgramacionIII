@@ -84,6 +84,10 @@ public class ReservationService {
             throw new ReservationException("There is no itinerary for the activity date. Please create one.");
         }
 
+        if (itineraryService.tieneSuperposicion(itineraryOptional.get().getId(), activity.getStartTime(), activity.getEndTime())) {
+            throw new ReservationException("Ya existe una actividad que se superpone en ese horario.");
+        }
+
         if (!activityDisponible(itineraryOptional.get().getTripId(), dto.getActivityId())) {
             throw new ReservationException("The activity cannot be saved because it does not have sufficient availability.");
         }
@@ -132,12 +136,12 @@ public class ReservationService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot pay a reservation that is not yours.");
         }
 
-        // Si ya tiene URL, la devolvemos
+
         if (reservation.getUrlPayment() != null && !reservation.getUrlPayment().isEmpty()) {
             return reservation.getUrlPayment();
         }
 
-        // Generamos la URL de Mercado Pago
+
         String paymentUrl = mpService.mercado(reservation);
         reservation.setUrlPayment(paymentUrl);
         reservationRepository.save(reservation);
@@ -164,9 +168,12 @@ public class ReservationService {
         return activity.getAvailable_quantity() - cant >= 0;
     }
 
-    public void paidReservation(Long reservationId, Long userId, Pageable pageable) {
+    @Transactional
+    public void paidReservation(Long reservationId, Long userId, Pageable pageable, String paymentId) {
         ReservationEntity reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ReservationException("Reservation not found"));
+
+        reservation.setPaymentId(paymentId);
 
         ActivityEntity activity = activityRepository.findById(reservation.getActivity().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Activity not found"));

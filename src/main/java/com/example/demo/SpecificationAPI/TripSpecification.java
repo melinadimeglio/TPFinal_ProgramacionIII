@@ -33,4 +33,8 @@ public class TripSpecification {
             return cb.equal(root.join("users").get("id"), userId);
         };
     }
+
+    public static Specification<TripEntity> isActive() {
+        return (root, query, cb) -> cb.isTrue(root.get("active"));
+    }
 }

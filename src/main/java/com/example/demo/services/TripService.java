@@ -270,6 +270,7 @@ public class TripService {
     public Page<TripResponseDTO> findByUserIdWithFilters(Long userId, TripFilterDTO filters, Pageable pageable) {
         Specification<TripEntity> spec = Specification
                 .where(TripSpecification.belongsToUser(userId))
+                .and(TripSpecification.isActive())
                 .and(TripSpecification.hasDestination(filters.getDestination()))
                 .and(TripSpecification.startDateAfterOrEqual(filters.getStartDate()))
                 .and(TripSpecification.endDateBeforeOrEqual(filters.getEndDate()));

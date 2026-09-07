@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -163,7 +164,11 @@ public class ItineraryService {
         }
 
         boolean alreadyExists = trip.getItineraries() != null && trip.getItineraries().stream()
-                .anyMatch(it -> it.isActive() && it.getItineraryDate().equals(dto.getItineraryDate()));
+                .anyMatch(it ->
+                        it.isActive()
+                                && it.getItineraryDate().equals(dto.getItineraryDate())
+                                && it.getUser().getId().equals(myUserId)
+                );
 
         if (alreadyExists) {
             throw new IllegalArgumentException("Ya existe un itinerario para esa fecha en este viaje.");
@@ -251,6 +256,20 @@ public class ItineraryService {
 
         Page<ItineraryEntity> page = itineraryRepository.findAll(spec, pageable);
         return page.map(itineraryMapper::toDTO);
+    }
+
+    public boolean tieneSuperposicion(Long itineraryId, LocalTime startTime, LocalTime endTime) {
+        if (startTime == null || endTime == null) return false;
+
+        ItineraryEntity itinerary = itineraryRepository.findById(itineraryId)
+                .orElseThrow(() -> new NoSuchElementException("Itinerary not found."));
+
+        return itinerary.getActivities() != null && itinerary.getActivities().stream()
+                .filter(a -> a.getStartTime() != null && a.getEndTime() != null)
+                .anyMatch(a ->
+                        startTime.isBefore(a.getEndTime()) &&
+                                a.getStartTime().isBefore(endTime)
+                );
     }
 
 
