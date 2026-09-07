@@ -190,7 +190,6 @@ public class CompanyController {
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<CompanyResponseDTO>> getCompanyById(@PathVariable Long id,
                                                                           @AuthenticationPrincipal CredentialEntity credential) {
-        Long myCompanyId = credential.getCompany().getId();
 
         boolean isAdmin = credential.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
@@ -200,7 +199,7 @@ public class CompanyController {
         if (isAdmin) {
             company = companyService.findById(id);
         } else {
-            if (!myCompanyId.equals(id)) {
+            if (credential.getCompany() == null || !credential.getCompany().getId().equals(id)) {
                 throw new OwnershipException("You do not have permission to access this resource.");
             }
             company = companyService.findById(id);
