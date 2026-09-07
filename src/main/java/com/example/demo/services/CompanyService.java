@@ -106,9 +106,21 @@ public class CompanyService {
 
     public CompanyResponseDTO update(Long id, CompanyUpdateDTO dto) {
         CompanyEntity entity = companyRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Item no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("Item not found"));
 
         companyMapper.updateCompanyEntityFromDTO(dto, entity);
+
+        CredentialEntity credential = entity.getCredential();
+
+        if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
+            credential.setEmail(dto.getEmail());
+        }
+
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            credential.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
+
+        credentialRepository.save(credential);
 
         CompanyEntity updated = companyRepository.save(entity);
         return companyMapper.toDTO(updated);

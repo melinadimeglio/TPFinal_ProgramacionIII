@@ -20,6 +20,9 @@ public class CompanyResponseDTO {
     @Schema(description = "Nombre de usuario de la empresa", example = "turismoGlobal")
     private String username;
 
+    @Schema(description = "Email de contacto de la empresa", example = "info@turismoglobal.com")
+    private String email;
+
     @Schema(description = "Número de identificación tributaria (Tax ID)", example = "30567890123")
     private String taxId;
 
