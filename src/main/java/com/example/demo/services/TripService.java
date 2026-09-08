@@ -47,7 +47,7 @@ public class TripService {
     }
 
     public Page<TripResponseDTO> findAll(Pageable pageable) {
-        return tripRepository.findAllByActiveTrue(pageable)
+        return tripRepository.findAll(pageable)
                 .map(tripMapper::toDTO);
     }
 

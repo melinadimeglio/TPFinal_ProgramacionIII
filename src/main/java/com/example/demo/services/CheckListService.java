@@ -46,7 +46,7 @@ public class CheckListService {
     }
 
     public Page<CheckListResponseDTO> findAll(Pageable pageable) {
-        return checkListRepository.findAllByActiveTrue(pageable)
+        return checkListRepository.findAll(pageable)
                 .map(checkListMapper::toDTO);
     }
 
