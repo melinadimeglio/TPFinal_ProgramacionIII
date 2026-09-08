@@ -56,4 +56,12 @@ public class ActivityUpdateDTO {
             nullable = true
     )
     private String imageUrl;
+
+    @Schema(
+            description = "Indica si se debe eliminar la imagen actual de la actividad. " +
+                    "Si es true y no se envía un archivo nuevo, la imagen se borra de Cloudinary y el campo queda en null.",
+            example = "false",
+            defaultValue = "false"
+    )
+    private Boolean removeImage;
 }

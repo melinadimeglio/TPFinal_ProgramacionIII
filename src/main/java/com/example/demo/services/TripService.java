@@ -188,11 +188,17 @@ public class TripService {
         TripEntity updated = tripRepository.save(trip);
 
         if (file != null && !file.isEmpty()) {
-            if (updated.getImageUrl() != null) {
+            if (updated.getImageUrl() != null && !updated.getImageUrl().equals(DEFAULT_IMAGE)) {
                 cloudinaryService.deleteImage(updated.getImageUrl());
             }
             String url = cloudinaryService.uploadImage(file);
             updated.setImageUrl(url);
+            tripRepository.save(updated);
+        } else if (Boolean.TRUE.equals(dto.getRemoveImage())) {
+            if (updated.getImageUrl() != null && !updated.getImageUrl().equals(DEFAULT_IMAGE)) {
+                cloudinaryService.deleteImage(updated.getImageUrl());
+            }
+            updated.setImageUrl(DEFAULT_IMAGE);
             tripRepository.save(updated);
         }
 

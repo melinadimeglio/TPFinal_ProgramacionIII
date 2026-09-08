@@ -292,11 +292,17 @@ public class ActivityService {
         ActivityEntity saved = activityRepository.save(entity);
 
         if (file != null && !file.isEmpty()) {
-            if (saved.getImageUrl() != null) {
+            if (saved.getImageUrl() != null && !saved.getImageUrl().equals(DEFAULT_IMAGE)) {
                 cloudinaryService.deleteImage(saved.getImageUrl());
             }
             String url = cloudinaryService.uploadImage(file);
             saved.setImageUrl(url);
+            activityRepository.save(saved);
+        } else if (Boolean.TRUE.equals(dto.getRemoveImage())) {
+            if (saved.getImageUrl() != null && !saved.getImageUrl().equals(DEFAULT_IMAGE)) {
+                cloudinaryService.deleteImage(saved.getImageUrl());
+            }
+            saved.setImageUrl(DEFAULT_IMAGE);
             activityRepository.save(saved);
         }
 
@@ -358,11 +364,17 @@ public class ActivityService {
         activityRepository.save(activity);
 
         if (file != null && !file.isEmpty()) {
-            if (activity.getImageUrl() != null) {
+            if (activity.getImageUrl() != null && !activity.getImageUrl().equals(DEFAULT_IMAGE)) {
                 cloudinaryService.deleteImage(activity.getImageUrl());
             }
             String url = cloudinaryService.uploadImage(file);
             activity.setImageUrl(url);
+            activityRepository.save(activity);
+        } else if (Boolean.TRUE.equals(dto.getRemoveImage())) {
+            if (activity.getImageUrl() != null && !activity.getImageUrl().equals(DEFAULT_IMAGE)) {
+                cloudinaryService.deleteImage(activity.getImageUrl());
+            }
+            activity.setImageUrl(DEFAULT_IMAGE);
             activityRepository.save(activity);
         }
 
