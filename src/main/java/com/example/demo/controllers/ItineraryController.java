@@ -158,8 +158,9 @@ public class ItineraryController {
     })
     @PreAuthorize("hasAuthority('VER_ITINERARIOS')")
     @GetMapping
-    public ResponseEntity<PagedModel<EntityModel<ItineraryResponseDTO>>> getAllItineraries(Pageable pageable) {
-        Page<ItineraryResponseDTO> itineraries = itineraryService.findAll(pageable);
+    public ResponseEntity<PagedModel<EntityModel<ItineraryResponseDTO>>> getAllItineraries(
+            ItineraryFilterDTO filters, Pageable pageable) {
+        Page<ItineraryResponseDTO> itineraries = itineraryService.findAllWithFilters(filters, pageable);
         PagedModel<EntityModel<ItineraryResponseDTO>> model = pagedResourcesAssembler.toModel(itineraries, assembler);
         return ResponseEntity.ok(model);
     }
@@ -212,9 +213,8 @@ public class ItineraryController {
     })
     @PreAuthorize("hasAuthority('VER_ITINERARIOS')")
     @GetMapping("/inactive")
-    public ResponseEntity<PagedModel<EntityModel<ItineraryResponseDTO>>> getAllItineraries(
-            ItineraryFilterDTO filters, Pageable pageable) {
-        Page<ItineraryResponseDTO> itineraries = itineraryService.findAllWithFilters(filters, pageable);
+    public ResponseEntity<PagedModel<EntityModel<ItineraryResponseDTO>>> getAllItinerariesInactive(Pageable pageable) {
+        Page<ItineraryResponseDTO> itineraries = itineraryService.findAllInactive(pageable);
         PagedModel<EntityModel<ItineraryResponseDTO>> model = pagedResourcesAssembler.toModel(itineraries, assembler);
         return ResponseEntity.ok(model);
     }

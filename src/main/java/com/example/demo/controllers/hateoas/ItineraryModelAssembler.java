@@ -1,5 +1,6 @@
 package com.example.demo.controllers.hateoas;
 
+import com.example.demo.DTOs.Filter.ItineraryFilterDTO;
 import com.example.demo.DTOs.Itinerary.Response.ItineraryResponseDTO;
 import com.example.demo.controllers.ItineraryController;
 import org.springframework.data.domain.PageRequest;
@@ -31,7 +32,7 @@ public class ItineraryModelAssembler implements RepresentationModelAssembler<Iti
         }
 
         if (permisos.contains("VER_ITINERARIOS")) {
-            model.add(linkTo((methodOn(ItineraryController.class).getAllItineraries(PageRequest.of(0, 10)))).withRel("all-itineraries"));
+            model.add(linkTo((methodOn(ItineraryController.class).getAllItineraries(new ItineraryFilterDTO(), PageRequest.of(0, 10)))).withRel("all-itineraries"));
         }
 
         return model;
@@ -47,7 +48,7 @@ public class ItineraryModelAssembler implements RepresentationModelAssembler<Iti
         Set<String> permisos = getAuthorities();
 
         if (permisos.contains("VER_ITINERARIOS")) {
-            collection.add(linkTo(methodOn(ItineraryController.class).getAllItineraries(PageRequest.of(0, 10))).withSelfRel());
+            collection.add(linkTo(methodOn(ItineraryController.class).getAllItineraries(new ItineraryFilterDTO(), PageRequest.of(0, 10))).withSelfRel());
         }
 
         return collection;
@@ -66,7 +67,7 @@ public class ItineraryModelAssembler implements RepresentationModelAssembler<Iti
         }
 
         if (permisos.contains("VER_ITINERARIOS")) {
-            collection.add(linkTo(methodOn(ItineraryController.class).getAllItineraries(PageRequest.of(0, 10))).withRel("all-itineraries"));
+            collection.add(linkTo(methodOn(ItineraryController.class).getAllItineraries(new ItineraryFilterDTO(), PageRequest.of(0, 10))).withRel("all-itineraries"));
         }
 
         return collection;
