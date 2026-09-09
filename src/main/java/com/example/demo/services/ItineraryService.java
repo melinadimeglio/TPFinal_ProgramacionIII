@@ -272,6 +272,29 @@ public class ItineraryService {
                 );
     }
 
+    public Page<ItineraryResponseDTO> findAllWithFilters(ItineraryFilterDTO filters, Pageable pageable) {
+        Specification<ItineraryEntity> spec = Specification
+                .where((Specification<ItineraryEntity>) (root, query, cb) ->
+                        cb.isTrue(root.get("active"))
+                );
+
+        if (filters.getDateFrom() != null) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("itineraryDate"), LocalDate.parse(filters.getDateFrom())));
+        }
+        if (filters.getDateTo() != null) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.lessThanOrEqualTo(root.get("itineraryDate"), LocalDate.parse(filters.getDateTo())));
+        }
+
+        if (filters.getTripId() != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("trip").get("id"), filters.getTripId()));
+        }
+
+        Page<ItineraryEntity> page = itineraryRepository.findAll(spec, pageable);
+        return page.map(itineraryMapper::toDTO);
+    }
 
 }
 
