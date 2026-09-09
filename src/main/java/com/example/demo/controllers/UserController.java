@@ -224,7 +224,7 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
             )
     })
-    @PreAuthorize("hasAuthority('MODIFICAR_USUARIO_ADMIN')")
+    @PreAuthorize("hasAuthority('MODIFICAR_USUARIO')")
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<UserResponseDTO>> updateUser(
             @PathVariable Long id,
