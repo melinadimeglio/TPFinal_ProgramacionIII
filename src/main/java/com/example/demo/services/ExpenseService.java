@@ -275,6 +275,16 @@ public class ExpenseService {
         return expensesFromTrip;
     }
 
+    public List<ExpenseEntity> findByTripIfAdmin(Long tripId){
+
+        TripEntity trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new NoSuchElementException("Trip not found."));
+
+        List<ExpenseEntity> expensesFromTrip = expenseRepository.findByTripId(trip.getId());
+
+        return expensesFromTrip;
+    }
+
 
     public Double getAverageExpenseByTripIdIfOwned(Long tripId, Long myUserId) {
         TripEntity trip = tripRepository.findById(tripId)

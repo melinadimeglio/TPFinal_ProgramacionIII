@@ -376,7 +376,15 @@ public class TripController {
             @AuthenticationPrincipal CredentialEntity credential) {
 
         Long userId = credential.getUser().getId();
-        tripService.softDeleteIfBelongsToUser(id, userId);
+        boolean isAdmin = credential.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (isAdmin) {
+            tripService.softDeleteByAdmin(id);
+        } else {
+            tripService.softDeleteIfBelongsToUser(id, userId);
+        }
+
 
         return ResponseEntity.noContent().build();
     }

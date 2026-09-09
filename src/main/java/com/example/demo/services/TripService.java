@@ -205,6 +205,29 @@ public class TripService {
         return tripMapper.toDTO(updated);
     }
 
+    public void softDeleteByAdmin (Long tripId) {
+        TripEntity trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new ResourceNotFoundException("Trip not found"));
+
+        trip.setActive(false);
+
+        trip.getChecklist().forEach(checkListEntity ->
+                checkListEntity.setActive(false));
+
+        trip.getItineraries().forEach(itineraryEntity -> {
+            itineraryEntity.setActive(false);
+
+            itineraryEntity.getActivities().forEach(activityEntity ->
+                    activityEntity.setAvailable(false));
+        });
+
+        List<ExpenseEntity> expenseEntitiesFromTrip = expenseService.findByTripIfAdmin(tripId);
+
+        expenseEntitiesFromTrip.forEach(expenseEntity -> expenseEntity.setActive(false));
+
+        tripRepository.save(trip);
+    }
+
     public void softDeleteIfBelongsToUser(Long tripId, Long userId) {
         TripEntity trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new ResourceNotFoundException("Trip not found"));
