@@ -30,6 +30,8 @@ public interface ActivityRepository extends JpaRepository<ActivityEntity, Long>,
 
     Page<ActivityEntity> findAllByAvailableFalse(Pageable pageable);
 
+    Page<ActivityEntity> findByCompanyIsNotNull(Pageable pageable);
+
     long countByUsers_Id(Long userId);
 
     @Query("SELECT a.id AS activityId, a.name AS activityName, a.date AS activityDate, u.id AS userId " +

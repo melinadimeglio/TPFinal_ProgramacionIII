@@ -329,7 +329,15 @@ public class ActivityController {
     public ResponseEntity<PagedModel<EntityModel<ActivityResponseDTO>>> getAllActivities(
             Pageable pageable) {
 
-        Page<ActivityResponseDTO> activities = activityService.findAll(pageable);
+        Page<ActivityResponseDTO> activities = activityService.findAllCompanyAdmin(pageable);
+
+        System.out.println("TOTAL = " + activities.getTotalElements());
+
+        activities.forEach(a ->
+                System.out.println(a.getId() + " -> " + a.isAvailable())
+        );
+
+        //Page<ActivityResponseDTO> activities = activityService.findAll(pageable);
         PagedModel<EntityModel<ActivityResponseDTO>> model = pagedResourcesAssembler.toModel(activities, assembler);
         return ResponseEntity.ok(model);
     }
@@ -852,6 +860,18 @@ public class ActivityController {
         }
 
         activityService.restoreActivityByCompany(myCompanyId, activityId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "Delete a company activity as admin",
+            description = "Allows an administrator to moderate and delete any activity published by a company."
+    )
+    //@PreAuthorize("hasAuthority('ELIMINAR_ACTIVIDAD_ADMIN')")
+    @PreAuthorize("hasAuthority('VER_TODAS_ACTIVIDADES')")
+    @DeleteMapping("/admin/{activityId}")
+    public ResponseEntity<Void> deleteActivityAsAdmin(@PathVariable Long activityId) {
+        activityService.deleteActivityByAdmin(activityId);
         return ResponseEntity.noContent().build();
     }
 }

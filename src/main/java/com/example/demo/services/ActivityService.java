@@ -211,6 +211,11 @@ public class ActivityService {
                 .map(activityMapper::toDTO);
     }
 
+    public Page<ActivityResponseDTO> findAllCompanyAdmin(Pageable pageable) {
+        return activityRepository.findByCompanyIsNotNull(pageable)
+                .map(activityMapper::toDTO);
+    }
+
     public Page<ActivityResponseDTO> findAllCompany(Pageable pageable) {
         Page<ActivityEntity> activities = activityRepository.findAllByAvailableTrue(pageable);
         List<ActivityEntity> activitiesList = activities.stream()
@@ -405,6 +410,14 @@ public class ActivityService {
         activityRepository.save(activity);
     }
 
+    public void deleteActivityByAdmin(Long activityId) {
+        ActivityEntity activity = activityRepository.findById(activityId)
+                .orElseThrow(() -> new NoSuchElementException("Activity not found."));
+
+        activity.setAvailable(false);
+        activityRepository.save(activity);
+    }
+
     public Page<ActivityCreateResponseDTO> findByUserIdWithFilters(Long userId, ActivityFilterDTO filters, Pageable pageable) {
 
         Specification<ActivityEntity> spec = Specification
@@ -431,11 +444,30 @@ public class ActivityService {
                 .and(ActivitySpecification.dateBetween(startDate, endDate))
                 .and(ActivitySpecification.priceBetween(minPrice, maxPrice))
                 .and(ActivitySpecification.availableQuantityEquals(availableQuantity))
-                .and(ActivitySpecification.hasCompany());  // solo trae las de empresas
+                .and(ActivitySpecification.hasCompany())
+                .and(ActivitySpecification.isAvailable());
 
         Page<ActivityEntity> result = activityRepository.findAll(spec, pageable);
         return result.map(activityMapper::toCompanyResponseDTO);
     }
 
+    public Page<ActivityCompanyResponseDTO> findAllCompanyAdmin(
+            ActivityCategory category,
+            LocalDate startDate,
+            LocalDate endDate,
+            Double minPrice,
+            Double maxPrice,
+            Long availableQuantity,
+            Pageable pageable) {
 
+        Specification<ActivityEntity> spec = Specification
+                .where(ActivitySpecification.hasCategory(category))
+                .and(ActivitySpecification.dateBetween(startDate, endDate))
+                .and(ActivitySpecification.priceBetween(minPrice, maxPrice))
+                .and(ActivitySpecification.availableQuantityEquals(availableQuantity))
+                .and(ActivitySpecification.hasCompany());
+
+        Page<ActivityEntity> result = activityRepository.findAll(spec, pageable);
+        return result.map(activityMapper::toCompanyResponseDTO);
+    }
 }
